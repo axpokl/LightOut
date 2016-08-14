@@ -173,7 +173,7 @@ for j:=n-1 downto 0 do
     end;
 end;
 
-var MH,MP0,MP1,MTP,MINI,MR:TMat;
+var MP0,MP1,MTP,MINI,MR:TMat;
 var VME,VTP:TVet;
 
 begin
@@ -182,7 +182,6 @@ for n:=1 to m do
 begin
 write(n);
 MInit(MINI,true);
-MInitH(MH);
 MInitE(MP0);
 MInitH(MP1);
 MMulV(VME,MP0,MINI[0]);
