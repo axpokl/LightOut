@@ -1,10 +1,10 @@
 program diandeng;
 uses display;
 
-const m=1000;
-type TMatB=array[-1..((m shr 5)+1)*((m shr 5)+1)shl 5] of DWord;
-type TMatE=array[0..31]of DWord;
-type TMat=array[0..m+1,0..m+1]of boolean;
+const m=10000;
+type TMatB=bitpacked array[-1..((m shr 5)+1)*((m shr 5)+1)shl 5] of DWord;
+type TMatE=bitpacked array[0..31]of DWord;
+type TMat=bitpacked array[0..m+1,0..m+1]of boolean;
 var ma,mb,mc:TMatB;
 var me,me2,mf,mf2,mg,mt:TMatE;
 var mp,mq:TMat;
@@ -14,7 +14,7 @@ var pi,pj,pk:longint;
 var si,sj,sk:longint;
 var v:longword;
 
-procedure print(m:TMat);
+procedure print(var m:TMat);
 const chm:array[false..true]of char=('.','x');
 begin
 for pj:=1 to n do
@@ -26,7 +26,7 @@ for pj:=1 to n do
 writeln();
 end;
 
-procedure printpng(m:TMat);
+procedure printpng(var m:TMat);
 const clm:array[false..true]of longword=(white,black);
 var b:pbitmap;
 begin
@@ -85,7 +85,7 @@ for k:=0 to t-1 do
 Move(me2,m[(t*(t+2))shl 5],128);
 end;
 
-procedure copy(x:TMatB;var y:TMatB);
+procedure copy(var x,y:TMatB);
 begin
 Move(x,y,((n shr 5)+1)*((n shr 5)+1)shl 5 shl 2);
 end;
@@ -188,7 +188,7 @@ for k:=n downto 1 do
   end;
 end;
 
-procedure make(min:TMat;var mout:TMat);
+procedure make(var min,mout:TMat);
 begin
 for j:=1 to n do
   mout[1,j]:=min[n+1,j];
@@ -198,6 +198,7 @@ for i:=2 to n do
 end;
 
 begin
+//CreateWin(m,m);
 for n:=1 to m do
   begin
   v:=DWord(1 shl (n and 31));
@@ -218,7 +219,7 @@ for n:=1 to m do
   write('m');
   make(mq,mp);
   write('p');
-  printPNG(mp);
+//  printPNG(mp);
   write('#');
   writeln(n);
   end;

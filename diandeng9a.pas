@@ -100,7 +100,7 @@ for i:=2 to n do
 end;
 
 begin
-//CreateWin(m,m);
+CreateWin(m,m);
 for n:=1 to m do
   begin
   init(ma);
