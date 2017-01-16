@@ -178,7 +178,7 @@ var VME,VTP:TVet;
 
 begin
 CreateWin(m,m);
-for n:=5 to 5 do
+for n:=1 to m do
 begin
 write(n);
 MInit(MINI,true);
@@ -200,11 +200,11 @@ for k:=2 to n do
     end;
   end;
 Solve(MP1,VME);
-waitkey();
+//waitkey();
 SolveV2M(MR,VME);
 //MPrintPNG(MR);
 MPrint(MR);
-waitkey();
+//waitkey();
 writeln('!');
 end;
 end.

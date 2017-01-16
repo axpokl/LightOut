@@ -7,7 +7,7 @@ var ma,mb,mc,mp:TMat;
 var n,l,t:longword;
 var i,j,k:longword;
 
-procedure print(m:TMat);
+procedure print(var m:TMat);
 const chm:array[false..true]of char=('.','x');
 begin
 for j:=1 to n do
@@ -19,7 +19,7 @@ for j:=1 to n do
 writeln();
 end;
 
-procedure printpng(m:TMat);
+procedure printpng(var m:TMat);
 const clm:array[false..true]of longword=(white,black);
 var b:pbitmap;
 begin
@@ -44,7 +44,7 @@ for k:=1 to n do
   m[k,k]:=true;
 end;
 
-procedure copy(a:TMat;var b:TMat);
+procedure copy(var a,b:TMat);
 begin
 for j:=1 to n do
   for i:=1 to n+1 do
@@ -89,7 +89,7 @@ for k:=1 to n do
     end;
 end;
 
-procedure make(min:TMat;var mout:TMat);
+procedure make(var min,mout:TMat);
 begin
 init(mout);
 for j:=1 to n do
@@ -111,7 +111,7 @@ for n:=1 to m do
     calc(ma,mb,mc);
   solve(mb);
   make(mb,mp);
-  printPNG(mp);
+//  printPNG(mp);
   writeln(n);
   end;
 //waitkey();

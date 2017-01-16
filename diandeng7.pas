@@ -177,7 +177,7 @@ var MP0,MP1,MTP,MINI,MR:TMat;
 var VME,VTP:TVet;
 
 begin
-//CreateWin(m,m);
+CreateWin(m,m);
 for n:=1 to m do
 begin
 write(n);
