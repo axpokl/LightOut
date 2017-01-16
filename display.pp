@@ -20,7 +20,8 @@
     版权信息请参考COPYING.FPC。
  **********************************************************************
     说明概要
-    更新时间：2016-08-11 16:50:21
+    更新时间：2017-01-09 03:20:04
+    下载地址：http://pan.baidu.com/s/1o6OWBfs
     支持各种字符串，字符数组，整型变量的转换。
     支持ansistring作为无限长度整型变量进行算术，逻辑，按位运算。
     支持任意大小窗口创建。可使用24位RGB真彩色进行绘图。
@@ -263,7 +264,6 @@ type bitmap=                      //位图类型
        Width:longword;            //位图宽度
        Height:longword;           //位图长度
        Color:longword;            //位图背景颜色
-       FileName:string;           //位图文件名
        end;
 type pbitmap=^bitmap;             //位图指针
 
@@ -422,7 +422,7 @@ const Black=$000000;
       LightYellow=$E0FFFF;
       Ivory=$F0FFFF;
       White=$FFFFFF;
-      TransParent=$100;
+      TransParent=$1;
 
 const M_LEFT=0;
       M_RIGHT=1;
@@ -558,7 +558,6 @@ const GDIImageFormatBMP:TGUID='{557CF400-1A04-11D3-9A73-0000F81EF32E}';
       GDIImageFormatTIF:TGUID='{557CF405-1A04-11D3-9A73-0000F81EF32E}';
       GDIImageFormatPNG:TGUID='{557CF406-1A04-11D3-9A73-0000F81EF32E}';
       GDIImageFormatICO:TGUID='{557CF407-1A04-11D3-9A73-0000F81EF32E}';
-
 const PI=3.1415926535897932384626433832795028841971694;
 
 const MAXCHAR=$100;
@@ -643,10 +642,12 @@ var _GdiStart:TGdiStartup;
 
 // Functions Interface 函数接口
 
-function arcsin(x:real):real;inline;
-function arccos(x:real):real;inline;
-function max(x,y:longint):longint;inline;
-function min(x,y:longint):longint;inline;
+function arcsin(x:real):real;
+function arccos(x:real):real;
+function max(x,y:longint):longint;
+function min(x,y:longint):longint;
+function max(x,y:real):real;
+function min(x,y:real):real;
 
 function i2s(i:longint):ansistring;
 function i2s(i:longword):ansistring;
@@ -655,7 +656,7 @@ function i2s(i:qword):ansistring;
 function i2s(i:word64):ansistring;
 function i2s(i,l:longint;c:char):ansistring;
 function i2s(i,l:longint):ansistring;
-function s2pc(s:string):pchar;inline;
+function s2pc(s:string):pchar;
 function s2i(s:ansistring):longword;
 function as2s(s:ansistring):ansistring;
 function s2as(s:ansistring):ansistring;
@@ -734,6 +735,7 @@ procedure CloseWin();
 function IsWin():boolean;
 procedure SetDrawProcedure(th:tprocedure);
 procedure SetTitle(s:ansistring);
+procedure SetSize(w,h:longword);
 function GetTitle():ansistring;
 function GetTimeR():real;
 function GetTime():longword;
@@ -997,7 +999,7 @@ function GdiTransparentBlt(hdcd:HDC;xd,yd,wd,hd:longword;hdcs:HDC;xs,ys,ws,hs:lo
 function GdiAlphaBlend(hdcd:HDC;xd,yd,wd,hd:longword;hdcs:HDC;xs,ys,ws,hs:longword;ftn:BLENDFUNCTION):longword;stdcall;external 'Gdi32.dll';
 
 function GdiplusStartup(var Token:Longword;Input,Output:Pointer):longint;stdcall;external 'GdiPlus.dll';
-function GdipLoadImageFromFile(const Filename:PWCHAR;var Image:longword):longint;stdcall;external 'GdiPlus.dll';
+function GdipLoadImageFromFile(constFilename:PWCHAR;var Image:longword):longint;stdcall;external 'GdiPlus.dll';
 function GdipGetImageWidth(Image:longword;var width:longword):longint;stdcall;external 'GdiPlus.dll';
 function GdipGetImageHeight(Image:longword;var height:longword):longint;stdcall;external 'GdiPlus.dll';
 function GdipCreateFromHDC(hdc:HDC;var graphics:longword):longint;stdcall;external 'GdiPlus.dll';
@@ -1025,6 +1027,7 @@ _mscr.Height:=_h;
 _mscr.Color:=TRANSPARENT;
 _pmscr:=@_mscr;
 _pmain:=CreateBMP(_pmscr);
+_pmain^.Color:=Transparent;
 _main:=_pmain^;
 SetFont();
 if _draw<>nil then _draw;
@@ -1036,11 +1039,19 @@ WndProc:=0;
 case uM of
   WM_CREATE:
     begin
-    WinCreateMain();
     DragAcceptFiles(hW,true);
     timeBeginPeriod(1);
     _winb:=true;
     _tbegin:=GetTimeR();
+    end;
+  WM_NCACTIVATE:
+    begin
+    if (wp and 11>0) and (IsIconic(_hw)) then
+      begin
+      ShowWindow(_hw,SW_SHOW);
+      ShowWindow(_hw,SW_RESTORE);
+      SetForegroundWindow(_hw);
+      end;
     end;
   WM_SIZE:
     begin
@@ -1068,8 +1079,8 @@ case uM of
     timeEndPeriod(1);
     _winb:=false;
     end;
-  else WndProc:=DefWindowProc(hW,uM,wP,lP);
   end;
+  WndProc:=DefWindowProc(hW,uM,wP,lP);
 end;
 
 function WinRegister():ATOM;
@@ -1106,13 +1117,17 @@ end;
 
 // Inline Function 内联函数
 
-function arcsin(x:real):real;inline;
+function arcsin(x:real):real;
 begin arcsin:=2*arctan(x/(1+sqrt(1-x*x)));end;
-function arccos(x:real):real;inline;
+function arccos(x:real):real;
 begin arccos:=pi/2-arcsin(x);end;
-function max(x,y:longint):longint;inline;
+function max(x,y:longint):longint;
 begin if x>y then max:=x else max:=y;end;
-function min(x,y:longint):longint;inline;
+function min(x,y:longint):longint;
+begin if x<y then min:=x else min:=y;end;
+function max(x,y:real):real;
+begin if x>y then max:=x else max:=y;end;
+function min(x,y:real):real;
 begin if x<y then min:=x else min:=y;end;
 
 // String Transform Function 字符串转换函数
@@ -1132,7 +1147,7 @@ function i2s(i,l:longint;c:char):ansistring;
 begin i2s:=i2s(i);while length(i2s)<l do i2s:=c+i2s;end;
 function i2s(i,l:longint):ansistring;
 begin i2s:=i2s(i,l,' ');end;
-function s2pc(s:string):pchar;inline;
+function s2pc(s:string):pchar;
 begin s:=s+#0;s2pc:=@s[1];end;
 function s2i(s:ansistring):longword;
 begin s2i:=0;while(length(s)>0)do begin s2i:=int64(s2i)*10+ord(s[1])-48;delete(s,1,1);end;end;
@@ -1418,13 +1433,15 @@ begin CreateWin(GetScrWidth() div 2,GetScrHeight() div 2);end;
 procedure FreshWin();
 begin DrawBMP(_pmain,_pmscr);AddFPS();end;
 procedure CloseWin();
-begin ReleaseBMP();DestroyWindow(_hw);_dc:=0;_hw:=0;end;
+begin DestroyWindow(_hw);_dc:=0;_hw:=0;end;
 function IsWin():boolean;
 begin IsWin:=_winb;end;
 procedure SetDrawProcedure(th:tprocedure);
 begin _draw:=th;end;
 procedure SetTitle(s:ansistring);
 begin SetWindowText(_hw,as2pc(s));end;
+procedure SetSize(w,h:longword);
+begin MoveWindow(_hw,GetPosX,GetPosY,w+GetBorderWidth*2,h+GetBorderHeight*2+GetBorderTitle,true);end;
 function GetTitle():ansistring;var c:array[0..MAXCHAR-1]of char;
 begin GetWindowText(_hw,@c,MAXCHAR);GetTitle:=pc2as(@c);end;
 function GetTimeR():real;var freq,count:TLARGEINTEGER;
@@ -1742,13 +1759,11 @@ begin Clear(_pmain);end;
 
 function CreateBMP(w,h:longword;c:longword):pbitmap;
 begin
-CreateBMP:=getmem(BUFFSIZE);
+CreateBMP:=allocmem(BUFFSIZE);
 CreateBMP^.Width:=w;
 CreateBMP^.Height:=h;
 CreateBMP^.color:=c;
-CreateBMP^.dc:=0;
-CreateBMP^.handle:=0;
-_dc:=getdc(_hw);
+
 while CreateBMP^.dc=0 do CreateBMP^.dc:=CreateCompatibleDC(_dc);
 while CreateBMP^.handle=0 do CreateBMP^.handle:=CreateCompatibleBitmap(_dc,CreateBMP^.width,CreateBMP^.height);
 SelectObject(CreateBMP^.dc,CreateBMP^.handle);
@@ -1760,23 +1775,16 @@ function CreateBMP(b:pbitmap):pbitmap;
 begin CreateBMP:=CreateBMP(b^.Width,b^.Height,b^.Color);end;
 function CreateBMP():pbitmap;
 begin CreateBMP:=CreateBMP(_pmain);end;
-
 function LoadBMP(s:ansistring;c:longword):pbitmap;
+var bw,bh:longword;
 begin
-LoadBMP:=getmem(BUFFSIZE);
-LoadBMP^.FileName:=s;
-StringToWideCHar(LoadBMP^.filename,_GdiWideChar,length(LoadBMP^.filename)+1);
+StringToWideCHar(s,_GdiWideChar,length(s)+1);
 _GdiStart.Version:=1;
 GdiplusStartup(_GdiToken,@_GdiStart,nil);
 GdipLoadImageFromFile(_GdiWideChar,_GdiImage);
-GdipGetImageWidth(_GdiImage,LoadBMP^.width);
-GdipGetImageHeight(_GdiImage,LoadBMP^.height);
-LoadBMP^.color:=c;
-LoadBMP^.dc:=0;
-LoadBMP^.handle:=0;
-while LoadBMP^.dc=0 do LoadBMP^.dc:=CreateCompatibleDC(_dc);
-while LoadBMP^.handle=0 do LoadBMP^.handle:=CreateCompatibleBitmap(_dc,LoadBMP^.width,LoadBMP^.height);
-SelectObject(LoadBMP^.dc,LoadBMP^.handle);
+GdipGetImageWidth(_GdiImage,bw);
+GdipGetImageHeight(_GdiImage,bh);
+LoadBMP:=CreateBMP(bw,bh,c);
 GdipCreateFromHDC(LoadBMP^.dc,_GdiGraph);
 GdipDrawImage(_GdiGraph,_GdiImage,0,0);
 GdipDisposeImage(_GdiImage);
@@ -1799,7 +1807,12 @@ begin
 bm:=CreateBMP(wd,hd,c);
 StretchBlt(bm^.DC,0,0,wd,hd,bd^.DC,xd,yd,wd,hd,SRCCOPY);
 GdiTransparentBlt(bm^.DC,0,0,wd,hd,bs^.DC,xs,ys,ws,hs,c);
-with ftn do begin BlendOp:=0;BlendFlags:=0;SourceConstantAlpha:=$FF-ca;AlphaFormat:=0;end;
+with ftn do begin
+BlendOp:=0;
+BlendFlags:=0;
+SourceConstantAlpha:=$FF-ca;
+AlphaFormat:=0;
+end;
 GdiAlphaBlend(bd^.DC,xd,yd,wd,hd,bm^.DC,xd,yd,wd,hd,ftn);
 ReleaseBMP(bm);
 end;
@@ -1881,6 +1894,7 @@ begin
 ReleaseDC(b^.Handle,b^.DC);
 Deleteobject(b^.DC);
 DeleteObject(b^.Handle);
+if b<>_pmscr then Freemem(b);
 end;
 end;
 procedure ReleaseBMP();
@@ -1991,7 +2005,7 @@ begin IsMouse:=IsMsg(_bdn);end;
 function GetMouse():longword;
 begin GetMouse:=HI(GetMsg(_bdn));end;
 function WaitMouse():longword;
-begin WaitMouse:=WaitMsg(_bdn);end;
+begin WaitMouse:=HI(WaitMsg(_bdn));end;
 function IsMouse(m:longword):boolean;
 begin if IsMouse() and (GetMouse=m) then
 IsMouse:=true else IsMouse:=false;end;
