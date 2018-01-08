@@ -111,7 +111,7 @@ for n:=1 to m do
     calc(ma,mb,mc);
   solve(mb);
   make(mb,mp);
-//  printPNG(mp);
+  //printPNG(mp);
   writeln(n);
   end;
 //waitkey();

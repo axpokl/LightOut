@@ -219,7 +219,7 @@ for n:=1 to m do
   write('m');
   make(mq,mp);
   write('p');
-//  printPNG(mp);
+  printPNG(mp);
   write('#');
   writeln(n);
   end;
