@@ -100,19 +100,26 @@ for i:=2 to n do
 end;
 
 begin
-CreateWin(m,m);
+//CreateWin(m,m);
 for n:=1 to m do
   begin
+  write(n);
+  write('i');
   init(ma);
   init(mb);
   init(mb);
   initE(mb);
+  write('c');
   for l:=0 to n-1 do
     calc(ma,mb,mc);
+  write('s');
   solve(mb);
+  write('m');
   make(mb,mp);
+  write('p');
   //printPNG(mp);
-  writeln(n);
+  write('#');
+  writeln();
   end;
 //waitkey();
 end.

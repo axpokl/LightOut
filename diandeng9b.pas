@@ -198,7 +198,7 @@ for i:=2 to n do
 end;
 
 begin
-CreateWin(m,m);
+//CreateWin(m,m);
 for n:=1 to m do
   begin
   v:=DWord(1 shl (n and 31));
@@ -219,7 +219,7 @@ for n:=1 to m do
   write('m');
   make(mq,mp);
   write('p');
-  printPNG(mp);
+  //printPNG(mp);
   write('#');
   writeln(n);
   end;
