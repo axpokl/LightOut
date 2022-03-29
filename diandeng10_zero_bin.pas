@@ -99,7 +99,7 @@ for j:=1 to n-1 do
 end;
 
 begin
-for n:=m to m do
+for n:=1 to m do
   begin
   write(n,#9);
   write('i');InitMat();
