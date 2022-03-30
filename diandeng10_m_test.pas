@@ -106,7 +106,7 @@ for j:=1 to n-1 do
 end;
 
 begin
-assign(output,'.\diandeng10_zero_matarray_test.txt');
+assign(output,'.\diandeng10_m_test.txt');
 rewrite(output);
 for n:=16 to 16 do
   begin
