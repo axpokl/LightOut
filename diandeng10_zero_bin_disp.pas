@@ -10,7 +10,7 @@ var i,j,k:longint;
 var bb:pbitbuf;
 var s:longword;
 
-procedure PrintMat();
+procedure PrintMat_();
 var i,j,k:longint;
 begin
 writeln();
@@ -22,6 +22,19 @@ for j:=0 to n-1 do
   end;
 end;
 
+procedure PrintMat();
+var i,j,k:longint;
+begin
+writeln();
+for j:=0 to n-1 do
+  begin
+  if l[j,-1]>0 then write('#') else write('.');
+  for i:=0 to n-1 do
+    if l[j,i shr 5]  and longword(1 shl (i and 31))>0 then write('#') else write('.');
+  writeln();
+  end;
+end;
+
 procedure DrawMat();
 begin
 while IsNextMsg() do ;
@@ -29,7 +42,7 @@ s:=0;
 for j:=0 to n-1 do
   for i:=0 to n-1 do
     begin
-    if l_[j,i] then SetBBPixel(bb,i,j,white) else SetBBPixel(bb,i,j,black);
+    if l_[j,i] then SetBBPixel(bb,i,j,black) else SetBBPixel(bb,i,j,white);
     if l_[j,i] then s:=s+1;
     end;
 SetBB(bb);
@@ -126,7 +139,7 @@ for n:=1 to m do
   write('m');MakeMat();
   write('c');CalcMat();
   write('g');GeneMat();
-  //write('@');PrintMat();
+  //write('@');PrintMat_();
   write('%');DrawMat();
   writeln(#9,s,#9,n*n,#9,s/n/n:0:5);
   end;

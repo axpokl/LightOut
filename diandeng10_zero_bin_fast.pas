@@ -48,9 +48,11 @@ for j:=0 to n-1 do
 end;
 
 procedure MakeMat();
+var b:boolean;
 begin
+write('1');
 for k:=0 to n-1 do
-  for i:=-1 to (n-1) shr 5 do
+  for i:=-1 to 0 do
     begin
     for j:=0 to n-1 do
       begin
@@ -63,6 +65,18 @@ for k:=0 to n-1 do
       l[j,i]:=l1[j,i];
       end;
     end;
+write('2');
+for i:=1 to n-1 do
+  for j:=0 to n-1 do
+    begin
+    b:=false;
+    if l[j-1,(i-1) shr 5] and longword(1 shl ((i-1) and 31))>0 then b:=not(b);
+    if l[j+1,(i-1) shr 5] and longword(1 shl ((i-1) and 31))>0 then b:=not(b);
+    if i>1 then if l[j,(i-2) shr 5] and longword(1 shl ((i-2) and 31))>0 then b:=not(b);
+    if b=true then l[j,i shr 5]:=l[j,i shr 5] or longword(1 shl (i and 31));
+    if b=false then l[j,i shr 5]:=l[j,i shr 5] and not(longword(1 shl (i and 31)));
+    end;
+write('3');
 end;
 
 procedure CalcMat();

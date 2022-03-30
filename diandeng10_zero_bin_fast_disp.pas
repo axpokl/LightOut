@@ -7,6 +7,9 @@ var l,l0,l1:array[-1..m,-2..(m-1) shr 5+1]of longword;
 var l_:array[-1..m,-1..m]of boolean;
 var i,j,k:longint;
 
+var bb:pbitbuf;
+var s:longword;
+
 procedure PrintMat_();
 var i,j,k:longint;
 begin
@@ -32,6 +35,21 @@ for j:=0 to n-1 do
   end;
 end;
 
+procedure DrawMat();
+begin
+while IsNextMsg() do ;
+s:=0;
+for j:=0 to n-1 do
+  for i:=0 to n-1 do
+    begin
+    if l_[j,i] then SetBBPixel(bb,i,j,black) else SetBBPixel(bb,i,j,white);
+    if l_[j,i] then s:=s+1;
+    end;
+SetBB(bb);
+FreshWin();
+//repeat WaitNextMsg();until Iskey();
+end;
+
 procedure InitMat();
 begin
 for j:=0 to n-1 do
@@ -48,9 +66,10 @@ for j:=0 to n-1 do
 end;
 
 procedure MakeMat();
+var b:boolean;
 begin
 for k:=0 to n-1 do
-  for i:=-1 to (n-1) shr 5 do
+  for i:=-1 to 0 do
     begin
     for j:=0 to n-1 do
       begin
@@ -62,6 +81,16 @@ for k:=0 to n-1 do
       l0[j,i]:=l[j,i];
       l[j,i]:=l1[j,i];
       end;
+    end;
+for i:=1 to n-1 do
+  for j:=0 to n-1 do
+    begin
+    b:=false;
+    if l[j-1,(i-1) shr 5] and longword(1 shl ((i-1) and 31))>0 then b:=not(b);
+    if l[j+1,(i-1) shr 5] and longword(1 shl ((i-1) and 31))>0 then b:=not(b);
+    if i>1 then if l[j,(i-2) shr 5] and longword(1 shl ((i-2) and 31))>0 then b:=not(b);
+    if b=true then l[j,i shr 5]:=l[j,i shr 5] or longword(1 shl (i and 31));
+    if b=false then l[j,i shr 5]:=l[j,i shr 5] and not(longword(1 shl (i and 31)));
     end;
 end;
 
@@ -112,6 +141,8 @@ for j:=1 to n-1 do
 end;
 
 begin
+CreateWin(m,m);
+bb:=CreateBB(GetWin());
 for n:=1 to m do
   begin
   write(n,#9);
@@ -120,6 +151,7 @@ for n:=1 to m do
   write('c');CalcMat();
   write('g');GeneMat();
   //write('@');PrintMat_();
-  writeln('');
+  write('%');DrawMat();
+  writeln(#9,s,#9,n*n,#9,s/n/n:0:5);
   end;
 end.

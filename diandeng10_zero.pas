@@ -1,7 +1,7 @@
 program diandeng;
 uses display;
 
-const m=1000;
+const m=2000;
 var n:longword;
 var l,l0,l1:array[-1..m,-2..m]of boolean;
 var i,j,k:longint;
