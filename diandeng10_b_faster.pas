@@ -1,11 +1,19 @@
+//{$define disp}
 program diandeng;
+
+{$ifdef disp}
 uses display;
+{$endif}
 
 const m=2000;
 var n:longword;
 var l,l0,l1:array[-1..m,-2..(m-1) shr 5+1]of longword;
 var l_:array[-1..m,-1..m]of boolean;
 var i,j,k:longint;
+{$ifdef disp}
+var bb:pbitbuf;
+var s:longword;
+{$endif}
 
 procedure PrintMat_();
 var i,j,k:longint;
@@ -23,7 +31,7 @@ procedure PrintMat();
 var i,j,k:longint;
 begin
 writeln();
-for j:=0 to n-1 do
+for j:=-1 to n-1 do
   begin
   if l[j,-1]>0 then write('#') else write('.');
   for i:=0 to n-1 do
@@ -32,51 +40,64 @@ for j:=0 to n-1 do
   end;
 end;
 
+{$ifdef disp}
+procedure DrawMat();
+begin
+while IsNextMsg() do ;
+s:=0;
+for j:=0 to n-1 do
+  for i:=0 to n-1 do
+    begin
+    if l_[j,i] then SetBBPixel(bb,i,j,black) else SetBBPixel(bb,i,j,white);
+    if l_[j,i] then s:=s+1;
+    end;
+SetBB(bb);
+FreshWin();
+end;
+{$endif}
+
 procedure InitMat();
 begin
-for j:=0 to n-1 do
+for j:=-1 to n-1 do
   begin
-  for i:=-1 to (n-1) shr 5 do
+  for i:=-1 to (n-1) shr 5 + 1 do
     begin
     l[j,i]:=0;
     l0[j,i]:=0;
     l1[j,i]:=0;
     end;
   end;
-for j:=0 to n-1 do
-  l[j,j shr 5]:=l[j,j shr 5] xor longword(1 shl (j and 31));
+l[0,0]:=1;
 end;
 
 procedure MakeMat();
-var b:boolean;
 begin
-write('1');
 for k:=0 to n-1 do
-  for i:=-1 to 0 do
+  for j:=-1 to 0 do
     begin
-    for j:=0 to n-1 do
+    for i:=0 to (n-1) shr 5 do
       begin
-      l1[j,i]:=l[j-1,i] xor l[j,i] xor l[j+1,i] xor l0[j,i];
-      if i=-1 then l1[j,i]:=l1[j,i] xor 1;
+      l1[j,i]:=l[j,i] xor (l[j,i+1] shl 31 or l[j,i] shr 1) xor (l[j,i-1] shr 31 or l[j,i] shl 1) xor l0[j,i];
+      if j=-1 then l1[j,i]:=not(l1[j,i]);
+      if i=(n-1) shr 5 then l1[j,i]:=l1[j,i] and (1 shl (n and 31)-1);
       end;
-    for j:=0 to n-1 do
+    for i:=0 to (n-1) shr 5 do
       begin
       l0[j,i]:=l[j,i];
       l[j,i]:=l1[j,i];
       end;
     end;
-write('2');
-for i:=1 to n-1 do
-  for j:=0 to n-1 do
+for j:=1 to n-1 do
+  for i:=0 to (n-1) shr 5 do
     begin
-    b:=false;
-    if l[j-1,(i-1) shr 5] and longword(1 shl ((i-1) and 31))>0 then b:=not(b);
-    if l[j+1,(i-1) shr 5] and longword(1 shl ((i-1) and 31))>0 then b:=not(b);
-    if i>1 then if l[j,(i-2) shr 5] and longword(1 shl ((i-2) and 31))>0 then b:=not(b);
-    if b=true then l[j,i shr 5]:=l[j,i shr 5] or longword(1 shl (i and 31));
-    if b=false then l[j,i shr 5]:=l[j,i shr 5] and not(longword(1 shl (i and 31)));
+    l[j,i]:=(l[j-1,i+1] shl 31 or l[j-1,i] shr 1) xor (l[j-1,i-1] shr 31 or l[j-1,i] shl 1);
+    if j>1 then l[j,i]:=l[j,i] xor l[j-2,i];
+    if i=(n-1) shr 5 then l[j,i]:=l[j,i] and (1 shl (n and 31)-1);
     end;
-write('3');
+for j:=0 to n-1 do
+  if l[-1,j shr 5] and longword(1 shl (j and 31))>0 then l[j,-1]:=1;
+for i:=0 to (n-1) shr 5 do
+  l[-1,i]:=0;
 end;
 
 procedure CalcMat();
@@ -126,6 +147,10 @@ for j:=1 to n-1 do
 end;
 
 begin
+{$ifdef disp}
+CreateWin(m,m);
+bb:=CreateBB(GetWin());
+{$endif}
 for n:=1 to m do
   begin
   write(n,#9);
@@ -134,6 +159,10 @@ for n:=1 to m do
   write('c');CalcMat();
   write('g');GeneMat();
   //write('@');PrintMat_();
-  writeln('');
+  {$ifdef disp}
+  write('%');DrawMat();
+  write(#9,s,#9,n*n,#9,s/n/n:0:5);
+  {$endif}
+  writeln();
   end;
 end.
