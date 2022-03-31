@@ -5,7 +5,7 @@ program diandeng;
 uses display;
 {$endif}
 
-const m=2000;
+const m=1000;
 var n:longword;
 var l,l0,l1:array[-1..m,-2..(m-1) shr 5+1]of longword;
 var l_:array[-1..m,-1..m]of boolean;

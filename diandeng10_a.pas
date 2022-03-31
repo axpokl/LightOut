@@ -36,8 +36,8 @@ s:=0;
 for j:=0 to n-1 do
   for i:=0 to n-1 do
     begin
-    if l_[j,i] then SetBBPixel(bb,i,j,black) else SetBBPixel(bb,i,j,white);
-    if l_[j,i] then s:=s+1;
+    if l[j,i] then SetBBPixel(bb,i,j,black) else SetBBPixel(bb,i,j,white);
+    if l[j,i] then s:=s+1;
     end;
 SetBB(bb);
 FreshWin();

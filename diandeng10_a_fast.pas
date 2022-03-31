@@ -1,10 +1,19 @@
+//{$define disp}
 program diandeng;
+
+{$ifdef disp}
 uses display;
+{$endif}
 
 const m=2000;
 var n:longword;
 var l,l0,l1:array[-1..m,-2..m]of boolean;
 var i,j,k:longint;
+
+{$ifdef disp}
+var bb:pbitbuf;
+var s:longword;
+{$endif}
 
 procedure PrintMat();
 var i,j,k:longint;
@@ -18,6 +27,22 @@ for j:=0 to n-1 do
   writeln();
   end;
 end;
+
+{$ifdef disp}
+procedure DrawMat();
+begin
+while IsNextMsg() do ;
+s:=0;
+for j:=0 to n-1 do
+  for i:=0 to n-1 do
+    begin
+    if l[j,i] then SetBBPixel(bb,i,j,black) else SetBBPixel(bb,i,j,white);
+    if l[j,i] then s:=s+1;
+    end;
+SetBB(bb);
+FreshWin();
+end;
+{$endif}
 
 procedure InitMat();
 begin
@@ -107,6 +132,10 @@ for j:=1 to n-1 do
 end;
 
 begin
+{$ifdef disp}
+CreateWin(m,m);
+bb:=CreateBB(GetWin());
+{$endif}
 for n:=1 to m do
   begin
   write(n,#9);
@@ -114,7 +143,11 @@ for n:=1 to m do
   write('m');MakeMat();
   write('c');CalcMat();
   write('g');GeneMat();
-  //write('#');PrintMat();
-  writeln('');
+  //write('@');PrintMat_();
+  {$ifdef disp}
+  write('%');DrawMat();
+  write(#9,s,#9,n*n,#9,s/n/n:0:5);
+  {$endif}
+  writeln();
   end;
 end.
