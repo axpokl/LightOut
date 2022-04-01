@@ -95,7 +95,6 @@ for k:=0 to n-1 do
         l[j,i]:=l[j,i] xor l[k,i];
         l[k,i]:=l[j,i] xor l[k,i];
         l[j,i]:=l[j,i] xor l[k,i];
-//尝试不交换，用标记
         end;
     for j:=k+1 to n-1 do
       if l[j,k shr 5] and longword(1 shl (k and 31))>0 then
@@ -103,7 +102,6 @@ for k:=0 to n-1 do
         for i:=k shr 5 to (n-1) shr 5 do
           l[j,i]:=l[j,i] xor l[k,i];
         l[j,-1]:=l[j,-1] xor l[k,-1];
-//尝试多线程
         end;
     end;
   end;
@@ -111,11 +109,7 @@ for i:=n-1 downto 0 do
   if l[i,i shr 5] and longword(1 shl (i and 31))>0 then
     for j:=i-1 downto 0 do
       if l[j,i shr 5] and longword(1 shl (i and 31))>0 then
-        begin
-        l[j,i shr 5]:=l[j,i shr 5] xor longword(1 shl (i and 31));
         l[j,-1]:=l[j,-1] xor l[i,-1];
-//尝试位运算
-        end;
 end;
 
 procedure GeneMat();
