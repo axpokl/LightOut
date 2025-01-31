@@ -46,29 +46,20 @@ for i:=0 to n-1 do
   l[n-1,i]:=False;
 l[n,0]:=False;
 for j:=n-2 downto -1 do
-  begin
   for i:=0 to n-1 do
     l[j,i]:=not((l[j+1,i] xor l[j+1,i+1]) xor (l[j+1,i-1] xor l[j+2,i]));
-  l[j,i]:=l[j,i];
-  end;
 for i:=0 to n-1 do
   l[n,i]:=False;
 l[n,0]:=True;
 for j:=n-1 downto 0 do
-  begin
   for i:=0 to n-1 do
     l[j,i]:=(l[j+1,i] xor l[j+1,i+1]) xor (l[j+1,i-1] xor l[j+2,i]);
-  l[j,i]:=l[j,i];
-  end;
 for j:=1 to n-1 do
-  begin
   for i:=0 to n-1 do
     begin
     l[j,i]:=(l[j-1,i+1] xor l[j-1,i-1]);
     if j>1 then l[j,i]:=l[j,i] xor l[j-2,i];
     end;
-  l[j,i]:=l[j,i];
-  end;
 for j:=0 to n-1 do if l[-1,j] then l[j,-1]:=True;
 for i:=0 to n-1 do l[-1,i]:=False;
 end;
