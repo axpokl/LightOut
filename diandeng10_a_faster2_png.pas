@@ -56,33 +56,30 @@ end;
 
 procedure MakeMat();
 begin
-for i:=0 to n-1 do l[n-1,i]:=False;
-l[n,0]:=False;
-for j:=n-2 downto -1 do
+for i:=0 to n-1 do l[0,i]:=False;
+l[-1,0]:=False;
+for j:=1 to n do
   for i:=0 to n-1 do
     begin
-    l[j,i]:=not(l[j+1,i] xor l[j+1,i+1] xor l[j+1,i-1] xor l[j+2,i]);
-    //l[j,i]:=l[j,i] xor a[j+1,i]
+    l[j,i]:=not(l[j-1,i-1] xor l[j-1,i] xor l[j-1,i+1] xor l[j-2,i]);
+    l[j,i]:=l[j,i] xor a[j-1,i];
     end;
-
-for i:=0 to n-1 do l[n,i]:=False;
-l[n,0]:=True;
-for j:=n-1 downto 0 do
+for i:=0 to n-1 do l[-1,i]:=False;
+l[-1,0]:=True;
+for j:=0 to n-1 do
   for i:=0 to n-1 do
     begin
-    l[j,i]:=(l[j+1,i] xor l[j+1,i+1] xor l[j+1,i-1]);
-    if j<n-1 then l[j,i]:=l[j,i] xor l[j+2,i];
+    l[j,i]:=(l[j-1,i-1] xor l[j-1,i] xor l[j-1,i+1]);
+    if j>0 then l[j,i]:=l[j,i] xor l[j-2,i];
     end;
-
+for i:=0 to n-1 do l[0,i]:=l[n-1,i];
 for j:=1 to n-1 do
   for i:=0 to n-1 do
     begin
-    l[j,i]:=(l[j-1,i+1] xor l[j-1,i-1]);
+    l[j,i]:=(l[j-1,i-1] xor l[j-1,i+1]);
     if j>1 then l[j,i]:=l[j,i] xor l[j-2,i];
     end;
-
-for i:=0 to n-1 do l[i,-1]:=l[-1,i];
-for i:=0 to n-1 do l[-1,i]:=False;
+for i:=0 to n-1 do begin l[i,-1]:=l[n,i];l[n,i]:=False;end;
 for i:=0 to n-1 do for j:=0 to n-1 do r[i,j]:=(i=j);
 end;
 
