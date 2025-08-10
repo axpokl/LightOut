@@ -1,4 +1,35 @@
-//{$define disp}
+A是正确的。现在，你需要注意以下内容并完成优化高斯消元计算的后续任务：
+
+1.不是很确定这个是否GF（2），但是矩阵元素只有xor一种运算，并且矩阵元素只有0和1。
+2.如果找到一种更快算法，那么其结果必须和高斯约当法必须完全相同。
+3. 这个矩阵秩是3，因此右边的伪逆会有两个行无法消去，左边则会有两个空行。你可以先试着用这个方法求解，再去寻找更快算法。
+4.不要用位压缩来加速，因为这理论上无法使时间复杂度降低。
+5.这个逆和实数域矩阵逆求法可能不完全相同，实数域结论不能直接套用。例如，这个矩阵的秩是3，但是如果是实数域，根据计算相同矩阵的秩是4.
+6.矩阵是不可逆的，也未必是moore-penrose逆，这个需要论证。
+
+现在，你先根据一般高斯消元，将A尽可能转为E并输出E，然后同时操作另一个E转为R=A^-1并输出。
+
+
+这个结果是正确的。我就是需要获得这样的R。现在我需要找到一个更快的算法（比O(n^3)快），通过A计算出R=A^-1'。需要注意的是：
+
+1.不是很确定这个是否GF（2），但是矩阵元素只有xor一种运算(不含not)，并且矩阵元素只有0和1。
+2.如果找到一种更快算法，那么其结果必须和高斯约当法必须完全相同。
+3.这个矩阵秩是3，因此右边的伪逆会有两个行无法消去，左边则会有两个空行。你可以先试着用这个方法求解，再去寻找更快算法。
+4.不要用位压缩来加速，因为这理论上无法使时间复杂度降低。
+5.这个逆和实数域矩阵逆求法可能不完全相同，实数域结论不能直接套用。例如，这个矩阵的秩是3，但是如果是实数域，根据计算相同矩阵的秩是4.
+6.矩阵是不可逆的，并且很可能不是moore-penrose逆，这个逆依赖于实数域上的内积/共轭转置性质。
+
+现在，帮我寻找并实现这样的算法。你可以参考Strassen 演算法和递归分块法。
+
+
+我暂时不需要你帮我写代码。你只需要自己写代码并实现你的算法，并且通过你的算法进行计算验证你算法是可以正确计算的。
+请测试n=5和n=8的情况。还是首先计算出矩阵A，然后用一般高斯消元和你的优化版消元分别计算E和R，把n=5和n=8的情况（矩阵A,E,R=A^-1）的结果都告诉我。
+
+
+现在，参考并修改我下面的pascal代码，增加一个函数CalcMat2()，实现优化的高斯消元，并加上注释，主程序将CalcMat()改为CalcMat2()。如果可以，测试你写的pascal代码。
+
+
+{$define disp}
 program diandeng;
 
 {$ifdef disp}
@@ -25,7 +56,7 @@ begin
 writeln();
 for j:=0 to n-1 do
   begin
-  if mat[j,-1] then write('#') else write('.');write(' ');
+//  if mat[j,-1] then write('#') else write('.');
   for i:=0 to n-1 do
     if mat[j,i] then write('#') else write('.');
   writeln();
@@ -86,7 +117,6 @@ end;
 procedure CalcMat();
 var j0:longint;
 begin
-//writeln();
 for k:=0 to n-1 do
   begin
   j0:=-1;
@@ -96,7 +126,6 @@ for k:=0 to n-1 do
   if j>=0 then
     begin
     if j<>k then
-      begin
       for i:=-1 to n-1 do
         begin
         l[j,i]:=l[j,i] xor l[k,i];
@@ -106,8 +135,6 @@ for k:=0 to n-1 do
         r[k,i]:=r[j,i] xor r[k,i];
         r[j,i]:=r[j,i] xor r[k,i];
         end;
-//writeln('swap ',j+1,' ',k+1);PrintMat(r);PrintMat(l);
-      end;
     for j:=k+1 to n-1 do
       if l[j,k] then
         begin
@@ -118,7 +145,6 @@ for k:=0 to n-1 do
           end;
         l[j,-1]:=l[j,-1] xor l[k,-1];
         r[j,-1]:=r[j,-1] xor r[k,-1];
-//writeln('xor1 ',k+1,' ',j+1);PrintMat(r);PrintMat(l);
         end;
     end;
   end;
@@ -127,14 +153,13 @@ for i:=n-1 downto 0 do
     for j:=i-1 downto 0 do
       if l[j,i] then
         begin
-        for k:=0 to n-1 do // for a-1
+        for k:=j to n-1 do
           begin
           l[j,k]:=l[j,k] xor l[i,k];
           r[j,k]:=r[j,k] xor r[i,k];
           end;
         l[j,-1]:=l[j,-1] xor l[i,-1];
         r[j,-1]:=r[j,-1] xor r[i,-1];
-//writeln('xor2 ',i+1,' ',j+1);PrintMat(r);PrintMat(l);
         end;
 end;
 
@@ -162,7 +187,7 @@ for n:=1 to m do
   write('m');MakeMat();{$ifdef disp}write('%');PrintMat('_A',l);{$endif}
   write('c');CalcMat();{$ifdef disp}write('%');PrintMat('_E',l);write('%');PrintMat('_R',r);{$endif}
   write('g');GeneMat();{$ifdef disp}write('%');PrintMat('_T',t);{$endif}
-  {$ifdef disp}write(#9,s,#9,n*n,#9,s/n/n:0:5);{$endif}
+  write(#9,s,#9,n*n,#9,s/n/n:0:5);
   {$ifdef disp}if not(iswin()) then halt;{$endif}
   writeln();
   end;
