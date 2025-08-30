@@ -18,10 +18,12 @@
   - 2) 首行穷举 · O(2^n)
   - 3) 完全方程 · O(n^6)
   - 4) 首行方程（推荐）· O(n^3)
+- 解法 4 的**另一种思路**（行递推二阶关系 & 对称性）
 - 数学建模与可解性
 - 非全暗初始态的处理
 - 变体与扩展
 - 验证与测试建议
+- **Pascal 程序流程（粗略）与复杂度**
 - 性能与工程化建议（算法层面）
 - 常见问答
 - 参考资料
@@ -97,6 +99,21 @@
 
 ---
 
+### 解法 4 的另一种思路（行递推二阶关系 & 对称性）
+- 观察行递推可得到一个**二阶线性关系**：第 `j` 行按钮只由第 `j-1`、`j-2` 行按钮决定。  
+- 记按钮矩阵为 `B`，则对列索引 `i` 有（GF(2)）：
+B[j,i] = B[j-1,i-1] + B[j-1,i] + B[j-1,i+1] + B[j-2,i]
+
+markdown
+复制代码
+这等价于：“第 `j` 行 =（第 `j-1` 行的三邻域卷积）+ 第 `j-2` 行”，体现了首行决定性的**递推 + 记忆**结构。
+- 这与“仅按一个按钮的影响向下传播，再线性叠加”的构造思想一致。
+- 由邻接的**对称性**（按 A 影响 B，也必然 B 影响 A）可知，所求的 `n×n` 转移矩阵 `T`（或约束矩阵）**关于主对角线对称**。  
+直观解释：决定第 `i` 列的影响与被第 `i` 列影响是可交换的。  
+结论：在标准（对称邻接）规则下，矩阵具对称性，因而系统总可解；解的个数由秩决定。
+
+---
+
 ### 数学建模与可解性
 - 线性系统：`A · x = y (mod 2)`；`A` 由邻接关系决定（自身+上下左右）。
 - 秩与解数：若 `rank(A)=r`，解空间大小 `= 2^(n^2 - r)`；`r=n^2` 唯一解，`r<n^2` 多解。
@@ -126,6 +143,20 @@
 
 ---
 
+### Pascal 程序流程（粗略）与复杂度
+- **MakeMat（O(n^2)）**  
+以常数次访问模式在 `n×n` 网格上递推，构造“首行 → 约束行/增广列”的关系；每个单元被有限次更新，因此总体 `O(n^2)`。
+- **CalcMat（O(n^3)）**  
+对 `n×n` 的 GF(2) 系数矩阵做**高斯消元 + 回代**，立方时间瓶颈在这里。
+- **GeneMat（O(n^2)）**  
+已知首行后，利用**行递推**一次遍历生成 2..n 行按钮，整体为 `O(n^2)`。
+- **PrintMat / DrawMat（可选，O(n^2)）**  
+输出或绘制需要线性地扫描整个棋盘。
+
+> 因此，在当前 `.pas` 的实现下，**只有 `CalcMat` 是 O(n^3)**；其余主流程均为 **O(n^2)**。
+
+---
+
 ### 性能与工程化建议（算法层面）
 - GF(2) 专用技巧：位集（bitset）/机器字存储行，按位异或；行/块重排与部分选主元；块化 XOR 策略。  
 - 并行化：行块化消元、前向/回代流水线；`T` 的列（或行）构造可并行。  
@@ -143,9 +174,9 @@
 
 ### 参考资料
 - Lights Out Mathematics — 秩、解个数、边界/邻接规则  
-  https://www.jaapsch.net/puzzles/lomath.htm  
+https://www.jaapsch.net/puzzles/lomath.htm  
 - OEIS A159257 — Rank of the Lights Out matrix on an n×n board  
-  https://oeis.org/A159257
+https://oeis.org/A159257
 
 ---
 
@@ -158,14 +189,16 @@
 - Notation
 - Algorithm Overview (Comparison)
 - The Four Methods
-  - 1) Full Enumeration · O(2^(n^2))
-  - 2) First-Row Enumeration · O(2^n)
-  - 3) Full Linear System · O(n^6)
-  - 4) First-Row Linear System (Recommended) · O(n^3)
+- 1) Full Enumeration · O(2^(n^2))
+- 2) First-Row Enumeration · O(2^n)
+- 3) Full Linear System · O(n^6)
+- 4) First-Row Linear System (Recommended) · O(n^3)
+- **An Alternative View of Method 4** (Second-order row recurrence & symmetry)
 - Modeling & Solvability
 - Nonzero Initial States
 - Variants & Extensions
 - Verification & Testing
+- **Pascal Program Flow (Brief) & Complexity**
 - Performance Notes (Algorithmic)
 - FAQ
 - References
@@ -176,18 +209,18 @@
 ### Problem & Rules
 - Board: `n × n`.
 - Operation: pressing a cell toggles **itself + its four orthogonal neighbors** (existing neighbors only).
-- Goal: given an initial state (default **all off**), find a set of presses to make **all lights on**.
+- Goal: from a given initial state (default **all off**), make **all lights on**.
 - Invariants:
-  1. Pressing the same button an **even** number of times ≡ **not pressed**;
-  2. **Order** of presses does **not** matter;
-  3. Each button is binary (press / not press).
+1. Pressing a button an **even** number of times ≡ **not pressed**;
+2. The **order** of presses does **not** matter;
+3. Each button is binary (press / not press).
 
 ---
 
 ### Notation
 - On/Off as `1/0`; Press/No-press as `1/0`; all arithmetic over **GF(2)** (XOR).
-- Let `x ∈ {0,1}^{n^2}` be the press vector; `y ∈ {0,1}^{n^2}` the target “to-flip” vector (`y=1` for all-on from all-off).
-- Linear system: `A · x = y (mod 2)`, where `A` (`n^2 × n^2`) encodes toggle adjacency.
+- Let `x ∈ {0,1}^{n^2}` be the press vector; `y ∈ {0,1}^{n^2}` the “to-flip” target (for all-on from all-off, `y=1`).
+- Linear system: `A · x = y (mod 2)`, where `A` (`n^2 × n^2`) encodes the toggle adjacency.
 
 ---
 
@@ -214,8 +247,8 @@
 
 #### 2) First-Row Enumeration · O(2^n)
 - Enumerate the **first row**, then:
-  1) if a light in row `r` is off, press the corresponding cell in row `r+1`;
-  2) continue row-by-row; finally check the last row is all on.
+1) if a light in row `r` is off, press the corresponding cell in row `r+1`;
+2) continue row-by-row; finally check the last row is all on.
 - The first row determines the whole board.
 - Still exponential in `n`, but practical for small `n` (e.g., `≤ 20`).
 
@@ -225,14 +258,29 @@
 - Cons: dimension `n^2` makes it heavy in time/space.
 
 #### 4) First-Row Linear System (Recommended) · O(n^3)
-- Idea: model the linear map from **first-row press vector `f`** to a **constraint row** (often the last row) of lights:  
-  `T · f = y' (mod 2)`, with `T` being `n×n`.
+- Idea: model the linear map from **first-row press vector `f`** to a **constraint row** (often the last row):  
+`T · f = y' (mod 2)`, with `T` being `n×n`.
 - Steps (high-level):
-  1. Build `T` by propagating each unit vector `e_i` down to the constraint row;
-  2. Solve `T · f = y'` over GF(2) to obtain `f`;
-  3. Generate the whole board by row propagation from `f`.
+1. Build `T` by propagating each unit vector `e_i` down to the constraint row;
+2. Solve `T · f = y'` over GF(2) to obtain `f`;
+3. Generate the whole board by row propagation from `f`.
 - Complexity: building `T` `O(n^2~n^3)`; solving `O(n^3)`; generation `O(n^2)`; overall ~ `O(n^3)`.
 - Strength: scalable (`n×n`), mathematically interpretable (rank & nullspace).
+
+---
+
+### An Alternative View of Method 4 (Second-order Row Recurrence & Symmetry)
+- The row propagation yields a **second-order linear recurrence**: row `j` depends only on rows `j-1` and `j-2`.  
+- With button matrix `B`, for column `i` (over GF(2)):
+B[j,i] = B[j-1,i-1] + B[j-1,i] + B[j-1,i+1] + B[j-2,i]
+
+yaml
+复制代码
+i.e., “row `j` = (three-neighborhood convolution of row `j-1`) + row `j-2`”, capturing a **propagation + memory** pattern.
+- This matches the idea of propagating the effect of **a single press** downward and then **linearly superposing** them.
+- Because the adjacency is **symmetric** (if A affects B, then B affects A), the `n×n` transfer/constraint matrix `T` is **symmetric about the main diagonal**.  
+Intuition: “influence” and “being influenced” at column `i` are exchangeable.  
+Consequence: under standard (symmetric) rules, solvability holds; the number of solutions is controlled by the rank.
 
 ---
 
@@ -245,48 +293,62 @@
 ---
 
 ### Nonzero Initial States
-- Treat an already-on light as “already flipped once”.
-- Set right-hand side to **target XOR initial**: for all-on target `1` and initial `s`, use `y = 1 XOR s`.
+- Treat an already-on light as “flipped once”.
+- Set RHS to **target XOR initial**: for all-on target `1` and initial `s`, use `y = 1 XOR s`.
 - All four methods remain applicable.
 
 ---
 
 ### Variants & Extensions
-- Rectangular `n×m`: same structure; full system is `nm × nm`; first-row/first-column systems reduce to `n` or `m`.
-- Alternative adjacencies: with diagonals (Moore), torus boundaries, or binary weights—still in GF(2).
+- Rectangular `n×m`: same structure; full system is `nm × nm`; first-row/first-column reductions yield `n` or `m`.
+- Alternative adjacencies: diagonals (Moore), torus boundaries, binary weights—still over GF(2).
 - Partial targets/constraints: set corresponding entries in `y` to 0/1.
 
 ---
 
 ### Verification & Testing
-1. Linearity: for two solutions `x₁, x₂` (same RHS), `x₁ XOR x₂` lies in the nullspace.  
+1. Linearity: for solutions `x₁, x₂` (same RHS), `x₁ XOR x₂` lies in the nullspace.  
 2. Tiny-board cross-check: for `n≤4`, compare with full enumeration.  
 3. Rank vs. solution count: verify `2^(n^2-rank)` against empirical counts.  
 4. Constraint consistency: re-check single-press influence when building `T`.
 
 ---
 
+### Pascal Program Flow (Brief) & Complexity
+- **MakeMat (O(n^2))**  
+Uses constant-time per-cell updates across the `n×n` grid to build the “first-row → constraint row / RHS” relation; each cell is touched a bounded number of times ⇒ overall `O(n^2)`.
+- **CalcMat (O(n^3))**  
+Performs **Gaussian elimination + back substitution** over an `n×n` GF(2) matrix—this is the **only cubic-time** step.
+- **GeneMat (O(n^2))**  
+Once the first row is known, the remaining rows are generated via the **row recurrence** in a single sweep ⇒ `O(n^2)`.
+- **PrintMat / DrawMat (optional, O(n^2))**  
+Rendering/printing scans the board linearly.
+
+> In this `.pas` implementation, **only `CalcMat` is O(n^3)**; the other main stages are **O(n^2)**.
+
+---
+
 ### Performance Notes (Algorithmic)
-- GF(2)-specific tricks: bitsets / word-wise XOR rows; partial pivoting (row swaps) in elimination; block-XOR strategies.  
-- Parallelism: block elimination, pipelined forward/back substitution; parallel column/row construction of `T`.  
-- Structural use: `T` is near-banded / convolutional—consider polynomial or (fast) XOR-convolution methods.
+- GF(2)-specific tricks: bitsets / word-wise XOR rows; partial pivoting via row swaps; block-XOR strategies.  
+- Parallelism: block elimination; pipelined forward/back substitution; parallel construction of columns/rows of `T`.  
+- Structural use: `T` is near-banded / convolutional—consider polynomial / fast XOR-convolution approaches.
 
 ---
 
 ### FAQ
-- Why does “the first row determine the whole board”?  
-  Because each row only depends on itself and adjacent rows; propagation eliminates other degrees of freedom.
-- Why can solutions be non-unique?  
-  If `rank(A)<n^2`, the nullspace is nontrivial; any particular solution plus a nullspace vector is another solution.
+- Why does the first row determine the whole board?  
+Each row depends only on itself and adjacent rows; propagation eliminates other degrees of freedom.
+- Why can the solution be non-unique?  
+If `rank(A)<n^2`, the nullspace is nontrivial; any particular solution plus a nullspace vector is also a solution.
 - Do torus/diagonal adjacencies still fit?  
-  Yes—rebuild `A`/`T` for the new adjacency; the GF(2) framework remains valid.
+Yes—rebuild `A`/`T` accordingly; the GF(2) framework remains valid.
 - Is there a closed form for the number of solutions?  
-  Generally depends on `n` and boundary conditions (via rank); see literature/OEIS.
+Generally depends on `n` and boundary conditions via rank; see the literature/OEIS.
 
 ---
 
 ### References
 - Lights Out Mathematics — ranks, solution counts, boundary/adjacency variants  
-  https://www.jaapsch.net/puzzles/lomath.htm  
+https://www.jaapsch.net/puzzles/lomath.htm  
 - OEIS A159257 — Rank of the Lights Out matrix on an n×n board  
-  https://oeis.org/A159257
+https://oeis.org/A159257
