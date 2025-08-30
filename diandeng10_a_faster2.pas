@@ -1,4 +1,4 @@
-//{$define disp}
+{$define disp}
 program diandeng;
 
 {$ifdef disp}

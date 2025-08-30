@@ -1,4 +1,4 @@
-//{$define disp}
+{$define disp}
 program diandeng;
 
 {$ifdef disp}
@@ -25,7 +25,7 @@ begin
 writeln();
 for j:=0 to n-1 do
   begin
-  if mat[j,-1] then write('#') else write('.');write(' ');
+//  if mat[j,-1] then write('#') else write('.');
   for i:=0 to n-1 do
     if mat[j,i] then write('#') else write('.');
   writeln();
@@ -86,7 +86,6 @@ end;
 procedure CalcMat();
 var j0:longint;
 begin
-//writeln();
 for k:=0 to n-1 do
   begin
   j0:=-1;
@@ -96,7 +95,6 @@ for k:=0 to n-1 do
   if j>=0 then
     begin
     if j<>k then
-      begin
       for i:=-1 to n-1 do
         begin
         l[j,i]:=l[j,i] xor l[k,i];
@@ -106,8 +104,6 @@ for k:=0 to n-1 do
         r[k,i]:=r[j,i] xor r[k,i];
         r[j,i]:=r[j,i] xor r[k,i];
         end;
-//writeln('swap ',j+1,' ',k+1);PrintMat(r);PrintMat(l);
-      end;
     for j:=k+1 to n-1 do
       if l[j,k] then
         begin
@@ -118,7 +114,6 @@ for k:=0 to n-1 do
           end;
         l[j,-1]:=l[j,-1] xor l[k,-1];
         r[j,-1]:=r[j,-1] xor r[k,-1];
-//writeln('xor1 ',k+1,' ',j+1);PrintMat(r);PrintMat(l);
         end;
     end;
   end;
@@ -127,14 +122,13 @@ for i:=n-1 downto 0 do
     for j:=i-1 downto 0 do
       if l[j,i] then
         begin
-        for k:=0 to n-1 do // for a-1
+        for k:=j to n-1 do
           begin
           l[j,k]:=l[j,k] xor l[i,k];
           r[j,k]:=r[j,k] xor r[i,k];
           end;
         l[j,-1]:=l[j,-1] xor l[i,-1];
         r[j,-1]:=r[j,-1] xor r[i,-1];
-//writeln('xor2 ',i+1,' ',j+1);PrintMat(r);PrintMat(l);
         end;
 end;
 
@@ -162,7 +156,7 @@ for n:=1 to m do
   write('m');MakeMat();{$ifdef disp}write('%');PrintMat('_A',l);{$endif}
   write('c');CalcMat();{$ifdef disp}write('%');PrintMat('_E',l);write('%');PrintMat('_R',r);{$endif}
   write('g');GeneMat();{$ifdef disp}write('%');PrintMat('_T',t);{$endif}
-  {$ifdef disp}write(#9,s,#9,n*n,#9,s/n/n:0:5);{$endif}
+  write(#9,s,#9,n*n,#9,s/n/n:0:5);
   {$ifdef disp}if not(iswin()) then halt;{$endif}
   writeln();
   end;
