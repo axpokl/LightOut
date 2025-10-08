@@ -122,7 +122,7 @@ for i:=n-1 downto 0 do
     for j:=i-1 downto 0 do
       if l[j,i] then
         begin
-        for k:=j to n-1 do
+        for k:=0 to n-1 do // for a-1
           begin
           l[j,k]:=l[j,k] xor l[i,k];
           r[j,k]:=r[j,k] xor r[i,k];
