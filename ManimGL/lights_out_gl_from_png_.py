@@ -212,7 +212,6 @@ def trans_grid(scene, G_from, G_to, rt=0.8, keep_from=False, target_override=Non
             G["groups"]["btn_sp"],
             G["groups"]["btn_bd_base"],
         )
-
     grp_from = composite(G_from).copy() if keep_from else composite(G_from)
     grp_to = target_override if target_override is not None else composite(G_to)
     if keep_from:
@@ -867,7 +866,6 @@ def _mk_line_group(s, font, size, color, baseline=0.0, auto_k=0.5, ref_tex="N\\t
             objs.append(m)
             tags.append("text")
     grp = VGroup(*objs).arrange(RIGHT, buff=0.15, aligned_edge=DOWN)
-
     text_bottoms = [o.get_bottom()[1] for o, t in zip(objs, tags) if t == "text"]
     if text_bottoms:
         ref = min(text_bottoms)
@@ -881,8 +879,27 @@ def _mk_line_group(s, font, size, color, baseline=0.0, auto_k=0.5, ref_tex="N\\t
                     o.shift(UP * dy)
     return grp
 
-def show_subtitle(scene, text, text2=None, run_in=0.3, run_out=0.3, font=DEFAULT_FONT, font_size=32, line_gap=0.2, buff=0.5, baseline=0.05, auto_k=0.5, ref_tex="N\\times N",):
-    old = getattr(scene, "_subtitle_mobj", None)
+def _fmt_scene_time_ms(scene):
+    t = 0.0
+    try:
+        if hasattr(scene, "time"):
+            t = float(scene.time)
+        elif hasattr(scene, "renderer") and hasattr(scene.renderer, "time"):
+            t = float(scene.renderer.time)
+        elif hasattr(scene, "renderer") and hasattr(scene.renderer, "get_time"):
+            t = float(scene.renderer.get_time())
+    except Exception:
+        t = 0.0
+    ms = int(round(t * 1000))
+    s = ms // 1000
+    ms = ms % 1000
+    h = s // 3600
+    m = (s % 3600) // 60
+    s = s % 60
+    return f"{h:02d}:{m:02d}:{s:02d}.{ms:03d}"
+
+def show_subtitle(scene, text, text2=None, run_in=0.3, run_out=0.3, font=DEFAULT_FONT, font_size=32, line_gap=0.2, buff=0.5, baseline=0.05, auto_k=0.5, ref_tex="N\\times N"):
+    old=getattr(scene,"_subtitle_mobj", getattr(scene,"_subtitle_", None))
     if old is not None:
         scene.play(FadeOut(old, run_time=run_out))
         try:
@@ -901,11 +918,18 @@ def show_subtitle(scene, text, text2=None, run_in=0.3, run_out=0.3, font=DEFAULT
     parts = [p for p in parts if p is not None]
     if len(parts) == 0 or all(p == "" for p in parts):
         return None
+    out_text = "".join(parts)
+    try:
+        with open("subtitle.txt", "a", encoding="utf-8") as f:
+            f.write(f"{_fmt_scene_time_ms(scene)} {out_text}\n")
+    except Exception:
+        pass
     lines = VGroup(*[_mk_line_group(p, font, font_size, WHITE, baseline, auto_k, ref_tex) for p in parts])
     lines.arrange(DOWN, buff=line_gap).to_edge(DOWN, buff=buff)
     scene.add(lines)
     scene.play(FadeIn(lines, run_time=run_in))
     scene._subtitle_mobj = lines
+    scene._subtitle_ = lines
     return lines
 
 def show_title(scene, line1=None, line2=None, run_in=0.3, run_out=0.3, font=DEFAULT_FONT, size1=48, size2=32, line_gap=0.15, buff=0.5, pause=0.8, rt=0.3,):
@@ -1243,11 +1267,7 @@ MAT312 = rotate_mat(MAT301, 1)
 MAT321 = rotate_mat(MAT301, 2)
 MAT310 = rotate_mat(MAT301, 3)
 MAT311 = [[0, 1, 0], [1, 1, 1], [0, 1, 0]]
-MAT3 = [
-    [MAT300, MAT301, MAT302],
-    [MAT310, MAT311, MAT312],
-    [MAT320, MAT321, MAT322],
-]
+MAT3 = [[MAT300, MAT301, MAT302], [MAT310, MAT311, MAT312], [MAT320, MAT321, MAT322]]
 
 MAT3K = make_mat_k(3)
 MAT4K = make_mat_k(4)
@@ -1273,6 +1293,34 @@ MATRB2 = [[0, 0, 0], [1, 0, 1], [0, 1, 0]]
 MATRB3 = [[1, 0, 1, 0], [0, 0, 0, 0], [0, 1, 0, 1]]
 MATRB4 = [[0, 0, 1, 0, 1], [0, 0, 0, 1, 0], [0, 1, 0, 0, 1], [0, 0, 0, 1, 0]]
 
+MATRG11 = [
+    [1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1], 
+    [1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1], 
+    [1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0], 
+    [1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0], 
+    [1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1], 
+    [0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1], 
+    [0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1], 
+    [0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1], 
+    [1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0], 
+    [1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1], 
+    [1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1]
+]
+
+MATRB11 = [
+    [0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1], 
+    [0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0], 
+    [1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0], 
+    [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0], 
+    [0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0], 
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+    [0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1], 
+    [0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 0], 
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+    [1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1], 
+    [1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1]
+]
+
 OPS3 = make_ops_n2(make_mat_l(3), 3)
 OPS4 = make_ops_n2(make_mat_l(4), 4)
 OPS5 = make_ops_n2(make_mat_l(5), 5)
@@ -1282,7 +1330,7 @@ OPS5K = make_ops_n(make_mat_kn(5), 5)
 
 LATEX1 = [
     {"type": "text", "content": "递推公式（Fibonacci 多项式的 GF(2) 版本）：", "scale": 1.0, "indent": 0.0},
-    {"type": "tex_lines", "scale": 0.7, "content": [
+    {"type": "tex_lines", "scale": 0.6, "content": [
         r"f(0,x)=1",
         r"f(1,x)=x",
         r"f(2,x)=(1+x)^2",
@@ -1290,13 +1338,13 @@ LATEX1 = [
         r"r(n)=\operatorname{deg}(\gcd(f(n,x),\,f(n,1+x)))"
     ]},
     {"type": "text", "content": "其中：", "scale": 1.0, "indent": 0.0},
-    {"type": "tex_cn_lines", "scale": 0.7, "cn_scale": 0.7, "content": [
+    {"type": "tex_cn_lines", "scale": 0.6, "cn_scale": 0.6, "content": [
         {"tex": r"f(n,x)\in \mathbb{F}_2[x]", "cn": "（系数域为 GF(2)）"},
         {"tex": r"\operatorname{deg}:\ \mathbb{F}_2[x]\setminus\{0\}\to \mathbb{N}", "cn": "（多项式次数）"},
         {"tex": r"\gcd:\ \mathbb{F}_2[x]\times \mathbb{F}_2[x]\to \mathbb{F}_2[x]", "cn": "（多项式最大公因子）"}
     ]},
     {"type": "text", "content": "性质：", "scale": 1.0, "indent": 0.0},
-    {"type": "tex_cn_lines", "scale": 0.7, "cn_scale": 0.7, "content": [
+    {"type": "tex_cn_lines", "scale": 0.6, "cn_scale": 0.6, "content": [
         {"tex": r"r(n)\equiv 0\pmod{2}", "cn": "（偶数）"},
         {"tex": r"r(n)\le n", "cn": "（上界）"},
         {"tex": r"r(n)\le r((n+1)k-1)\quad (n,k\in\mathbb{N})", "cn": "（按倍数拉长的单调性）"}
@@ -1305,28 +1353,28 @@ LATEX1 = [
 
 LATEX2 = [
     {"type": "text", "content": "线性代数版证明：", "scale": 1.0, "indent": 0.0},
-    {"type": "text", "content": "1. 若 A 对称且自反（对角元为 1），则对任意 x 有 xAx^T = xIx^T = xx^T（模 2）。", "scale": 0.7},
-    {"type": "tex_lines", "scale": 0.7, "content": [r"A^T=A,\ \forall i\,a_{ii}=1\ \Longrightarrow\ xAx^T=xIx^T=xx^T\pmod{2}"], "indent": 2.0},
-    {"type": "text", "content": "2. 若 x 为静默图案（xA=0），则 xx^T=0。", "scale": 0.7},
-    {"type": "tex_lines", "scale": 0.7, "content": [r"xA=\mathbf 0\ \Longrightarrow\ (xA)x^T=\mathbf 0\ \Longrightarrow\ xAx^T=0\ \Longrightarrow\ xx^T=0"], "indent": 2},
-    {"type": "text", "content": "3. x 中被按下的按钮数（1 的个数）为偶数，即证。", "scale": 0.7},
-    {"type": "tex_lines", "scale": 0.7, "content": [r"\sum_{i=1}^n x_i\equiv 0\pmod{2}"], "indent": 2},
+    {"type": "text", "content": "1. 若 A 对称且自反（对角元为 1），则对任意 x 有 xAx^T = xIx^T = xx^T（模 2）。", "scale": 0.6},
+    {"type": "tex_lines", "scale": 0.6, "content": [r"A^T=A,\ \forall i\,a_{ii}=1\ \Longrightarrow\ xAx^T=xIx^T=xx^T\pmod{2}"], "indent": 2.0},
+    {"type": "text", "content": "2. 若 x 为静默图案（xA=0），则 xx^T=0。", "scale": 0.6},
+    {"type": "tex_lines", "scale": 0.6, "content": [r"xA=\mathbf 0\ \Longrightarrow\ (xA)x^T=\mathbf 0\ \Longrightarrow\ xAx^T=0\ \Longrightarrow\ xx^T=0"], "indent": 2},
+    {"type": "text", "content": "3. x 中被按下的按钮数（1 的个数）为偶数，即证。", "scale": 0.6},
+    {"type": "tex_lines", "scale": 0.6, "content": [r"\sum_{i=1}^n x_i\equiv 0\pmod{2}"], "indent": 2},
 ]
 
 LATEX3 = [
     {"type": "text", "content": "图论版证明：", "scale": 1.0, "indent": 0.0},
-    {"type": "text", "content": "1. 把游戏看成带自环的无向图；按顶点 v 翻闭邻域 N[v]。", "scale": 0.6},
-    {"type": "tex_lines", "scale": 0.6, "content": [r"G=(V,E),\ \forall v\in V:\ (v,v)\in E,\quad N[v]=N(v)\cup\{v\}"], "indent": 2},
-    {"type": "text", "content": "2. 反设存在最小不可解 G；删去任意顶点 i 的子图可解，得到操作 P_i：除 i 外全翻。", "scale": 0.6},
-    {"type": "tex_lines", "scale": 0.6, "content": [r"U(G)=1,\ \nexists\,H\subset G:\ U(H)=1,\ |V|=n;\ \forall i\in V,\ \exists\,P_i=V\setminus\{i\}"], "indent": 2},
-    {"type": "text", "content": "3. 叠加所有 P_i：每点被翻 n 减一次；若 n 为偶则得到全翻，矛盾。因此 n 必为奇。", "scale": 0.6},
-    {"type": "tex_lines", "scale": 0.6, "content": [r"\forall v\in V:\ \left|\{\,i\in V:\ v\in P_i\,\}\right|=n-1;\quad n\equiv 0\pmod{2}\Rightarrow \bigoplus_{i\in V}P_i=V\Rightarrow \neg U(G)\Rightarrow n\equiv 1\pmod{2}"], "indent": 2},
-    {"type": "text", "content": "4. 若存在能翻奇数个点的操作 S，与相应 P_i 叠加得全翻，矛盾。因此任意可达操作都翻偶数个点。", "scale": 0.6},
-    {"type": "tex_lines", "scale": 0.6, "content": [r"\exists\,S\subseteq V:\ |S|\equiv 1\pmod{2}\ \Rightarrow\ \left(\bigoplus_{i\notin S}P_i\right)\oplus S=V\Rightarrow \neg U(G)"], "indent": 2},
-    {"type": "text", "content": "5. 奇数阶图中必有他邻度为偶的 v；按 v：邻点翻偶数次，自环再加 1 次成奇数，与上条矛盾。", "scale": 0.6},
-    {"type": "tex_lines", "scale": 0.6, "content": [r"|V|\equiv 1\pmod{2}\ \Rightarrow\ \exists\,v\in V:\ \deg_{E\setminus\{(v,v)\}}(v)\equiv 0\pmod{2}\ \Rightarrow\ |N(v)\cup\{v\}|\equiv 1\pmod{2}\ \Rightarrow\ \bot"], "indent": 2},
-    {"type": "text", "content": "6. 不可解的最小反例不存在。因此该类带自环无向图点灯游戏必可解。", "scale": 0.6},
-    {"type": "tex_lines", "scale": 0.6, "content": [r"\neg U(G)"], "indent": 2},
+    {"type": "text", "content": "1. 把游戏看成带自环的无向图，按顶点 v 翻闭邻域 N[v]。", "scale": 0.5},
+    {"type": "tex_lines", "scale": 0.5, "content": [r"G=(V,E),\ \forall v\in V:\ (v,v)\in E,\quad N[v]=N(v)\cup\{v\}"], "indent": 2},
+    {"type": "text", "content": "2. 反设存在最小不可解 G，删去任意顶点 i 的子图可解，得到操作 P_i：除 i 外全翻。", "scale": 0.5},
+    {"type": "tex_lines", "scale": 0.5, "content": [r"U(G)=1,\ \nexists\,H\subset G:\ U(H)=1,\ |V|=n,\ \forall i\in V,\ \exists\,P_i=V\setminus\{i\}"], "indent": 2},
+    {"type": "text", "content": "3. 叠加所有 P_i：每点被翻 n 减一次，若 n 为偶则得到全翻，矛盾。因此 n 必为奇。", "scale": 0.5},
+    {"type": "tex_lines", "scale": 0.5, "content": [r"\forall v\in V:\ \left|\{\,i\in V:\ v\in P_i\,\}\right|=n-1,\quad n\equiv 0\pmod{2}\Rightarrow \bigoplus_{i\in V}P_i=V\Rightarrow \neg U(G)\Rightarrow n\equiv 1\pmod{2}"], "indent": 2},
+    {"type": "text", "content": "4. 若存在能翻奇数个点的操作 S，与相应 P_i 叠加得全翻，矛盾。因此任意可达操作都翻偶数个点。", "scale": 0.5},
+    {"type": "tex_lines", "scale": 0.5, "content": [r"\exists\,S\subseteq V:\ |S|\equiv 1\pmod{2}\ \Rightarrow\ \left(\bigoplus_{i\notin S}P_i\right)\oplus S=V\Rightarrow \neg U(G)"], "indent": 2},
+    {"type": "text", "content": "5. 奇数阶图中必有他邻度为偶的 v，按 v：邻点翻偶数次，自环再加 1 次成奇数，与上条矛盾。", "scale": 0.5},
+    {"type": "tex_lines", "scale": 0.5, "content": [r"|V|\equiv 1\pmod{2}\ \Rightarrow\ \exists\,v\in V:\ \deg_{E\setminus\{(v,v)\}}(v)\equiv 0\pmod{2}\ \Rightarrow\ |N(v)\cup\{v\}|\equiv 1\pmod{2}\ \Rightarrow\ \bot"], "indent": 2},
+    {"type": "text", "content": "6. 不可解的最小反例不存在。因此该类带自环无向图点灯游戏必可解。", "scale": 0.5},
+    {"type": "tex_lines", "scale": 0.5, "content": [r"\neg U(G)"], "indent": 2},
 ]
 
 LATEX4 = [
@@ -1376,8 +1424,7 @@ LATEX_RIGHT = [
 class LightsOut(Scene):
     def construct(self):
         self.camera.background_color = BLACK
-#硬核科普
-#        """
+
         show_title(self, "点灯游戏的$O(n^3)$解法", "又名：灭灯游戏（Lights Out）")
 
         self.wait(1)
@@ -1402,12 +1449,12 @@ class LightsOut(Scene):
         self.wait(0.5)
         G5 = make_grid(self, w=5, h=5, lgt_x=0, btn_x=0, sz=0.6)
         self.wait(1)
-        press(self, G5, 1, 1, wait=2)
-        press(self, G5, 1, 4, wait=2)
-        press(self, G5, 4, 0, wait=2)
-        press(self, G5, 4, 1, wait=2)
-        press(self, G5, 4, 2, wait=2)
-        self.wait(2)
+        press(self, G5, 1, 1, wait=1.5)
+        press(self, G5, 1, 4, wait=1.5)
+        press(self, G5, 4, 0, wait=1.5)
+        press(self, G5, 4, 1, wait=1.5)
+        press(self, G5, 4, 2, wait=1.5)
+        self.wait(1)
         del_grids(self, [G5], kp_bd=True )
 
         show_subtitle(self, "目标：从全暗状态打开所有灯（或者全亮状态关闭所有灯）。")
@@ -1424,10 +1471,10 @@ class LightsOut(Scene):
         self.wait(0.5)
         G5 = make_grid(self, w=5, h=5, lgt_x=0, btn_x=0, sz=0.6)
         self.wait(1)
-        press(self, G5, 1, 1, wait=1.5)
-        press(self, G5, 1, 1, wait=1.5)
-        press(self, G5, 4, 4, wait=1.5)
-        press(self, G5, 4, 4, wait=1.5)
+        press(self, G5, 1, 1, wait=1)
+        press(self, G5, 1, 1, wait=1)
+        press(self, G5, 4, 4, wait=1)
+        press(self, G5, 4, 4, wait=1)
         self.wait(1)
         del_grids(self, [G5]) 
 
@@ -1447,7 +1494,7 @@ class LightsOut(Scene):
         press(self, G52, 2, 2, wait=0.3)
         press(self, G52, 2, 1, wait=0.3)
         clear_all_bd(G52)
-        self.wait(3)
+        self.wait(2)
         del_grids(self, [G51, G52]) 
 
         show_subtitle(self, "因此，对格子内的按钮，", "我们只需考虑按或不按，并且不用关心顺序。")
@@ -1455,19 +1502,19 @@ class LightsOut(Scene):
         G51 = make_grid(self, w=5, h=5, lgt_x=-3.0, btn_x=-3.0, sz=0.4, mat=MAT51)
         G52 = make_grid(self, w=5, h=5, lgt_x= 0.0, btn_x= 0.0, sz=0.4, mat=MAT52)
         G53 = make_grid(self, w=5, h=5, lgt_x= 3.0, btn_x= 3.0, sz=0.4, mat=MAT53)
-        self.wait(3)
+        self.wait(5)
 
         show_subtitle(self, "我们可以将按钮和灯分开表示，", "所有按钮的状态为一组，对应灯的状态为一组。")
         self.wait(0.5)
         move_grid(self, G51, lgt_x=-3.0, btn_x=-3.0, lgt_y=-1.2, btn_y=1.2)
         move_grid(self, G52, lgt_x= 0.0, btn_x= 0.0, lgt_y=-1.2, btn_y=1.2)
         move_grid(self, G53, lgt_x= 3.0, btn_x= 3.0, lgt_y=-1.2, btn_y=1.2)
-        self.wait(3)
+        self.wait(4)
 
         show_subtitle(self, "我们的目标是：找到一个按钮组，其对应灯的状态为全亮。", "那么，我们如何找到这样一个组按钮呢？")
         self.wait(0.5)
         hl_bd(self, G53)
-        self.wait(6)
+        self.wait(7)
         del_bd(self, G53)
         del_grids(self, [G51, G52, G53]) 
 
@@ -1486,12 +1533,12 @@ class LightsOut(Scene):
                 mat = [[(idx>>0)&1, (idx>>1)&1], [(idx>>2)&1, (idx>>3)&1]]
                 G[y][x] = make_grid(self, w=2, h=2, lgt_x=mx+2.5, btn_x=mx-2.5, lgt_y=my, btn_y=my, sz=sz, rt=0.1, mat=mat)
                 idx += 1
-        self.wait(2)
+        self.wait(10)
 
         show_subtitle(self, "例如，当 $N=2$ 时，对应的状态为 $2^{2\\times 2}=2^4=16$。", "很快我们就能列举出所有的情况并得出结论。")
         self.wait(0.5)
         hl_bd(self, G[3][3])
-        self.wait(4)
+        self.wait(10)
         del_bd(self, G[3][3])
         del_grids(self, G)
         self.wait(1)
@@ -1516,7 +1563,7 @@ class LightsOut(Scene):
                 break
             p = g
         clear_all_bd(G3)
-        self.wait(3)
+        self.wait(6)
         self.play(FadeOut(label_grp, run_time=0.3))
         self.remove(label_grp)
         del_grids(self, [G3])
@@ -1532,13 +1579,13 @@ class LightsOut(Scene):
         G501 = make_grid(self, w=5, h=5, lgt_x=x1, btn_x=x1, sz=sz, mat=MAT501)
         G510 = make_grid(self, w=5, h=5, lgt_x=x2, btn_x=x2, sz=sz, mat=MAT510)
         G511 = make_grid(self, w=5, h=5, lgt_x=x3, btn_x=x3, sz=sz, mat=MAT511)
-        self.wait(5)
+        self.wait(11)
         del_grids(self, [G500, G501, G510, G511])
 
         show_subtitle(self, "当 $N=6$ 时，状态数为 $2^{36}=68\\,719\\,476\\,736$。", "复杂度增长得太快，计算机也难以求解。")
         self.wait(0.5)
         G6 = make_grid(self, w=6, h=6, sz=0.5)
-        self.wait(4)
+        self.wait(12)
 
         show_subtitle(self, "那么，我们该怎么办呢？", "有没有更快更巧妙的解法呢？")
         self.wait(0.5)
@@ -1555,11 +1602,11 @@ class LightsOut(Scene):
         G53 = make_grid(self, w=5, h=5, lgt_x= 4.0, btn_x= 4.0, sz=0.6)
         self.wait(1)
         for r in range(5):
-            apply_mat(self, G51, slice_mat(MAT51_L, r, r), anim=0.2, clear_end=True)
-            apply_mat(self, G52, slice_mat(MAT52_L, r, r), anim=0.2, clear_end=True)
-            apply_mat(self, G53, slice_mat(MAT53_L, r, r), anim=0.2, clear_end=True)
-            self.wait(1)
-        self.wait(2)
+            apply_mat(self, G51, slice_mat(MAT51_L, r, r), anim=0.1, clear_end=True)
+            apply_mat(self, G52, slice_mat(MAT52_L, r, r), anim=0.1, clear_end=True)
+            apply_mat(self, G53, slice_mat(MAT53_L, r, r), anim=0.1, clear_end=True)
+            self.wait(0.5)
+        self.wait(1)
         del_grids(self, [G51, G52, G53])
 
         show_subtitle(self, "例如，我们在第1行随机点击了几个按钮。", "此时，第1行的灯有些是亮的，有些是暗的。")
@@ -1570,7 +1617,7 @@ class LightsOut(Scene):
         set_bd(G5, "lgt", 2, 0, True)
         set_bd(G5, "lgt", 3, 0, True)
         set_bd(G5, "lgt", 4, 0, True)
-        self.wait(3)
+        self.wait(6)
         clear_all_bd(G5)
 
         show_subtitle(self, "为了让第1行的灯全亮，", "我们可以去按暗的灯下方的第2行的对应按钮。")
@@ -1597,15 +1644,15 @@ class LightsOut(Scene):
         set_bd(G5, "lgt", 0, 4, True)
         set_bd(G5, "lgt", 1, 4, True)
         set_bd(G5, "lgt", 2, 4, True)
-        self.wait(1)
+        self.wait(6)
         show_subtitle(self, "这里仍有灯是暗的，因此不是正确解法。", "让我们换一种解法。")
-        self.wait(5)
+        self.wait(4)
         del_grids(self, [G5], kp_bd=True )
 
         show_subtitle(self, "这次，让我们点击第1行的前两个按钮。")
         self.wait(0.5)
         apply_mat(self, G5, slice_mat(MAT53_L, 0, 0), anim=0.5, clear_end=True)
-        self.wait(3)
+        self.wait(5)
 
         show_subtitle(self, "经过递推，最后一行灯都被点亮了，", "因此这就是一种正确解法。")
         self.wait(0.5)
@@ -1632,7 +1679,7 @@ class LightsOut(Scene):
             y = idx // cols
             mx = -(cols - 1) * (2 * sz + gap) / 2 + x * (2 * sz + gap)
             my =  (rows - 1) * (2 * sz + gap) / 2 - y * (2 * sz + gap)
-            G[y][x] = make_grid(self, w=5, h=5, lgt_x=mx, btn_x=mx,lgt_y=my,btn_y=my,sz=sz,rt=0.01,mat=slice_mat(MAT_btn[idx],0,0))
+            G[y][x] = make_grid(self, w=5, h=5, lgt_x=mx, btn_x=mx,lgt_y=my,btn_y=my,sz=sz,mat=slice_mat(MAT_btn[idx],0,0))
         self.wait(1)
 
         show_subtitle(self, "通过这种行之间的关系，我们把随机性限制在第1行，使穷举量降到了 $2^N$。", "这里，我们在 32 种按法中找到了四种解法。")
@@ -1640,13 +1687,13 @@ class LightsOut(Scene):
         for idx in range(32):
             x = idx % cols
             y = idx // cols
-            apply_mat(self, G[y][x], slice_mat(MAT_btn[idx], 1, rows-1), anim=0.1, clear_end=True)
+            apply_mat(self, G[y][x], slice_mat(MAT_btn[idx], 1, 4), anim=0.01, clear_end=True)
             if idx in sol_idx:
                 hl_bd(self, G[y][x], rt=0.1)
-        self.wait(4)
+        self.wait(1)
 
         show_subtitle(self, "这个方法的复杂度仍是指数级别的。", "那么，有没有更快更精妙的解法呢？")
-        self.wait(6)
+        self.wait(7)
         for idx in range(32):
             x = idx % cols
             y = idx // cols
@@ -1668,18 +1715,18 @@ class LightsOut(Scene):
                 mat= [[1 if (j == y and i == x) else 0 for i in range(cols)] for j in range(rows)]
                 MAT3_0[y][x] = [row[:] for row in mat]
                 G3[y][x] = make_grid(self, w=cols, h=rows, lgt_x=mx + 2.5, btn_x=mx - 2.5, lgt_y=my, btn_y=my, sz=sz, rt=0.1, mat=mat)
-        self.wait(4)
+        self.wait(7)
 
         show_subtitle(self, "对于某一特定的灯，只有周围几个按钮可以改变其状态。", "例如位于左上角的灯，只会被左上角的三个按钮影响。")
         self.wait(0.5)
         hl_cells(self, [G3[0][1], G3[1][0], G3[0][0]], which="lgt", indices=[(0,0)])
-        self.wait(4)
+        self.wait(9)
 
         show_subtitle(self, "按多个按钮相当于把多种操作叠加起来。", "我们把这三个操作叠加起来得到第1个灯的状态。")
         self.wait(0.5)
         add_grid(self, G3[0][1], G3[0][0], rt=1)
         add_grid(self, G3[1][0], G3[0][0], rt=1)
-        self.wait(4)
+        self.wait(6)
         del_cells(self, [G3[0][1], G3[1][0], G3[0][0]], which="lgt", indices=[(0,0)])
 
         show_subtitle(self, "有没有办法叠加多种操作后，只亮一个灯呢？")
@@ -1694,24 +1741,24 @@ class LightsOut(Scene):
                 if not(x == 1 and y == 1): 
                     add_grid(self, G3[y][x], G3[1][1], rt=0.5)
         hl_bd(self, G3[1][1])
-        self.wait(5)
+        self.wait(3)
         del_bd(self, G3[1][1])
         del_grids(self, G3, kp_bd=True )
 
-        show_subtitle(self, "现在，让我们重新观察 $3 \\times 3$ 的格子，", "共有九种操作，标记为操作1到9。")
+        show_subtitle(self, "现在，让我们重新观察 $3\\times 3$ 的格子，", "共有九种操作，标记为操作1到9。")
         self.wait(0.5)
         show_mats(self, G3, MAT3_0)
-        self.wait(4)
+        self.wait(6)
 
         show_subtitle(self, "让我们观察第1个灯。", "这里，操作1、操作2都翻转了第1个灯。")
         self.wait(0.5)
         hl_cells(self, [G3[0][0], G3[0][1]], which="lgt", indices=[(0,0)])
-        self.wait(4)
+        self.wait(6)
 
         show_subtitle(self, "现在，我们把操作1叠加到操作2上，", "操作2就不会翻转第1个灯了。")
         self.wait(0.5)
         gauss_grids(self, G3, OPS3[0], start=0, end=0)
-        self.wait(4)
+        self.wait(5)
         del_cells(self, [G3[0][0], G3[0][1]], which="lgt", indices=[(0,0)])
 
         show_subtitle(self, "同样，操作4也会翻转第1个灯，", "我们也把操作1叠加到操作4上。")
@@ -1733,12 +1780,12 @@ class LightsOut(Scene):
         hl_cells(self, [G3[0][1], G3[0][2], G3[1][0], G3[1][1]], which="lgt", indices=[(1,0)])
         self.wait(2)
         show_subtitle(self, "同样的，在操作2到9中，", "找到会翻转第2个灯的操作，把操作2叠加上去。")
-        self.wait(4)
+        self.wait(8)
 
         show_subtitle(self, "这里，由于操作2没有翻转第2个灯，", "我们就交换操作2和操作3的位置。")
         self.wait(0.5)
         gauss_grids(self, G3, OPS3[0], start=2, end=2)
-        self.wait(4)
+        self.wait(6)
 
         show_subtitle(self, "然后我们把操作2叠加到操作4和操作5上。")
         self.wait(0.5)
@@ -1754,23 +1801,24 @@ class LightsOut(Scene):
         show_subtitle(self, "由于操作9不能翻转第1到8个灯，只能翻转第9个灯，", "于是我们便发现了单独翻转第9个灯的操作。")
         self.wait(0.5)
         hl_cells(self, [G3[2][2]], which="lgt", indices=[(2,2)])
-        self.wait(4)
+        self.wait(8)
         del_cells(self, G3, which="lgt", indices=[(2,2)])
 
         show_subtitle(self, "然后，我们再回过来考察操作8，", "幸运的是，操作8可以单独翻转第8个灯。")
         self.wait(0.5)
         hl_cells(self, [G3[2][1]], which="lgt", indices=[(1,2)])
-        self.wait(4)
+        self.wait(6)
         del_cells(self, G3, which="lgt", indices=[(1,2)])
 
         show_subtitle(self, "我们再观察操作7。", "操作7会同时翻转第7个灯和第9个灯。")
         self.wait(0.5)
         hl_cells(self, [G3[2][0]], which="lgt", indices=[(0,2)])
         hl_cells(self, [G3[2][2], G3[2][0]], which="lgt", indices=[(2,2)])
-        self.wait(4)
+        self.wait(6)
+
         show_subtitle(self, "我们可以把操作9叠加上去，", "使操作7可以单独翻转第7个灯。")
         gauss_grids(self, G3, OPS3[1], start=1, end=1)
-        self.wait(4)
+        self.wait(5)
         del_cells(self, G3, which="lgt", indices=[(0,2)])
         del_cells(self, G3, which="lgt", indices=[(2,2)])
 
@@ -1778,8 +1826,9 @@ class LightsOut(Scene):
         self.wait(0.5)
         gauss_grids(self, G3, OPS3[1], start=0, end=0)
         gauss_grids(self, G3, OPS3[1], start=2)
+
         show_subtitle(self, "最终，我们得到了全部单独翻转第1到第9个灯的操作。")
-        self.wait(4)
+        self.wait(5)
 
         show_subtitle(self, "现在，我们把这9个操作叠加起来，就得到了游戏的解法。")
         self.wait(0.5)
@@ -1788,15 +1837,15 @@ class LightsOut(Scene):
                 if not(x == 1 and y == 1): 
                     add_grid(self, G3[y][x], G3[1][1], rt=0.5)
         hl_bd(self, G3[1][1])
-        self.wait(6)
+        self.wait(4)
         del_bd(self, G3[1][1])
 
-        show_subtitle(self, "让我们再次重新观察这些 $3 \\times 3$ 的格子。")
+        show_subtitle(self, "让我们再次重新观察这些 $3\\times 3$ 的格子。")
         self.wait(0.5)
         show_mats(self, G3, MAT3_0)
         self.wait(4)
 
-        show_subtitle(self, "事实上，我们可以将所有按钮和灯排列成一行。", "现在，所有按钮和灯排列成 $9 \\times 9$ 的大矩阵。")
+        show_subtitle(self, "事实上，我们可以将所有按钮和灯排列成一行。", "现在，所有按钮和灯排列成 $9\\times 9$ 的大矩阵。")
         self.wait(0.5)
         cols, rows = 3, 3
         sz = 0.4
@@ -1829,10 +1878,10 @@ class LightsOut(Scene):
         del_grids(self, G3_)
         G3sum = make_grid(self, w=3, h=3, lgt_x=2.5, btn_x=-2.5, sz=sz*2, rt=0.1, mat=MAT3sum, show=False)
         trans_grid(self, G3_sum, G3sum)
-        self.wait(6)
+        self.wait(4)
         del_grids(self, [G3sum])
 
-        show_subtitle(self, "对于 $5 \\times 5$ 的格子，我们也可以这样操作。", "我们生成按钮和灯矩阵，然后对其进行消元。")
+        show_subtitle(self, "对于 $5\\times 5$ 的格子，我们也可以这样操作。", "我们生成按钮和灯矩阵，然后对其进行消元。")
         self.wait(0.5)
         cols, rows = 5, 5
         sz = 0.15
@@ -1844,13 +1893,13 @@ class LightsOut(Scene):
                 my = ((rows * cols) - 1) * sz / 2 - idx * sz
                 mat = [[1 if k == idx else 0 for k in range(rows*cols)]]
                 G5_[y][x] = make_grid(self, w=cols * rows, h=1, lgt_x=+2.5, btn_x=-2.5, lgt_y=my, btn_y=my, sz=sz, rt=0.01, mat=mat, mat_l=[mat_l[idx][:]], show=True)
-        self.wait(2)
+        self.wait(1)
         gauss_grids(self, G5_, OPS5[0], rt=0.01)
         self.wait(1)
         gauss_grids(self, G5_, OPS5[1], rt=0.01)
-        self.wait(4)
+        self.wait(3)
 
-        show_subtitle(self, "我们把25种操作叠加起来，这就是 $5 \\times 5$ 的一种解法。")
+        show_subtitle(self, "我们把25种操作叠加起来，这就是 $5\\times 5$ 的一种解法。")
         self.wait(0.5)
         my = ((rows * cols) - 1) * sz / 2 - (rows * cols + 1) * sz
         G5_sum = make_grid(self, w=(rows * cols), h=1, lgt_x=2.5, btn_x=-2.5, lgt_y=my, btn_y=my, sz=sz, rt=0.1, show=True)
@@ -1881,7 +1930,7 @@ class LightsOut(Scene):
         self.wait(1)
         add_grid(self, G5qut[1][0], G5qut[0][1])
         add_grid(self, G5qut[1][1], G5qut[0][1])
-        self.wait(4)
+        self.wait(3)
 
         show_subtitle(self, "由于静默操作不会改变灯，我们也可以把它们分别和刚才的解法叠加。", "这也就是刚才首行穷举法得到的四种解法。")
         self.wait(0.5)
@@ -1889,7 +1938,7 @@ class LightsOut(Scene):
         add_grid(self, G5sum, G5qut[0][1])
         add_grid(self, G5sum, G5qut[1][0])
         add_grid(self, G5sum, G5qut[1][1])
-        self.wait(6)
+        self.wait(7)
         del_grids(self, [G5sum])
         del_grids(self, G5qut)
 
@@ -1897,7 +1946,7 @@ class LightsOut(Scene):
         self.wait(0.5)
         mat = [[1 if (j==0 and i==0) else 0 for i in range(5)] for j in range(5)]
         G5 = make_grid(self, w=5, h=5, lgt_x= 0.0, btn_x= 0.0, sz=0.6, mat_l=mat)
-        self.wait(6)
+        self.wait(9)
         del_grids(self, [G5])
 
         show_title(self, "增广矩阵法")
@@ -1913,12 +1962,12 @@ class LightsOut(Scene):
                 idx = y * cols + x
                 my = ((rows * cols) - 1) * sz / 2 - idx * sz
                 G5_[y][x] = make_grid(self, w=cols * rows, h=1, w_l=1, h_l=1, lgt_x=1.25, btn_x=-1.25, lgt_y=my, btn_y=my, sz=sz, rt=0.01, mat=[mat_l[idx][:]], mat_l=[[1]], show=True)
-        self.wait(5)
+        self.wait(10)
 
         show_subtitle(self, "前者，我们对按钮和灯矩阵进行消元，相当于同时乘以逆矩阵。", "现在，我们对灯向量做相同的操作，便获得了按钮的状态，也就是解法。")
         self.wait(0.5)
         gauss_grids(self, G5_, OPS5[0], rt=0.01)
-        self.wait(1)
+        self.wait(2)
         gauss_grids(self, G5_, OPS5[1], rt=0.01)
         self.wait(5)
 
@@ -1926,13 +1975,15 @@ class LightsOut(Scene):
         self.wait(0.5)
         G5_l_ = make_grid(self, w=1, h=cols * rows, w_l=1, h_l=cols * rows, lgt_x=1.25, btn_x=1.25, lgt_y=0.0, btn_y=0.0, sz=sz, rt=0.0, mat_l=MAT5_L, show=True)
         G5_l = make_grid(self, w=cols, h=rows, lgt_x=3.0, btn_x=3.0, sz=sz*2, rt=0.0, mat_l=MAT510, show=False)
+        self.wait(1)
         trans_grid(self, G5_l_, G5_l)
-        self.wait(5)
+        self.wait(10)
 
-        show_subtitle(self, "因为灯和按钮各有 $N \\times N$ 个，每一行都有 $N \\times N$ 个按钮叠加，", "因此该方法的复杂度为 $(N \\times N)^3 = N^6$ 。")
-        self.wait(5)
-        show_subtitle(self, "这个方法的复杂度是多项式级别的，但 $N \\times N$ 的矩阵仍然很大。", "那么，我们是否还能找到更快、更巧妙的解法呢？")
-        self.wait(6)
+        show_subtitle(self, "因为灯和按钮各有 $N\\times N$ 个，每一行都有 $N\\times N$ 个按钮叠加，", "因此该方法的复杂度为 $(N\\times N)^3 = N^6$ 。")
+        self.wait(11)
+
+        show_subtitle(self, "这个方法的复杂度是多项式级别的，但 $N\\times N$ 的矩阵仍然很大。", "那么，我们是否还能找到更快、更巧妙的解法呢？")
+        self.wait(10)
         del_grids(self, G5_)
         del_grids(self, [G5_l])
 
@@ -1953,7 +2004,7 @@ class LightsOut(Scene):
         for r in range(5):
             hl_cells(self, [G51, G52, G53], which="btn", indices=[(r,0)], rt=0.01)
             hl_cells(self, [G51, G52, G53], which="lgt", indices=[(r,4)], rt=0.01)
-        self.wait(4)
+        self.wait(7)
         del_grids(self, [G51, G52, G53])
 
         show_subtitle(self, "从首行穷举法可知，灯由周围的按钮确定，下一行的按钮则是灯的翻转。", "我们把一行的灯单独列出来，用按钮表示状态。")
@@ -1966,14 +2017,14 @@ class LightsOut(Scene):
                 mx = (y*2-cols)*(1+sz)+1
                 my = -k*sz-0.5
                 G5_[k][y] = make_grid(self, w=cols, h=1, w_l=1, h_l=1, lgt_x=mx+sz*(cols+3)/2, btn_x=mx, lgt_y=my, btn_y=my, sz=sz, mat=[MAT5K[k][y][:]], mat_l=[[MAT5KL[k][y]]], show=True, rt=0.1)
-        self.wait(5)
+        self.wait(10)
 
         show_subtitle(self, "例如这里，左边第一行代表第一个灯由第1、2个按钮决定，", "旁边的蓝色方格代表按钮是灯的翻转。")
         self.wait(0.5)
         hl_cells(self, [G5_[0][0]], which="btn", indices=[(0,0)])
         hl_cells(self, [G5_[0][0]], which="btn", indices=[(1,0)])
         hl_cells(self, [G5_[0][0]], which="lgt", indices=[(0,0)])
-        self.wait(5)
+        self.wait(6)
         del_cells(self, [G5_[0][0]], which="btn", indices=[(0,0)])
         del_cells(self, [G5_[0][0]], which="btn", indices=[(1,0)])
         del_cells(self, [G5_[0][0]], which="lgt", indices=[(0,0)])
@@ -1997,9 +2048,9 @@ class LightsOut(Scene):
         L5=make_grid_label(self,Bnot2,r"a,\lnot b",dy,scale)
         Bxor2 = make_grid(self, w=1, h=4, w_l=1, h_l=4, lgt_x=4 - gap*0, btn_x=4 - gap*0, lgt_y=my, btn_y=my, sz=szab, mat=MNOT, mat_l=ML1)
         L6=make_grid_label(self,Bxor2,r"a \oplus \lnot b",dy,scale)
-        self.wait(4)
+        self.wait(8)
         show_subtitle(self, "另外，如果某个按钮被叠加了两次，那就等同于没有叠加。", "同样，如果灯被翻转两次，也等同于没有翻转。")
-        self.wait(4)
+        self.wait(10)
 
         show_subtitle(self, "接着推导第二行，可由上一行按钮状态叠加确定，", "因为灯的翻转可以单独列出，也由灯的翻转状态叠加确定。")
         self.wait(0.5)
@@ -2008,12 +2059,13 @@ class LightsOut(Scene):
                 mx = (y*2-cols)*(1+sz)+1
                 my = -k*sz-0.5
                 G5_[k][y] = make_grid(self, w=cols, h=1, w_l=1, h_l=1, lgt_x=mx+sz*(cols+3)/2, btn_x=mx, lgt_y=my, btn_y=my, sz=sz, mat=[MAT5K[k][y][:]], mat_l=[[MAT5KL[k][y]]], show=True, rt=0.1)
-        self.wait(2)
+        self.wait(3)
         hl_cells(self, [G5_[0][0], G5_[1][0]], which="btn", indices=[(0,0)])
         hl_cells(self, [G5_[0][0]], which="btn", indices=[(1,0)])
         hl_cells(self, [G5_[0][0], G5_[1][0], G5_[0][1]], which="lgt", indices=[(0,0)])
-        show_subtitle(self, "这里分别表示第二行第一个按钮和灯，", "分别为上一行的按钮或灯的叠加或翻转。")
         self.wait(5)
+        show_subtitle(self, "这里分别表示第二行第一个按钮和灯，", "分别为上一行的按钮或灯的叠加或翻转。")
+        self.wait(7)
         del_cells(self, [G5_[0][0], G5_[1][0]], which="btn", indices=[(0,0)])
         del_cells(self, [G5_[0][0]], which="btn", indices=[(1,0)])
         del_cells(self, [G5_[0][0], G5_[1][0], G5_[0][1]], which="lgt", indices=[(0,0)])
@@ -2025,11 +2077,11 @@ class LightsOut(Scene):
                 mx = (y*2-cols)*(1+sz)+1
                 my = -k*sz-0.5
                 G5_[k][y] = make_grid(self, w=cols, h=1, w_l=1, h_l=1, lgt_x=mx+sz*(cols+3)/2, btn_x=mx, lgt_y=my, btn_y=my, sz=sz, mat=[MAT5K[k][y][:]], mat_l=[[MAT5KL[k][y]]], show=True, rt=0.1)
-        self.wait(3)
+        self.wait(2)
         show_subtitle(self, "于是，我们可以由第一行按钮的状态开始，", "不断推导，得到最后一行灯是由第一行哪几个按钮叠加的。")
         for y in range(cols):
             hl_bd(self, G5_[4][y], width=BD_W_SEL/2, buff=0.03)
-        self.wait(5)
+        self.wait(7)
 
         show_subtitle(self, "最后，我们便得到了一种与叠加法类似的矩阵。", "只不过这一次，灯和按钮都只有 $N$ 个。")
         self.wait(0.5)
@@ -2041,26 +2093,26 @@ class LightsOut(Scene):
             my = -(y-(cols-1)/2)*sz*2
             del_bd(self, G5_[4][y])
             move_grid(self, G5_[rows-1][y], lgt_x=mx+sz*2*(cols+3)/2, btn_x=mx, lgt_y=my, btn_y=my, sz=sz*2)
-        self.wait(4)
+        self.wait(3)
 
         show_subtitle(self, "由于在推导的过程中灯进行了翻转，", "因此最终灯向量也是翻转过的状态。")
         self.wait(0.5)
         hl_cells(self, G5_[4], which="lgt", indices=[(0,0)])
-        self.wait(3)
+        self.wait(6)
         del_cells(self, G5_[4], which="lgt", indices=[(0,0)])
 
         show_subtitle(self, "现在，我们对矩阵消元，", "同时操作灯向量，最终得到第一行按钮的状态。")
         self.wait(0.5)
         gauss_grids(self, G5_, OPS5K[0])
         gauss_grids(self, G5_, OPS5K[1])
-        self.wait(4)
+        self.wait(3)
 
-        show_subtitle(self, "可以注意到，消元后的矩阵和之前 $25 \\times 25$ 的情况一样，", "最后两行为静默操作，而右边的灯向量就是解法。")
+        show_subtitle(self, "可以注意到，消元后的矩阵和之前 $25\\times 25$ 的情况一样，", "最后两行为静默操作，而右边的灯向量就是解法。")
         self.wait(0.5)
         for r in range(5):
             hl_cells(self, [G5_[4][3], G5_[4][4]], which="btn", indices=[(r,0)], rt = 0.1)
         hl_cells(self, G5_[4], which="lgt", indices=[(0,0)])
-        self.wait(4)
+        self.wait(8)
         for r in range(5):
             del_cells(self, [G5_[4][3], G5_[4][4]], which="btn", indices=[(r,0)], rt = 0.1)
         del_cells(self, G5_[4], which="lgt", indices=[(0,0)])
@@ -2069,11 +2121,11 @@ class LightsOut(Scene):
         self.wait(0.5)
         hl_cells(self, [G5_[4][0], G5_[4][1], G5_[4][2]], which="btn", indices=[(3,0)])
         hl_cells(self, [G5_[4][0], G5_[4][1], G5_[4][2]], which="btn", indices=[(4,0)])
-        self.wait(4)
+        self.wait(11)
         del_cells(self, [G5_[4][0], G5_[4][1], G5_[4][2]], which="btn", indices=[(3,0)])
         del_cells(self, [G5_[4][0], G5_[4][1], G5_[4][2]], which="btn", indices=[(4,0)])
-        show_subtitle(self, "不难看出，和刚才的叠加法一样，", "这次矩阵规模从 $N \\times N$ 变为了 $N$，因此复杂度就是 $N^3$ 。")
-        self.wait(6)
+        show_subtitle(self, "不难看出，和刚才的叠加法一样，", "这次矩阵规模从 $N\\times N$ 变为了 $N$，因此复杂度就是 $N^3$ 。")
+        self.wait(8)
         del_grids(self, G5_)
 
         show_title(self, "优化生成矩阵")
@@ -2088,7 +2140,7 @@ class LightsOut(Scene):
                 mx = (y*2-cols)*(1+sz)+1
                 my = -k*sz+0.5
                 G5_[k][y] = make_grid(self, w=cols, h=1, w_l=1, h_l=1, lgt_x=mx+sz*(cols+3)/2, btn_x=mx, lgt_y=my, btn_y=my, sz=sz, mat=[MAT5K[k][y][:]], mat_l=[[MAT5KL[k][y]]], show=True, rt=0.1)
-        self.wait(2)
+        self.wait(9)
 
         show_subtitle(self, "我们将每一个灯都分开来推导，但实际上这些灯之间是有关联的。", "将矩阵重排后可以观察到，这些矩阵有着高度的对称性。")
         self.wait(0.5)
@@ -2096,7 +2148,7 @@ class LightsOut(Scene):
             for y in range(cols):
                 if (k > y):
                     swap_grid(self, G5_[k][y], G5_[y][k])
-        self.wait(5)
+        self.wait(4)
 
         show_subtitle(self, "仔细观察这些矩阵可以发现，", "每个格子的上下左右四个格子的状态数量恰好是偶数个。")
         self.wait(0.5)
@@ -2114,16 +2166,16 @@ class LightsOut(Scene):
         self.wait(0.5)
         for k in range(rows):
             hl_bd(self, G5_[k][4], width=BD_W_SEL/2, buff=0.03)
-        self.wait(4)
+        self.wait(7)
         show_subtitle(self, "因此，我们只需要推导第一个灯的状态，", "就可以得到所有灯的状态，从而减少复杂度。")
-        self.wait(5)
+        self.wait(6)
         for k in range(rows):
             del_bd(self, G5_[k][4])
         del_grids(self, G5_)
 
         show_title(self, "解的数量")
 
-        show_subtitle(self, "刚才我们发现，对于 $5 \\times 5$ 的格子，", "因为有两组静默操作，和前面的解共同构成了四种解法。")
+        show_subtitle(self, "刚才我们发现，对于 $5\\times 5$ 的格子，", "因为有两组静默操作，和前面的解共同构成了四种解法。")
         self.wait(0.5)
         cols, rows = 5, 5
         sz = 0.25
@@ -2147,7 +2199,7 @@ class LightsOut(Scene):
         del_bd(self, G5_[4][4])
         del_grids(self, G5_)
 
-        show_subtitle(self, "而对于 $3 \\times 3$ 的格子来说，", "由于没有静默操作，因此解法是唯一的。")
+        show_subtitle(self, "而对于 $3\\times 3$ 的格子来说，", "由于没有静默操作，因此解法是唯一的。")
         self.wait(0.5)
         cols, rows = 3, 3
         sz = 0.45
@@ -2173,7 +2225,7 @@ class LightsOut(Scene):
         del_bd(self, G3_[2][2])
         del_grids(self, G3_)
 
-        show_subtitle(self, "那么，对于 $N \\times N$ 的格子来说，最多可能有多少组静默操作呢？", "现在，我们观察 $4 \\times 4$ 的格子，并用首行叠加法求解。")
+        show_subtitle(self, "那么，对于 $N\\times N$ 的格子来说，最多可能有多少组静默操作呢？", "现在，我们观察 $4\\times 4$ 的格子，并用首行叠加法求解。")
         self.wait(0.5)
         cols, rows = 4, 4
         sz = 0.3
@@ -2190,13 +2242,13 @@ class LightsOut(Scene):
             move_grid(self, G4_[rows-1][y], lgt_x=mx+sz*2*(cols+3)/2, btn_x=mx, lgt_y=my, btn_y=my, sz=sz*2, rt=0.3)
         gauss_grids(self, G4_, OPS4K[0])
         gauss_grids(self, G4_, OPS4K[1])
-        self.wait(3)
-        show_subtitle(self, "这次我们意外的发现，所有的按钮都被抵消了，我们得到了一个零矩阵", "也就是说， $4 \\times 4$ 的格子有四组独立的静默操作，叠加后就是16种。")
+        self.wait(7)
+        show_subtitle(self, "这次我们意外的发现，所有的按钮都被抵消了，我们得到了一个零矩阵", "也就是说， $4\\times 4$ 的格子有四组独立的静默操作，叠加后就是16种。")
         hl_bd(self, G4_[3][0])
         hl_bd(self, G4_[3][1])
         hl_bd(self, G4_[3][2])
         hl_bd(self, G4_[3][3])
-        self.wait(5)
+        self.wait(9)
         del_bd(self, G4_[3][0])
         del_bd(self, G4_[3][1])
         del_bd(self, G4_[3][2])
@@ -2258,8 +2310,8 @@ class LightsOut(Scene):
             x = idx % cols
             y = idx // cols
             apply_mat(self, G[y][x], slice_mat(MAT_btn[idx], 1, rows-1), anim=0.1, clear_end=True)
-        show_subtitle(self, "因为 $N \\times N$ 格子第一行最多有 $2^N$ 种状态，", "因此$N \\times N$ 格子的解法最多为 $2^N$ 种。")
-        self.wait(4)
+        show_subtitle(self, "因为 $N\\times N$ 格子第一行最多有 $2^N$ 种状态，", "因此$N\\times N$ 格子的解法最多为 $2^N$ 种。")
+        self.wait(9)
         for idx in range(16):
             x = idx % cols
             y = idx // cols
@@ -2291,7 +2343,7 @@ class LightsOut(Scene):
             label_grp.move_to([mx, my - (2 * sz + 0.22), 0])
             self.add(label_grp)
             labels.append(label_grp)
-        self.wait(6)
+        self.wait(11)
         self.play(FadeOut(VGroup(*labels), run_time=0.3))
         del_grids(self, G)
 
@@ -2305,8 +2357,10 @@ class LightsOut(Scene):
 
         show_subtitle(self, "刚才我们探讨了解的数量，但是没有证明解一定存在。", "那么对于普通的点灯游戏，解是否一定存在呢？")
         self.wait(0.5)
-#演示？一个复杂的点灯游戏（7x7，分开，并解出来）
-        self.wait(4)
+        G11 = make_grid(self, w=11, h=11, sz=0.35, mat_g=MATRG11)
+        apply_mat(self, G11, MATRB11, anim=0.1, clear_end=True)
+        self.wait(10)
+        del_grids(self, [G11])
 
         show_subtitle(self, "事实上，只要点灯游戏满足两个要求，那它就是可解的。")
         self.wait(0.5)
@@ -2342,11 +2396,11 @@ class LightsOut(Scene):
         G2 = make_grid(self, w=3, h=3, lgt_x=-1.5, btn_x=-1.5, sz=0.6, mat=MATRB2, mat_g=MATRG2)
         G3 = make_grid(self, w=4, h=3, lgt_x=+1.5, btn_x=+1.5, sz=0.5, mat=MATRB3, mat_g=MATRG3)
         G4 = make_grid(self, w=5, h=4, lgt_x=+4.0, btn_x=+4.0, sz=0.4, mat=MATRB4, mat_g=MATRG4)
-        self.wait(2)
+        self.wait(6)
         show_subtitle(self, "如果格子没有连成整体，则分开的部分不会互相影响。", "因此，我们只需要分别求解连起来的部分。")
-        self.wait(4)
+        self.wait(9)
         show_subtitle(self, "下面，让我用简单的方式，", "使用数学归纳法，来证明所有的点灯游戏都是可解的。")
-        self.wait(4)
+        self.wait(7)
         del_grids(self, [G1, G2, G3, G4])
 
         show_subtitle(self, "首先，让我们考虑只有1，2，3个按钮的情况。", "这里列举出了所有可能的布局，这些布局显然都是可解的。")
@@ -2355,10 +2409,10 @@ class LightsOut(Scene):
         G2  = make_grid(self, w=2, h=1, lgt_x=-1.5, btn_x=-1.5, sz=0.8, mat=[[1, 0]])
         G31 = make_grid(self, w=3, h=1, lgt_x=+1.5, btn_x=+1.5, sz=0.6, mat=[[0, 1, 0]])
         G32 = make_grid(self, w=2, h=2, lgt_x=+4.0, btn_x=+4.0, sz=0.6, mat=[[1, 0], [0, 0]], mat_g=[[1, 1], [1, 0]])
-        self.wait(5)
+        self.wait(8)
         del_grids(self, [G1, G2, G31, G32])
 
-        show_subtitle(self, "现在，让我们把 $2 \\times 2$ 的格子分别去掉一个格子，", "得到4个3个按钮的格子。")
+        show_subtitle(self, "现在，让我们把 $2\\times 2$ 的格子分别去掉一个格子，", "得到4个3个按钮的格子。")
         self.wait(0.5)
         G2 = [[None] * 2 for _ in range(2)]
         cols, rows = 2, 2
@@ -2373,7 +2427,7 @@ class LightsOut(Scene):
         for y in range(rows):
             for x in range(cols):
                 toggle_grid(self, G2[y][x], x, y)
-        self.wait(1)
+        self.wait(2)
 
         show_subtitle(self, "让我们求解这些3个按钮的格子，", "然后再将去除的格子补回来。")
         self.wait(0.5)
@@ -2392,14 +2446,14 @@ class LightsOut(Scene):
         for y in range(rows):
             for x in range(cols):
                 toggle_lgt(self, G2[y][x], x, y)
-        self.wait(1)
+        self.wait(8)
 
         show_subtitle(self, "不幸的是，所有补回来的格子周围的按钮数都是偶数，", "因此，所有这些格子都没有被点亮。")
         self.wait(0.5)
         for y in range(rows):
             for x in range(cols):
                 toggle_lgt(self, G2[y][x], x, y)
-        self.wait(1)
+        self.wait(6)
 
         show_subtitle(self, "现在，让我们尝试把这4种状态叠加起来。", "可以看到，这次所有灯都被点亮了。")
         self.wait(0.5)
@@ -2419,18 +2473,21 @@ class LightsOut(Scene):
                 my =  (rows - 1) * (2 * sz + gap) / 2 - y * (2 * sz + gap)
                 mat = [[1 if (j == rows - 1 - y and i == cols - 1 - x) else 0 for i in range(cols)] for j in range(rows)]
                 G2[y][x] = make_grid(self, w=cols, h=rows, lgt_x=mx, btn_x=mx, lgt_y=my, btn_y=my, sz=sz, mat=mat)
-        add_grid(self, G2[0][1], G2[0][0])
-        add_grid(self, G2[1][0], G2[0][0])
-        add_grid(self, G2[1][1], G2[0][0])
-#标记数字？
+        self.wait(1)
+        add_grid(self, G2[0][1], G2[0][0], rt=1)
+        self.wait(1)
+        add_grid(self, G2[1][0], G2[0][0], rt=1)
+        self.wait(1)
+        add_grid(self, G2[1][1], G2[0][0], rt=1)
+        self.wait(1)
         del_grids(self, [G2[1][1], G2[0][1], G2[1][0]])
         move_grid(self, G2[0][0], lgt_x=0.0, btn_x=0.0, lgt_y=0.0, btn_y=0.0)
-        self.wait(1)
-        show_subtitle(self, "这也就是 $2 \\times 2$ 的格子的解法，", "这个方法可以推广到任意偶数个按钮的游戏中。")
-        self.wait(4)
+        self.wait(5)
+        show_subtitle(self, "这也就是 $2\\times 2$ 的格子的解法，", "这个方法可以推广到任意偶数个按钮的游戏中。")
+        self.wait(7)
         del_grids(self, [G2[0][0]])
-#        """
-        show_subtitle(self, "对于奇数个按钮的游戏，我们又该怎么办呢？", "让我们考虑 $3 \\times 3$ 的格子，并假定我们知道所有8个按钮游戏的解法。")
+
+        show_subtitle(self, "对于奇数个按钮的游戏，我们又该怎么办呢？", "让我们考虑 $3\\times 3$ 的格子，并假定我们知道所有8个按钮游戏的解法。")
         self.wait(0.5)
         cols, rows = 3, 3
         sz, gap = 0.4, 0.7
@@ -2456,7 +2513,7 @@ class LightsOut(Scene):
             for x in range(cols):
                 toggle_grid(self, G3[y][x], x, y)
         show_subtitle(self, "和刚才一样，我们分别去掉了一个格子求解，再补回来。", "这里的9种情况恰好补回来的格子也都没有亮。")
-        self.wait(4)
+        self.wait(9)
 
         show_subtitle(self, "我们把它们叠加起来。", "由于每个灯翻转了偶数次，因此所有灯都是暗的。")
         self.wait(0.5)
@@ -2471,7 +2528,7 @@ class LightsOut(Scene):
         show_subtitle(self, "为了解决这个问题，我们可以先点击中间的按钮，翻转5个灯。")
         self.wait(0.5)
         press(self, G3[1][1], 1, 1)
-        self.wait(3)
+        self.wait(5)
         clear_all_bd(G3[1][1])
 
         show_subtitle(self, "然后，我们再依次叠加四个角的按法。", "现在，所有灯都被翻转了。")
@@ -2489,28 +2546,25 @@ class LightsOut(Scene):
         add_grid(self, G3[0][2], G3[1][1], rt=1.2)
         add_grid(self, G3[2][0], G3[1][1], rt=1.2)
         add_grid(self, G3[2][2], G3[1][1], rt=1.2)
-        self.wait(2)
+        self.wait(5)
         show_subtitle(self, "如此一来，我们恰好补足了刚才没有翻的偶数个灯，", "也就把所有灯点亮了。")
         press(self, G3[1][1], 1, 1)
-        self.wait(5)
+        self.wait(6)
+        show_subtitle(self, "不难证明，所有的点灯游戏，总有一种操作可以翻转奇数个灯，", "因此，我们可以用这种办法求解奇数个按钮的点灯游戏。")
+        self.wait(12)
         del_grids(self, G3) 
 
-        show_subtitle(self, "不难证明，所有的点灯游戏，总有一种操作可以翻转奇数个灯，", "因此，我们可以用这种办法求解奇数个按钮的点灯游戏。")
-        self.wait(0.5)
-#【演示】再次演示2x2，3x3
         show_subtitle(self, "由此，我们便证明了，", "对于任意按钮数量的点灯游戏，我们总能找到解法。")
-        self.wait(5)
-
+        self.wait(6)
         show_subtitle(self, "事实上，这个证明可以用形式语言表达。")
         self.wait(0.5)
         show_center_latex(self, latex_blocks=LATEX2, shift_y=0.6)
-        self.wait(4)
+        self.wait(6)
         remove_center_latex(self)
-
         show_subtitle(self, "同时，这个证明和图论息息相关。")
         self.wait(0.5)
         show_center_latex(self, latex_blocks=LATEX3)
-        self.wait(4)
+        self.wait(6)
         remove_center_latex(self)
 
         show_title(self, "更快的解法")
@@ -2518,16 +2572,16 @@ class LightsOut(Scene):
         show_subtitle(self, "为了寻找更快的解法，我们可以尝试从这些方向思考问题。")
         self.wait(0.5)
         show_center_latex(self, latex_blocks=LATEX5, shift_y=0.6)
-        self.wait(4)
+        self.wait(6)
         show_subtitle(self, "由于 UP 主能力有限，", "有更好的想法或实现思路的朋友，欢迎在评论区留言交流！")
-        self.wait(4)
+        self.wait(8)
         remove_center_latex(self)
 
         show_title(self, "参考文献")
 
         show_center_latex(self, latex_blocks=LATEX_LEFT, shift_x=-3.5, shift_y=-0.25, replace_old=False)
         show_center_latex(self, latex_blocks=LATEX_RIGHT, shift_x=3.2, shift_y=1.5, replace_old=False)
-        self.wait(6)
+        self.wait(10)
         remove_center_latex(self)
 
         show_title(self, "")

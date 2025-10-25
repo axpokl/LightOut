@@ -1,0 +1,2 @@
+ffmpeg -i "videos\lights_out.mp4" -i "´¿ÎÄ±¾_²å¿ÕÖØÆ´.mp3" -filter_complex "[1:a]adelay=19000:all=1[a1]" -map 0:v:0 -map "[a1]" -c:v copy -c:a aac -ar 48000 -ac 2 -movflags +faststart -shortest "videos\lights_out_with_audio_+19s.mp4"
+pause
