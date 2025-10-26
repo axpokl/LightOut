@@ -932,7 +932,7 @@ def show_subtitle(scene, text, text2=None, run_in=0.3, run_out=0.3, font=DEFAULT
     scene._subtitle_ = lines
     return lines
 
-def show_title(scene, line1=None, line2=None, run_in=0.3, run_out=0.3, font=DEFAULT_FONT, size1=48, size2=32, line_gap=0.15, buff=0.5, pause=0.8, rt=0.3,):
+def show_title(scene, line1=None, line2=None, run_in=0.3, run_out=0.3, font=DEFAULT_FONT, size1=48, size2=32, line_gap=0.15, buff=0.5, pause=0.8, rt=0.3):
     show_subtitle(scene, "")
     old = getattr(scene, "_title_mobj", None)
     if old is not None:
@@ -953,6 +953,12 @@ def show_title(scene, line1=None, line2=None, run_in=0.3, run_out=0.3, font=DEFA
     parts = [p for p in parts if p is not None]
     if len(parts) == 0 or all(p == "" for p in parts):
         return None
+    out_text = "".join(parts)
+    try:
+        with open("title.txt", "a", encoding="utf-8") as f:
+            f.write(f"{_fmt_scene_time_ms(scene)} {out_text}\n")
+    except Exception:
+        pass
     objs = []
     if len(parts) >= 1 and parts[0] != "":
         t1 = _mk_line_group(parts[0], font, size1, WHITE)
@@ -1511,7 +1517,7 @@ class LightsOut(Scene):
         move_grid(self, G53, lgt_x= 3.0, btn_x= 3.0, lgt_y=-1.2, btn_y=1.2)
         self.wait(4)
 
-        show_subtitle(self, "我们的目标是：找到一个按钮组，其对应灯的状态为全亮。", "那么，我们如何找到这样一个组按钮呢？")
+        show_subtitle(self, "我们的目标是：找到一个按钮组，其对应灯的状态为全亮。", "那么，我们如何找到这样一个按钮组呢？")
         self.wait(0.5)
         hl_bd(self, G53)
         self.wait(7)
@@ -2581,7 +2587,7 @@ class LightsOut(Scene):
 
         show_center_latex(self, latex_blocks=LATEX_LEFT, shift_x=-3.5, shift_y=-0.25, replace_old=False)
         show_center_latex(self, latex_blocks=LATEX_RIGHT, shift_x=3.2, shift_y=1.5, replace_old=False)
-        self.wait(10)
+        self.wait(20)
         remove_center_latex(self)
 
         show_title(self, "")
