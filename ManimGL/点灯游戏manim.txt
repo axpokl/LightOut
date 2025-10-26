@@ -321,12 +321,12 @@ f(n, x)在GF(2)中定义，也就是偶系数项为0
 [7] OEIS，《n×n 全亮点灯问题的解数》  
     https://oeis.org/A075462
 [8] OEIS，《n×n 点灯问题问题的秩缺陷》  
-  https://oeis.org/A159257
+    https://oeis.org/A159257
 
 本视频由 ManimGL 制作：
-https://github.com/3b1b/manim
+    https://github.com/3b1b/manim
 视频脚本：
-https://github.com/axpokl/LightOut/blob/master/lights_out_manim.py
+    https://github.com/axpokl/LightOut/blob/master/lights_out_manim.py
 点灯游戏安卓APK（含O(n^3)求解）：
-https://axpokl.com/cx/axdiandeng2.apk
+    https://axpokl.com/cx/axdiandeng2.apk
 
