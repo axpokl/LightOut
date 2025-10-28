@@ -1,10 +1,10 @@
 program rcalc2;
-const MAXN=4096;
+const MAXN=10000;
 function RankOfN(n:LongInt):LongInt;
 var len,i,k,da,db,shift,j,resdeg:LongInt;
-    f0,f1,fn,tmp,fa:array[0..MAXN-1] of Byte;
-    g0,g1,tmp2,fb:array[0..MAXN-1] of Byte;
-    A,B,R:array[0..MAXN-1] of Byte;
+    f0,f1,fn,tmp,fa:array[0..MAXN+1] of Byte;
+    g0,g1,tmp2,fb:array[0..MAXN+1] of Byte;
+    A,B,R:array[0..MAXN+1] of Byte;
     zeroB:Boolean;
 begin
   len:=n+2;
@@ -68,6 +68,6 @@ end;
 
 var i:LongInt;
 begin
-  for i:=0 to 20 do
+  for i:=10000 to 10000 do
     writeln('n=',i,' r(n)=',RankOfN(i));
 end.

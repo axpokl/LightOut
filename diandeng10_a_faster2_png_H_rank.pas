@@ -134,9 +134,9 @@ end;
 
 function rank(n:LongInt):LongInt;
 var len,i,k,da,db,shift,j,resdeg:LongInt;
-    f0,f1,fn,tmp,fa:array[0..m-1] of Byte;
-    g0,g1,tmp2,fb:array[0..m-1] of Byte;
-    A,B,R:array[0..m-1] of Byte;
+    f0,f1,fn,tmp,fa:array[0..m+1] of Byte;
+    g0,g1,tmp2,fb:array[0..m+1] of Byte;
+    A,B,R:array[0..m+1] of Byte;
     zeroB:Boolean;
 begin
   len:=n+2;
