@@ -1,6 +1,6 @@
 program rcalc2;
 const MAXN=4096;
-function ROfN(n:LongInt):LongInt;
+function RankOfN(n:LongInt):LongInt;
 var len,i,k,da,db,shift,j,resdeg:LongInt;
     f0,f1,fn,tmp,fa:array[0..MAXN-1] of Byte;
     g0,g1,tmp2,fb:array[0..MAXN-1] of Byte;
@@ -63,10 +63,11 @@ begin
   resdeg:=-1;
   for i:=len-1 downto 0 do if A[i]<>0 then begin resdeg:=i;break;end;
   if resdeg<0 then resdeg:=0;
-  ROfN:=resdeg;
+  RankOfN:=resdeg;
 end;
+
 var i:LongInt;
 begin
-  for i:=0 to 1000 do
-    writeln('n=',i,' r(n)=',ROfN(i));
+  for i:=0 to 20 do
+    writeln('n=',i,' r(n)=',RankOfN(i));
 end.

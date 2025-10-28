@@ -1,4 +1,4 @@
-//{$define disp}
+{$define disp}
 program diandeng;
 
 {$ifdef disp}
@@ -261,7 +261,7 @@ CreateWin(m,m);
 bb:=CreateBB(GetWin());
 b:=CreateBMP(m,m);
 {$endif}
-for n:=m to m do
+for n:=1 to 20 do
   begin
   write(n,#9);
   write('m');MakeMat();{$ifdef disp}write('%');PrintMat('_A',l);{$endif}
