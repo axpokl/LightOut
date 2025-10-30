@@ -68,6 +68,6 @@ end;
 
 var i:LongInt;
 begin
-  for i:=10000 to 10000 do
-    writeln('n=',i,' r(n)=',RankOfN(i));
+  for i:=1 to MAXN do
+    writeln(i,#9,RankOfN(i));
 end.
