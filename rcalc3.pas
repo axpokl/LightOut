@@ -1,65 +1,37 @@
 program rcalc3;
 
 const m=10000;
+var f,g:array[-2..0,-1..m]of boolean;
 
-var f,g:array[-1..m+1,-1..m+1]of boolean;
-var fn,gn,cn:array[0..m]of boolean;
-var k:longint;
-var kg,kf,kt,kc:longint;
-
-procedure fx(n:longint);
+function rank(n:longint):longint;
+var fn,gn,cn:array[-1..m]of boolean;
+var ni,nt,k,kg,kf,kt:longint;
 begin
-if (n=0) then f[n,n]:=true
-else for k:=0 to m do f[n,k]:=f[n-1,k-1] xor f[n-2,k];
+if f[0,n-1]=false then begin f[0,0]:=true;g[0,0]:=true;nt:=1;end else nt:=n;
+for ni:=nt to n do
+begin
+f[-2]:=f[-1];f[-1]:=f[0];g[-2]:=g[-1];g[-1]:=g[0];
+for k:=0 to ni do
+begin
+f[0,k]:=f[-1,k-1] xor f[-2,k];
+g[0,k]:=g[-1,k-1] xor g[-1,k] xor g[-2,k];
 end;
-
-procedure gx(n:longint);
-begin
-if (n=0) then g[n,n]:=true
-else for k:=0 to m do g[n,k]:=g[n-1,k-1] xor g[n-1,k] xor g[n-2,k];
 end;
-
-function gcd(n:longint):longint;
-begin
-//writeln();
-for k:=0 to n do fn[k]:=f[n,k];
-for k:=0 to n do gn[k]:=g[n,k];
-kg:=n;
-kf:=n;
+fn:=f[0];gn:=g[0];
+kg:=n;kf:=n;
 repeat
-kc:=kf-kg;
 kt:=-1;
-//writeln('@');
-//for k:=0 to kf do if fn[k] then write('#') else write('.');writeln();
-//for k:=0 to kf do if gn[k] then write('#') else write('.');writeln();
-for k:=0 to kf do begin if k>=kc then fn[k]:=fn[k] xor gn[k-kc];if fn[k] then kt:=k;
-//if fn[k] then write('#') else write('.');
+for k:=0 to kf do
+begin 
+if k>=(kf-kg) then fn[k]:=fn[k] xor gn[k-(kf-kg)];
+if fn[k] then kt:=k;
 end;
-//writeln(#9,kf,#9,kg,#9,kc,#9,kt);
-//readln();
-if kt=-1 then gcd:=kg;
-if kt<kg then
-  begin
-  for k:=0 to kg do begin cn[k]:=fn[k];fn[k]:=gn[k];gn[k]:=cn[k];end;
-  kf:=kg;
-  kg:=kt;
-  end
-else
-  kf:=kt;
+if kt=-1 then rank:=kg;
+if kt<kg then begin cn:=fn;fn:=gn;gn:=cn;kf:=kg;kg:=kt;end else kf:=kt;
 until kt=-1;
 end;
 
 var i:longint;
-
 begin
-for i:=0 to m do
-  begin
-  fx(i);
-//  for k:=0 to i do if f[i,k] then write('#') else write('.');writeln;
-  gx(i);
-//  for k:=0 to i do if g[i,k] then write('#') else write('.');writeln;
-  {if i=5 then} writeln(i,#9,gcd(i));
-//  for k:=0 to i do if fn[k] then write('#') else write('.');writeln;
-//  writeln('####################')
-  end;
+for i:=1 to m do writeln(i,#9,rank(i));
 end.
