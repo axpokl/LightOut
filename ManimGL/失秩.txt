@@ -2,8 +2,8 @@
 
    1. f(0, x) = 1
    2. f(1, x) = x
-   4. f(n, x) = x · f(n-1, x) + f(n-2, x)
-   5. r(n) = deg(gcd(f(n, x), f(n, 1 + x)))
+   3. f(n, x) = x · f(n-1, x) + f(n-2, x)
+   4. r(n) = deg(gcd(f(n, x), f(n, 1 + x)))
 
 2. 其中：
 
