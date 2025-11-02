@@ -26,8 +26,9 @@ begin
 if k>=(kf-kg) then fn[k]:=fn[k] xor gn[k-(kf-kg)];
 if fn[k] then kt:=k;
 end;
-if kt=-1 then rank:=kg;
-if kt<kg then begin cn:=fn;fn:=gn;gn:=cn;kf:=kg;kg:=kt;end else kf:=kt;
+if kt=-1 then rank:=kg
+else if kt<kg then begin cn:=fn;fn:=gn;gn:=cn;kf:=kg;kg:=kt;end 
+else kf:=kt;
 until kt=-1;
 end;
 
