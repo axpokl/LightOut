@@ -132,60 +132,22 @@ for i:=n-1 downto 0 do
         end;
 end;
 
-var f,g:array[-1..m,-1..m]of boolean;
-
-procedure fg();
-begin
-for j:=0 to n do
-  if f[j,j] = false then
-    if f[0,0]=false then
-      begin
-      f[0,0]:=true;
-      g[0,0]:=true;
-      end
-    else
-      begin
-      for i:=0 to j do
-        begin
-        f[j,i]:=f[j-1,i-1] xor f[j-2,i];
-        g[j,i]:=g[j-1,i-1] xor g[j-1,i] xor g[j-2,i];
-        end;
-      end;
-end;
-
-function rank():longint;
-var fn,gn,cn:array[-1..m]of boolean;
-var k,kg,kf,kt:longint;
-begin
-fg();
-fn:=f[n];gn:=g[n];
-kg:=n;kf:=n;
-repeat
-kt:=-1;
-for k:=0 to kf do
-begin 
-if k>=(kf-kg) then fn[k]:=fn[k] xor gn[k-(kf-kg)];
-if fn[k] then kt:=k;
-end;
-if kt=-1 then rank:=kg
-else if kt<kg then begin cn:=fn;fn:=gn;gn:=cn;kf:=kg;kg:=kt;end 
-else kf:=kt;
-until kt=-1;
-end;
+var f:array[-1..m,-1..m]of boolean;
 
 procedure CalcMat2;
 var h,p,q,x,y,c:array[-1..m]of boolean;
 var kf,kg,sh,i,j,t,res:longint;
 var done:boolean;
 begin
-fg();
-writeln(n);
-write('a ');for i:=0 to n-1 do if l[i,0] then write(1) else write(0);writeln;
-write('f ');for i:=0 to n-1 do if f[n-1,i] then write(1) else write(0);writeln;
-write('g ');for i:=0 to n-1 do if g[n-1,i] then write(1) else write(0);writeln;
+//writeln(n);
+//write('a ');for i:=0 to n-1 do if l[i,0] then write(1) else write(0);writeln;
+//write('f ');for i:=0 to n-1 do if f[n-1,i] then write(1) else write(0);writeln;
+for j:=0 to n do if f[j,j]=false then
+  if f[0,0]=false then f[0,0]:=true
+  else for i:=0 to j do f[j,i]:=f[j-1,i-1] xor f[j-2,i];
 for i:=0 to n-1 do p[i]:=false;
 for j:=0 to n-1 do if l[j,0] then for i:=0 to n-1 do p[i]:=p[i] xor f[j,i];
-write('p ');for i:=0 to n-1 do if p[i] then write(1) else write(0);writeln;
+//write('p ');for i:=0 to n-1 do if p[i] then write(1) else write(0);writeln;
 //extgcd
 h:=f[n];
 for i:=0 to m do begin h[i]:=h[i]; p[i]:=p[i]; x[i]:=false; y[i]:=false; end;
@@ -206,8 +168,9 @@ begin
    kf:=-1; for i:=n downto 0 do if h[i] then begin kf:=i; break; end;
   end;
 end;
-write('q ');for i:=0 to n-1 do if q[i] then write(1) else write(0);writeln;
+//write('q ');for i:=0 to n-1 do if q[i] then write(1) else write(0);writeln;
 //reverse
+{
 for i:=1 to n do y[i]:=false;y[0]:=true;
 for i:=0 to n do x[i]:=false;
 for j:=0 to n-1 do 
@@ -220,8 +183,9 @@ for i:=0 to n-1 do r[0,i]:=x[i];
 for j:=1 to n-1 do
   for i:= 0 to n-1 do
     r[j,i]:=r[j-1,i-1] xor r[j-1,i+1] xor r[j-2,i];
+}
 //direct solve
-write('l ');for i:=0 to n-1 do if l[i,-1] then write(1) else write(0);writeln;
+//write('l ');for i:=0 to n-1 do if l[i,-1] then write(1) else write(0);writeln;
 for i:=0 to n do y[i]:=l[i,-1];
 for i:=0 to n do x[i]:=false;
 for j:=0 to n-1 do 
@@ -231,7 +195,7 @@ for j:=0 to n-1 do
   y:=c;
   end;
 for i:=0 to n-1 do l[i,-1]:=x[i];
-write('l ');for i:=0 to n-1 do if l[i,-1] then write(1) else write(0);writeln;
+//write('l ');for i:=0 to n-1 do if l[i,-1] then write(1) else write(0);writeln;
 end;
 
 procedure GeneMat();

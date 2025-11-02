@@ -1,16 +1,16 @@
-{$define disp}
+//{$define disp}
 program diandeng;
 
 {$ifdef disp}
 uses display;
 {$endif}
 
-const m=1000;
+const m=10000;
 
 type TMat=array[-1..m,-1..m]of Boolean;
 
 var n:longword;
-var a,l,r,t:TMat;
+var a,l,r,t,f:TMat;
 var i,j,k:longint;
 
 {$ifdef disp}
@@ -60,25 +60,12 @@ for i:=0 to n-1 do l[0,i]:=False;
 l[-1,0]:=False;
 for j:=1 to n do
   for i:=0 to n-1 do
-    begin
     l[j,i]:=not(l[j-1,i-1] xor l[j-1,i] xor l[j-1,i+1] xor l[j-2,i]);
-    l[j,i]:=l[j,i] xor a[j-1,i];
-    end;
-for i:=0 to n-1 do l[-1,i]:=False;
-l[-1,0]:=True;
-for j:=0 to n-1 do
-  for i:=0 to n-1 do
-    begin
-    l[j,i]:=(l[j-1,i-1] xor l[j-1,i] xor l[j-1,i+1]);
-    if j>0 then l[j,i]:=l[j,i] xor l[j-2,i];
-    end;
-for i:=0 to n-1 do l[0,i]:=l[n-1,i];
-for j:=1 to n-1 do
-  for i:=0 to n-1 do
-    begin
-    l[j,i]:=(l[j-1,i-1] xor l[j-1,i+1]);
-    if j>1 then l[j,i]:=l[j,i] xor l[j-2,i];
-    end;
+for j:=0 to n do if a[j,j]=false then
+  if a[0,0]=false then a[0,0]:=true
+  else for i:=0 to j do a[j,i]:=a[j-1,i-1] xor a[j-1,i] xor a[j-1,i+1] xor a[j-2,i];
+
+for i:=0 to n-1 do l[0,i]:=a[n,i];
 for i:=0 to n-1 do begin l[i,-1]:=l[n,i];l[n,i]:=False;end;
 for i:=0 to n-1 do for j:=0 to n-1 do r[i,j]:=(i=j);
 end;
@@ -132,57 +119,19 @@ for i:=n-1 downto 0 do
         end;
 end;
 
-var f,g:array[-1..m,-1..m]of boolean;
-
-procedure fg();
-begin
-for j:=0 to n do
-  if f[j,j] = false then
-    if f[0,0]=false then
-      begin
-      f[0,0]:=true;
-      g[0,0]:=true;
-      end
-    else
-      begin
-      for i:=0 to j do
-        begin
-        f[j,i]:=f[j-1,i-1] xor f[j-2,i];
-        g[j,i]:=g[j-1,i-1] xor g[j-1,i] xor g[j-2,i];
-        end;
-      end;
-end;
-
-function rank():longint;
-var fn,gn,cn:array[-1..m]of boolean;
-var k,kg,kf,kt:longint;
-begin
-fg();
-fn:=f[n];gn:=g[n];
-kg:=n;kf:=n;
-repeat
-kt:=-1;
-for k:=0 to kf do
-begin 
-if k>=(kf-kg) then fn[k]:=fn[k] xor gn[k-(kf-kg)];
-if fn[k] then kt:=k;
-end;
-if kt=-1 then rank:=kg
-else if kt<kg then begin cn:=fn;fn:=gn;gn:=cn;kf:=kg;kg:=kt;end 
-else kf:=kt;
-until kt=-1;
-end;
-
 procedure CalcMat2;
 var h,p,q,x,y,c:array[-1..m]of boolean;
 var kf,kg,sh,i,j,t,res:longint;
 var done:boolean;
 begin
-fg();
+//write('a ');for i:=0 to n-1 do if a[n,i] then write(1) else write(0);writeln;
+for j:=0 to n do if f[j,j]=false then
+  if f[0,0]=false then f[0,0]:=true
+  else for i:=0 to j do f[j,i]:=f[j-1,i-1] xor f[j-2,i];
 for i:=0 to n-1 do p[i]:=false;
-for j:=0 to n-1 do if l[j,0] then for i:=0 to n-1 do p[i]:=p[i] xor f[j,i];
-h:=f[n];
-for i:=0 to m do begin h[i]:=h[i]; p[i]:=p[i]; x[i]:=false; y[i]:=false; end;
+for j:=0 to n-1 do if a[n,j] then for i:=0 to n-1 do p[i]:=p[i] xor f[j,i];
+for i:=0 to n do h[i]:=f[n,i];
+for i:=0 to n do begin x[i]:=false; y[i]:=false; end;
 y[0]:=true;
 kf:=-1; for i:=n downto 0 do if h[i] then begin kf:=i; break; end;
 kg:=-1; for i:=n downto 0 do if p[i] then begin kg:=i; break; end;
@@ -200,33 +149,17 @@ begin
    kf:=-1; for i:=n downto 0 do if h[i] then begin kf:=i; break; end;
   end;
 end;
+//write('l ');for i:=0 to n-1 do if l[i,-1] then write(1) else write(0);writeln;
 for i:=0 to n do y[i]:=l[i,-1];
 for i:=0 to n do x[i]:=false;
-for j:=0 to n-1 do
- begin
+for j:=0 to n-1 do 
+  begin
   if q[j] then for i:=0 to n-1 do x[i]:=x[i] xor y[i];
   for i:=0 to n-1 do c[i]:=y[i-1] xor y[i+1];
-  y:=c;
- end;
-if res>0 then
- begin
-  for t:=1 to res do
-   begin
-    for i:=0 to n-1 do h[i]:=false;
-    h[0]:=false; if n>1 then h[1]:=x[0];
-    for i:=1 to n-2 do h[i+1]:=x[i] xor h[i-1];
-    if (n>=2) and (h[n-2]<>x[n-1]) then
-     begin
-      for i:=0 to n-1 do p[i]:=false;
-      p[0]:=true; if n>1 then p[1]:=x[0];
-      for i:=1 to n-2 do p[i+1]:=x[i] xor p[i-1];
-      for i:=0 to n-1 do x[i]:=p[i];
-     end
-    else
-     for i:=0 to n-1 do x[i]:=h[i];
-   end;
- end;
+  for i:=0 to n-1 do y[i]:=c[i];
+  end;
 for i:=0 to n-1 do l[i,-1]:=x[i];
+//write('l ');for i:=0 to n-1 do if l[i,-1] then write(1) else write(0);writeln;
 end;
 
 procedure GeneMat();
@@ -238,7 +171,7 @@ for i:=0 to n-1 do
   end;
 for j:=1 to n-1 do
   for i:=0 to n-1 do
-    t[j,i]:=not(t[j-1,i-1] xor t[j-1,i] xor t[j-1,i+1] xor t[j-2,i]) xor a[j-1,i];
+    t[j,i]:=not(t[j-1,i-1] xor t[j-1,i] xor t[j-1,i+1] xor t[j-2,i]);
 end;
 
 begin
@@ -247,7 +180,7 @@ CreateWin(m,m);
 bb:=CreateBB(GetWin());
 b:=CreateBMP(m,m);
 {$endif}
-for n:=1 to 20 do
+for n:=9990 to 10000 do
   begin
   write(n,#9);
   write('m');MakeMat();{$ifdef disp}write('%');PrintMat('_A',l);{$endif}
