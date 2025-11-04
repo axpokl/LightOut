@@ -139,15 +139,15 @@ var h,p,q,x,y,c:array[-1..m]of boolean;
 var kf,kg,sh,i,j,t,res:longint;
 var done:boolean;
 begin
-//writeln(n);
-//write('a ');for i:=0 to n-1 do if l[i,0] then write(1) else write(0);writeln;
-//write('f ');for i:=0 to n-1 do if f[n-1,i] then write(1) else write(0);writeln;
+writeln(n);
+write('a ');for i:=0 to n-1 do if l[i,0] then write(1) else write(0);writeln;
 for j:=0 to n do if f[j,j]=false then
   if f[0,0]=false then f[0,0]:=true
   else for i:=0 to j do f[j,i]:=f[j-1,i-1] xor f[j-2,i];
+write('f ');for i:=0 to n do if f[n,i] then write(1) else write(0);writeln;
 for i:=0 to n-1 do p[i]:=false;
 for j:=0 to n-1 do if l[j,0] then for i:=0 to n-1 do p[i]:=p[i] xor f[j,i];
-//write('p ');for i:=0 to n-1 do if p[i] then write(1) else write(0);writeln;
+write('p ');for i:=0 to n-1 do if p[i] then write(1) else write(0);writeln;
 //extgcd
 h:=f[n];
 for i:=0 to m do begin h[i]:=h[i]; p[i]:=p[i]; x[i]:=false; y[i]:=false; end;
@@ -168,7 +168,7 @@ begin
    kf:=-1; for i:=n downto 0 do if h[i] then begin kf:=i; break; end;
   end;
 end;
-//write('q ');for i:=0 to n-1 do if q[i] then write(1) else write(0);writeln;
+write('q ');for i:=0 to n-1 do if q[i] then write(1) else write(0);writeln;
 //reverse
 {
 for i:=1 to n do y[i]:=false;y[0]:=true;
@@ -185,7 +185,7 @@ for j:=1 to n-1 do
     r[j,i]:=r[j-1,i-1] xor r[j-1,i+1] xor r[j-2,i];
 }
 //direct solve
-//write('l ');for i:=0 to n-1 do if l[i,-1] then write(1) else write(0);writeln;
+write('l ');for i:=0 to n-1 do if l[i,-1] then write(1) else write(0);writeln;
 for i:=0 to n do y[i]:=l[i,-1];
 for i:=0 to n do x[i]:=false;
 for j:=0 to n-1 do 
@@ -195,7 +195,7 @@ for j:=0 to n-1 do
   y:=c;
   end;
 for i:=0 to n-1 do l[i,-1]:=x[i];
-//write('l ');for i:=0 to n-1 do if l[i,-1] then write(1) else write(0);writeln;
+write('l ');for i:=0 to n-1 do if l[i,-1] then write(1) else write(0);writeln;
 end;
 
 procedure GeneMat();

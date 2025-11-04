@@ -1,11 +1,11 @@
-//{$define disp}
+{$define disp}
 program diandeng;
 
 {$ifdef disp}
 uses display;
 {$endif}
 
-const m=10000;
+const m=1000;
 
 type TMat=array[-1..m,-1..m]of Boolean;
 
@@ -165,10 +165,9 @@ end;
 procedure GeneMat();
 begin
 for i:=0 to n-1 do
-  begin
   t[0,i]:=l[i,-1];
+for i:=-1 to n do
   l[i,-1]:=false;
-  end;
 for j:=1 to n-1 do
   for i:=0 to n-1 do
     t[j,i]:=not(t[j-1,i-1] xor t[j-1,i] xor t[j-1,i+1] xor t[j-2,i]);
@@ -180,7 +179,7 @@ CreateWin(m,m);
 bb:=CreateBB(GetWin());
 b:=CreateBMP(m,m);
 {$endif}
-for n:=9990 to 10000 do
+for n:=1 to 20 do
   begin
   write(n,#9);
   write('m');MakeMat();{$ifdef disp}write('%');PrintMat('_A',l);{$endif}

@@ -5,7 +5,7 @@ program diandeng;
 uses display;
 {$endif}
 
-const m=2000;
+const m=10000;
 var n:longword;
 var l:array[-1..m+1,-1..(m-1) shr 5+1]of longword;
 var i,j,k:longint;
@@ -134,7 +134,7 @@ begin
 CreateWin(m,m);
 bb:=CreateBB(GetWin());
 {$endif}
-for n:=1 to m do
+for n:=9900 to m do
   begin
   write(n,#9);
   write('m');MakeMat();

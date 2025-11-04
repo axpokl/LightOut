@@ -34,5 +34,5 @@ end;
 
 var i:longint;
 begin
-for i:=1 to m do writeln(i,#9,rank(i));
+for i:=1 to 20 do writeln(i,#9,rank(i));
 end.
