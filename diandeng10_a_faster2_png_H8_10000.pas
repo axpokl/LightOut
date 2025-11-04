@@ -71,7 +71,7 @@ for j:=0 to n do if e[j,j]=false then
   else for i:=0 to j do e[j,i]:=e[j-1,i-1] xor e[j-1,i+1];
 end;
 
-function gcd(n:longint;vf,vg:TVEC; var vr:TVEC):longint;
+function gcd(vf,vg:TVEC; var vr:TVEC):longint;
 var cn:TVEC;
 var kg,kf,kt:longint;
 begin
@@ -137,7 +137,7 @@ for j:=0 to n-1 do
   for i:=0 to n-1 do c[i]:=y[i-1] xor y[i+1];
   for i:=0 to n-1 do y[i]:=c[i];
   end;
-write('g',gcd(n,p,f[n],g),#9);
+write('g',gcd(f[n],p,g),#9);
 write('h',#9);
 for i:=0 to n-1 do h[0,i]:=false;
 for j:=0 to n-1 do if g[j] then for i:=0 to n-1 do h[0,i]:=h[0,i] xor e[j,i];
