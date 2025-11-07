@@ -74,50 +74,26 @@ for j:=0 to n do if e[j,j]=false then
 write('e ');for i:=0 to n-1 do if e[n,i] then write(1) else write(0);writeln;
 end;
 
-function gcd(vf,vg:TVEC; var vr:TVEC):longint;
-var cn:TVEC;
-var kg,kf,kt:longint;
-begin
-kf:=-1; for i:=n downto 0 do if vf[i] then begin kf:=i; break; end;
-kg:=-1; for i:=n downto 0 do if vg[i] then begin kg:=i; break; end;
-if kf<0 then begin for i:=0 to n do vr[i]:=vg[i]; gcd:=kg; exit; end;
-if kg<0 then begin for i:=0 to n do vr[i]:=vf[i]; gcd:=kf; exit; end;
-if kf<kg then begin for i:=0 to n do begin cn[i]:=vf[i]; vf[i]:=vg[i]; vg[i]:=cn[i];end; j:=kf; kf:=kg; kg:=j; end;
-repeat
- kt:=-1;
- for i:=0 to kf do
-  begin
-   if i>=(kf-kg) then vf[i]:=vf[i] xor vg[i-(kf-kg)];
-   if vf[i] then kt:=i;
-  end;
- if kt=-1 then begin for i:=0 to n do vr[i]:=vg[i]; gcd:=kg; exit; end
- else if kt<kg then begin for i:=0 to n do begin cn[i]:=vf[i]; vf[i]:=vg[i]; vg[i]:=cn[i]; end; kf:=kg; kg:=kt; end
- else kf:=kt;
-until false;
-end;
-
-procedure rev(vf,vg:TVec;var vr:TVec);
-var kf,kg,sh:longint;
-var done:boolean;
+function gcd(vf,vg:TVec; var vd,vr:TVec):longint;
 var vt,vx,vy:TVec;
+var kf,kg:longint;
+var done:boolean;
 begin
-for i:=0 to n do begin vx[i]:=false; vy[i]:=false; end;vy[0]:=true;
 kf:=-1; for i:=n downto 0 do if vf[i] then begin kf:=i; break; end;
 kg:=-1; for i:=n downto 0 do if vg[i] then begin kg:=i; break; end;
 done:=false;
-while not done do
+for i:=0 to n do begin vx[i]:=false; vy[i]:=false; end; vy[0]:=true;
+repeat
+if kf<kg then begin for i:=0 to n do begin vt[i]:=vf[i]; vf[i]:=vg[i]; vg[i]:=vt[i]; vt[i]:=vx[i]; vx[i]:=vy[i]; vy[i]:=vt[i]; end; j:=kf; kf:=kg; kg:=j; end;
+if kf<0 then begin for i:=0 to n do begin vd[i]:=vg[i]; vr[i]:=vy[i]; end; gcd:=kg; done:=true; end;
+if kg<0 then begin for i:=0 to n do begin vd[i]:=vf[i]; vr[i]:=vx[i]; end; gcd:=kf; done:=true; end;
+if not(done) then
   begin
-  if kf<0 then begin for i:=0 to n do vr[i]:=vy[i]; done:=true; end
-  else if kg<0 then begin for i:=0 to n do vr[i]:=vx[i]; done:=true; end
-  else
-    begin
-    if kf<kg then begin for i:=0 to n do begin vt[i]:=vf[i]; vf[i]:=vg[i]; vg[i]:=vt[i]; vt[i]:=vx[i]; vx[i]:=vy[i]; vy[i]:=vt[i]; end; j:=kf; kf:=kg; kg:=j; end;
-    sh:=kf-kg;
-    for i:=n downto sh do if vg[i-sh] then vf[i]:=vf[i] xor true;
-    for i:=n downto sh do if vy[i-sh] then vx[i]:=vx[i] xor true;
-    kf:=-1; for i:=n downto 0 do if vf[i] then begin kf:=i; break; end;
-    end;
+  for i:=n downto (kf-kg) do if vg[i-(kf-kg)] then vf[i]:=vf[i] xor true;
+  for i:=n downto (kf-kg) do if vy[i-(kf-kg)] then vx[i]:=vx[i] xor true;
+  kf:=-1; for i:=n downto 0 do if vf[i] then begin kf:=i; break; end;
   end;
+until done;
 end;
 
 procedure CalcMat2;
@@ -128,8 +104,9 @@ begin
 for i:=0 to n do p[i]:=false;
 for j:=0 to n-1 do if b[n,j] then for i:=0 to n-1 do p[i]:=p[i] xor f[j,i];
 write('p ');for i:=0 to n-1 do if p[i] then write(1) else write(0);writeln;
-rev(f[n],p,q);
+writeln('gcd',#9,gcd(f[n],p,g,q),#9);
 write('q ');for i:=0 to n-1 do if q[i] then write(1) else write(0);writeln;
+write('g ');for i:=0 to n do if g[i] then write(1) else write(0);writeln;
 for i:=0 to n do y[i]:=l[n,i];
 write('y ');for i:=0 to n-1 do if y[i] then write(1) else write(0);writeln;
 for i:=0 to n do z[i]:=false;
@@ -140,8 +117,6 @@ for j:=0 to n-1 do
   for i:=0 to n-1 do y[i]:=c[i];
   end;
 write('z ');for i:=0 to n-1 do if z[i] then write(1) else write(0);writeln;
-writeln('gcd',#9,gcd(f[n],p,g),#9);
-write('g ');for i:=0 to n do if g[i] then write(1) else write(0);writeln;
 for i:=0 to n-1 do h[0,i]:=false;
 for j:=0 to n-1 do if g[j] then for i:=0 to n-1 do h[0,i]:=h[0,i] xor e[j,i];
 write('h0 ');for i:=0 to n-1 do if h[0,i] then write(1) else write(0);writeln;
