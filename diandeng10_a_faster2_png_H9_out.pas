@@ -1,18 +1,18 @@
-//{$define disp}
+{$define disp}
 program diandeng;
 
 {$ifdef disp}
 uses display;
 {$endif}
 
-const m=10000;
+const m=1000;
 
 type TMat=array[-1..m,-1..m]of Boolean;
 type TVec=array[-1..m]of boolean;
 type TVeci=array[-1..m]of longint;
 
 var n:longword;
-var b,l,t,f,e,h:TMat;
+var b,l,t,f,e,d:TMat;
 var i,j:longint;
 
 {$ifdef disp}
@@ -63,12 +63,15 @@ for j:=1 to n do
 for j:=0 to n do if b[j,j]=false then
   if b[0,0]=false then b[0,0]:=true
   else for i:=0 to j do b[j,i]:=b[j-1,i-1] xor b[j-1,i] xor b[j-1,i+1] xor b[j-2,i];
+write('b ');for i:=0 to n-1 do if b[n,i] then write(1) else write(0);writeln;
 for j:=0 to n do if f[j,j]=false then
   if f[0,0]=false then f[0,0]:=true
   else for i:=0 to j do f[j,i]:=f[j-1,i-1] xor f[j-2,i];
+write('f ');for i:=0 to n do if f[n,i] then write(1) else write(0);writeln;
 for j:=0 to n do if e[j,j]=false then
   if e[0,0]=false then e[0,0]:=true
   else for i:=0 to j do e[j,i]:=e[j-1,i-1] xor e[j-1,i+1];
+write('e ');for i:=0 to n-1 do if e[n,i] then write(1) else write(0);writeln;
 end;
 
 function gcd(vf,vg:TVec; var vd,vr:TVec):longint;
@@ -82,7 +85,6 @@ done:=false;
 for i:=0 to n do begin vx[i]:=false; vy[i]:=false; end; vy[0]:=true;
 repeat
 if kf<kg then begin for i:=0 to n do begin vt[i]:=vf[i]; vf[i]:=vg[i]; vg[i]:=vt[i]; vt[i]:=vx[i]; vx[i]:=vy[i]; vy[i]:=vt[i]; end; j:=kf; kf:=kg; kg:=j; end;
-if kf<0 then begin for i:=0 to n do begin vd[i]:=vg[i]; vr[i]:=vy[i]; end; gcd:=kg; done:=true; end;
 if kg<0 then begin for i:=0 to n do begin vd[i]:=vf[i]; vr[i]:=vx[i]; end; gcd:=kf; done:=true; end;
 if not(done) then
   begin
@@ -98,14 +100,15 @@ var p,q,x,y,z,c,g:TVec;
 var r:TVeci;
 var k:longint;
 begin
-write('p',#9);
 for i:=0 to n do p[i]:=false;
 for j:=0 to n-1 do if b[n,j] then for i:=0 to n-1 do p[i]:=p[i] xor f[j,i];
-write('q',#9);
-write('gcd',#9,gcd(f[n],p,g,q),#9);
-write('y',#9);
+write('p ');for i:=0 to n-1 do if p[i] then write(1) else write(0);writeln;
+k:=gcd(f[n],p,g,q);
+writeln('gcd',#9,k,#9);
+write('q ');for i:=0 to n-1 do if q[i] then write(1) else write(0);writeln;
+write('g ');for i:=0 to n do if g[i] then write(1) else write(0);writeln;
 for i:=0 to n do y[i]:=l[n,i];
-write('z',#9);
+write('y ');for i:=0 to n-1 do if y[i] then write(1) else write(0);writeln;
 for i:=0 to n do z[i]:=false;
 for j:=0 to n-1 do 
   begin
@@ -113,24 +116,30 @@ for j:=0 to n-1 do
   for i:=0 to n-1 do c[i]:=y[i-1] xor y[i+1];
   for i:=0 to n-1 do y[i]:=c[i];
   end;
-write('h',#9);
-for i:=0 to n-1 do h[0,i]:=false;
-for j:=0 to n-1 do if g[j] then for i:=0 to n-1 do h[0,i]:=h[0,i] xor e[j,i];
-for j:=1 to n-1 do for i:=0 to n-1 do h[j,i]:=h[j-1,i-1] xor h[j-1,i+1] xor h[j-2,i];
-write('r',#9);
-for j:=0 to n-1 do begin r[j]:=-1; for i:=0 to n-1 do if h[i,j] then begin r[j]:=i; break; end; end;
-write('x',#9);
-for j:=0 to n-1 do x[j]:=false;
+write('z ');for i:=0 to n-1 do if z[i] then write(1) else write(0);writeln;
+if k=0 then
+  for i:=0 to n-1 do x[i]:=z[i]
+else
+begin
+for i:=0 to n-1 do d[0,i]:=false;
+for j:=0 to n-1 do if g[j] then for i:=0 to n-1 do d[0,i]:=d[0,i] xor e[j,i];
+write('d0 ');for i:=0 to n-1 do if d[0,i] then write(1) else write(0);writeln;
+for j:=1 to n-1 do for i:=0 to n-1 do d[j,i]:=d[j-1,i-1] xor d[j-1,i+1] xor d[j-2,i];
+write('dn ');for i:=0 to n-1 do if d[n-1,i] then write(1) else write(0);writeln;
+for i:=0 to n-1 do begin r[i]:=-1; for j:=0 to n-1 do if d[j,i] then begin r[i]:=j; break; end; end;
+write('r ');for i:=0 to n-1 do write(r[i]);writeln;
+for i:=0 to n-1 do x[i]:=false;
 for i:=0 to n-1 do
  if z[i] then
  begin
   k:=-1;
   for j:=i to n-1 do if r[j]=i then begin k:=j; break; end;
   if k<0 then break;
-  for j:=0 to n-1 do z[j]:=z[j] xor h[j,k];
+  for j:=0 to n-1 do z[j]:=(z[j] or d[j,k]) and not (z[j] and d[j,k]);
   x[k]:=not x[k];
  end;
-write('t',#9);
+end;
+write('x ');for i:=0 to n-1 do if x[i] then write(1) else write(0);writeln;
 for i:=0 to n-1 do t[0,i]:=x[i];
 end;
 
@@ -141,7 +150,7 @@ for j:=1 to n-1 do
     t[j,i]:=not(t[j-1,i-1] xor t[j-1,i] xor t[j-1,i+1] xor t[j-2,i]);
 GeneMat:=true;
 for i:=0 to n-1 do GeneMat:=GeneMat and (t[n-1,i-1] xor t[n-1,i] xor t[n-1,i+1] xor t[n-2,i]);
-write(GeneMat);
+writeln(GeneMat);
 end;
 
 begin
@@ -150,12 +159,12 @@ CreateWin(m,m);
 bb:=CreateBB(GetWin());
 bp:=CreateBMP(m,m);
 {$endif}
-for n:=9900 to m do
+for n:=1 to 20 do
   begin
-  write(n,#9);
-  write('m',#9);MakeMat();
-  write('c',#9);CalcMat2();
-  write('g',#9);GeneMat();{$ifdef disp}write('%');PrintMat('_T2',t);{$endif}
+  writeln('#',n);
+  MakeMat();
+  CalcMat2();
+  GeneMat();{$ifdef disp}PrintMat('_T2',t);{$endif}
   {$ifdef disp}if not(iswin()) then halt;{$endif}
   writeln();
   end;

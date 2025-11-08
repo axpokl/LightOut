@@ -102,7 +102,8 @@ write('p',#9);
 for i:=0 to n do p[i]:=false;
 for j:=0 to n-1 do if b[n,j] then for i:=0 to n-1 do p[i]:=p[i] xor f[j,i];
 write('q',#9);
-write('gcd',#9,gcd(f[n],p,g,q),#9);
+k:=gcd(f[n],p,g,q);
+write('gcd',#9,k,#9);
 write('y',#9);
 for i:=0 to n do y[i]:=l[n,i];
 write('z',#9);
@@ -113,6 +114,13 @@ for j:=0 to n-1 do
   for i:=0 to n-1 do c[i]:=y[i-1] xor y[i+1];
   for i:=0 to n-1 do y[i]:=c[i];
   end;
+if k=0 then
+  begin
+  write('x',#9);
+  for i:=0 to n-1 do x[i]:=z[i];
+  end
+else
+begin
 write('d',#9);
 for i:=0 to n-1 do d[0,i]:=false;
 for j:=0 to n-1 do if g[j] then for i:=0 to n-1 do d[0,i]:=d[0,i] xor e[j,i];
@@ -130,6 +138,7 @@ for i:=0 to n-1 do
   for j:=0 to n-1 do z[j]:=(z[j] or d[j,k]) and not (z[j] and d[j,k]);
   x[k]:=not x[k];
  end;
+end;
 write('t',#9);
 for i:=0 to n-1 do t[0,i]:=x[i];
 end;

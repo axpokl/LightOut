@@ -12,7 +12,7 @@ type TVec=array[-1..m]of boolean;
 type TVeci=array[-1..m]of longint;
 
 var n:longword;
-var b,l,t,f,e,h:TMat;
+var b,l,t,f,e,d:TMat;
 var i,j:longint;
 
 {$ifdef disp}
@@ -85,7 +85,6 @@ done:=false;
 for i:=0 to n do begin vx[i]:=false; vy[i]:=false; end; vy[0]:=true;
 repeat
 if kf<kg then begin for i:=0 to n do begin vt[i]:=vf[i]; vf[i]:=vg[i]; vg[i]:=vt[i]; vt[i]:=vx[i]; vx[i]:=vy[i]; vy[i]:=vt[i]; end; j:=kf; kf:=kg; kg:=j; end;
-if kf<0 then begin for i:=0 to n do begin vd[i]:=vg[i]; vr[i]:=vy[i]; end; gcd:=kg; done:=true; end;
 if kg<0 then begin for i:=0 to n do begin vd[i]:=vf[i]; vr[i]:=vx[i]; end; gcd:=kf; done:=true; end;
 if not(done) then
   begin
@@ -117,21 +116,21 @@ for j:=0 to n-1 do
   for i:=0 to n-1 do y[i]:=c[i];
   end;
 write('z ');for i:=0 to n-1 do if z[i] then write(1) else write(0);writeln;
-for i:=0 to n-1 do h[0,i]:=false;
-for j:=0 to n-1 do if g[j] then for i:=0 to n-1 do h[0,i]:=h[0,i] xor e[j,i];
-write('h0 ');for i:=0 to n-1 do if h[0,i] then write(1) else write(0);writeln;
-for j:=1 to n-1 do for i:=0 to n-1 do h[j,i]:=h[j-1,i-1] xor h[j-1,i+1] xor h[j-2,i];
-write('hn ');for i:=0 to n-1 do if h[n-1,i] then write(1) else write(0);writeln;
-for j:=0 to n-1 do begin r[j]:=-1; for i:=0 to n-1 do if h[i,j] then begin r[j]:=i; break; end; end;
+for i:=0 to n-1 do d[0,i]:=false;
+for j:=0 to n-1 do if g[j] then for i:=0 to n-1 do d[0,i]:=d[0,i] xor e[j,i];
+write('d0 ');for i:=0 to n-1 do if d[0,i] then write(1) else write(0);writeln;
+for j:=1 to n-1 do for i:=0 to n-1 do d[j,i]:=d[j-1,i-1] xor d[j-1,i+1] xor d[j-2,i];
+write('dn ');for i:=0 to n-1 do if d[n-1,i] then write(1) else write(0);writeln;
+for i:=0 to n-1 do begin r[i]:=-1; for j:=0 to n-1 do if d[j,i] then begin r[i]:=j; break; end; end;
 write('r ');for i:=0 to n-1 do write(r[i]);writeln;
-for j:=0 to n-1 do x[j]:=false;
+for i:=0 to n-1 do x[i]:=false;
 for i:=0 to n-1 do
  if z[i] then
  begin
   k:=-1;
   for j:=i to n-1 do if r[j]=i then begin k:=j; break; end;
   if k<0 then break;
-  for j:=0 to n-1 do z[j]:=z[j] xor h[j,k];
+  for j:=0 to n-1 do z[j]:=(z[j] or d[j,k]) and not (z[j] and d[j,k]);
   x[k]:=not x[k];
  end;
 write('x ');for i:=0 to n-1 do if x[i] then write(1) else write(0);writeln;
