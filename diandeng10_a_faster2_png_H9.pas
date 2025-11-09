@@ -105,7 +105,7 @@ write('q',#9);
 k:=gcd(f[n],p,g,q);
 write('gcd',#9,k,#9);
 write('y',#9);
-for i:=0 to n do y[i]:=l[n,i];
+for i:=-1 to n do y[i]:=l[n,i];
 write('z',#9);
 for i:=0 to n do z[i]:=false;
 for j:=0 to n-1 do 

@@ -107,7 +107,7 @@ k:=gcd(f[n],p,g,q);
 writeln('gcd',#9,k,#9);
 write('q ');for i:=0 to n-1 do if q[i] then write(1) else write(0);writeln;
 write('g ');for i:=0 to n do if g[i] then write(1) else write(0);writeln;
-for i:=0 to n do y[i]:=l[n,i];
+for i:=-1 to n do y[i]:=l[n,i];
 write('y ');for i:=0 to n-1 do if y[i] then write(1) else write(0);writeln;
 for i:=0 to n do z[i]:=false;
 for j:=0 to n-1 do 
@@ -116,16 +116,17 @@ for j:=0 to n-1 do
   for i:=0 to n-1 do c[i]:=y[i-1] xor y[i+1];
   for i:=0 to n-1 do y[i]:=c[i];
   end;
-write('z ');for i:=0 to n-1 do if z[i] then write(1) else write(0);writeln;
 if k=0 then
   for i:=0 to n-1 do x[i]:=z[i]
 else
 begin
+write('z ');for i:=0 to n-1 do if z[i] then write(1) else write(0);writeln;
 for i:=0 to n-1 do d[0,i]:=false;
 for j:=0 to n-1 do if g[j] then for i:=0 to n-1 do d[0,i]:=d[0,i] xor e[j,i];
-write('d0 ');for i:=0 to n-1 do if d[0,i] then write(1) else write(0);writeln;
+//write('d0 ');for i:=0 to n-1 do if d[0,i] then write(1) else write(0);writeln;
 for j:=1 to n-1 do for i:=0 to n-1 do d[j,i]:=d[j-1,i-1] xor d[j-1,i+1] xor d[j-2,i];
-write('dn ');for i:=0 to n-1 do if d[n-1,i] then write(1) else write(0);writeln;
+//write('dn ');for i:=0 to n-1 do if d[n-1,i] then write(1) else write(0);writeln;
+writeln('d');for j:=0 to n-1 do begin write(j,#9);for i:=0 to n-1 do if d[j,i] then write(1) else write(0);writeln;end;
 for i:=0 to n-1 do begin r[i]:=-1; for j:=0 to n-1 do if d[j,i] then begin r[i]:=j; break; end; end;
 write('r ');for i:=0 to n-1 do write(r[i]);writeln;
 for i:=0 to n-1 do x[i]:=false;
