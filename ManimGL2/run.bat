@@ -1,0 +1,2 @@
+manimgl lights_out_gl2.py LightsOutThreeGridsGL
+pause
