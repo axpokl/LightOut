@@ -1318,7 +1318,7 @@ class LightsOut(Scene):
             for y in range(cols):
                 mx = (y*2-cols)*(1+sz)+1
                 my = -k*sz+0.5
-                G5_[k][y] = make_grid(self, w=cols, h=1, w_l=1, h_l=1, lgt_x=mx+sz*(cols+3)/2, btn_x=mx, lgt_y=my, btn_y=my, sz=sz, mat=[MAT5K[k][y][:]], mat_l=[[MAT5KL[k][y]]], show=True, rt=0.1)
+                G5_[k][y] = make_grid(self, w=cols, h=1, w_l=1, h_l=1, lgt_x=mx+sz*(cols+3)/2, btn_x=mx, lgt_y=my, btn_y=my, sz=sz, mat=[MAT5K[k][y][:]], mat_l=[[MAT5KL[k][y]]], show=True, rt=0.05)
 
         show_subtitle(self, "这里，我们用B表示按钮，L表示灯，⊕（加）代表叠加，~（非）代表翻转。", "n,x,y则表示为：")
 
