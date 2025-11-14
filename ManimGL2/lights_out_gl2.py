@@ -1588,6 +1588,21 @@ class LightsOut(Scene):
                         toggle_lgt(self, grid, x, 0, anim=0.01)
                     if x < len(row_b) and row_b[x] and not grid["btn"][0][x]:
                         toggle_btn(self, grid, x, 0, anim=0.01)
+                gridY = G5Y_[k][y]
+                row_y = MAT5KY[k][y]
+                if row_y[x] and not gridY["lgt"][0][x]:
+                    toggle_lgt(self, gridY, x, 0, anim=0.01)
+
+
+
+L11
+=B6+B11+B12
+=(B1+B2)+(B1+B3)+(B4)
+=B2+B3+B4
+
+B1	B1+B2
+B2	B1+B2
+
 
 #——————————————————————
 
@@ -1608,18 +1623,6 @@ class LightsOut(Scene):
         del_latex(self, [LAT1, LAT2, LAT3, LAT4, LAT5]);
 
 #【演示，显示并朗读这些公式】
-
-1..	...
-12.	!@#
-
-1..
-1!.
-
-...
-2@.
-
-...
-.#.
 
         show_subtitle(self, "之前叠加时是将多个B行一起叠加。", "如果拆分为每个B元素，则相当于从上左中右的位置一个个叠加。")
 #【演示】还是叠加L6，但是这次是一个一个元素
