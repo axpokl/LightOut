@@ -1615,61 +1615,58 @@ class LightsOut(Scene):
 #——————————————————————
         """
         show_subtitle(self, "现在，如果我们把序号1-25用坐标x,y表示，", "则灯和按钮矩阵可写为上述公式。")
-        LAT1_1 = show_latex(self, "L(n,x,y)=B(n,x,y-1)⊕B(n,x,y)⊕B(n,x,y+1)⊕B(n-1,x,y)", 0, 2.0)
+        LAT1_1 = show_latex(self, "L(n,x,y)=B(n-1,x,y)⊕B(n,x,y-1)⊕B(n,x,y)⊕B(n,x,y+1)", 0, 2)
         self.wait(2)
 #圈出这些元素
         show_subtitle(self, "这里，我们的矩阵同时满足另一个性质，", "我称之为十字偶校验约束。")
-        LAT0_1 = show_latex(self, "B(n,x-1,y)⊕B(n,x+1,y)⊕B(n,x,y-1)⊕B(n,x,y+1)=0", 0, 2.5)
+        LAT2_1 = show_latex(self, "B(n,x-1,y)⊕B(n,x+1,y)⊕B(n,x,y-1)⊕B(n,x,y+1)=0", 0, 1.5)
         self.wait(2)
 #圈出这些元素
         show_subtitle(self, "某个元素的左右两个矩阵的对应位置的元素，", "和这个元素上下两个元素的叠加后为零。")
-        LAT0_2 = show_latex(self, "B(n,x-1,y)⊕B(n,x+1,y)=B(n,x,y-1)⊕B(n,x,y+1)", 0, 2.5, show=False)
-        trans_latex(self, LAT0_1, LAT0_2)
+        LAT2_2 = show_latex(self, "B(n,x-1,y)⊕B(n,x+1,y)=B(n,x,y-1)⊕B(n,x,y+1)", 0, 1.5, show=False)
+        trans_latex(self, LAT2_1, LAT2_2)
         self.wait(2)
         show_subtitle(self, "这就是之前视频优化生成矩阵章节中的性质，", "后面我会给予证明。")
-
-        show_subtitle(self, "通过这个性质，递推公式可化为只根据当前矩阵的元素来叠加，", "无需依赖于左右矩阵。")
-        LAT1_2 = show_latex(self, "L(n,x,y)=B(n,x-1,y)⊕B(n,x,y)⊕B(n,x+1,y)⊕B(n-1,x,y)", 0, 2.0, show=False)
+        LAT1_2 = show_latex(self, "L(n,x,y)=B(n-1,x,y)⊕B(n,x-1,y)⊕B(n,x,y)⊕B(n,x+1,y)", 0, 2, show=False)
         trans_latex(self, LAT1_1, LAT1_2)
         self.wait(2)
-
-        show_subtitle(self, "因此，我们可以在公式中去除y。", "也就是说，灯为当前矩阵的上左中右按钮的叠加。")
-        LAT1_3 = show_latex(self, "L(n,x)=B(n,x-1)⊕B(n,x)⊕B(n,x+1)⊕B(n-1,x)", 0, 2.0, show=False)
+        show_subtitle(self, "通过这个性质，上述递推公式可化为只根据当前矩阵的元素来叠加，", "无需依赖于左右矩阵。")
+        LAT1_3 = show_latex(self, "L(n,x,y)=B(n-1,x,y)⊕B(n,x-1,y)⊕B(n,x,y)⊕B(n,x+1,y)", 0, 2, show=False)
         trans_latex(self, LAT1_2, LAT1_3)
 #删除圈出左右矩阵元素
         self.wait(4)
 
-        show_subtitle(self, "又因为，下一行按钮是当前灯翻转。")
-        LAT1_4 = show_latex(self, "B(n+1,x)=~L(n,x)=~(B(n,x-1)⊕B(n,x)⊕B(n,x+1)⊕B(n-1,x))", 0, 2.0, show=False)
-        trans_latex(self, LAT1_3, LAT1_4)
-        self.wait(2)
-        show_subtitle(self, "以及，下一行灯是上左中右灯翻转的叠加。")
-        LAT2_1 = show_latex(self, "L(n+1,x)=~L(n,x-1)⊕~L(n,x)⊕~L(n,x+1)⊕~L(n-1,x)", 0, 1.5)
-        self.wait(2)
+        LAT1 = show_latex(self, "L(n,x)=B(n-1,x)⊕B(n,x-1)⊕B(n,x)⊕B(n,x+1)", 0, 2.5)
+        show_subtitle(self, "灯为上左中右按钮的叠加。")
+        LAT2 = show_latex(self, "B(n+1,x)=~L(n,x)=~(B(n-1,x)⊕B(n,x-1)⊕B(n,x)⊕B(n,x+1))", 0, 2.0)
+        show_subtitle(self, "下一行按钮是当前灯翻转。")
+        LAT3 = show_latex(self, "L(n+1,x)=~L(n-1,x-1)⊕~L(n,x-1)⊕~L(n,x)⊕~L(n,x+1)", 0, 1.5)
+        show_subtitle(self, "下一行灯是上左中右灯翻转的叠加。")
 
 #【演示，显示并朗读这些公式】
-        show_subtitle(self, "如果把翻转~提取出来，便有了一开始的推导公式。")
-        show_subtitle(self, "也就是，按钮是上一行左中右按钮和上上行按钮叠加。")
-        LAT1_5 = show_latex(self, "B(n,x)=B(n-1,x-1)⊕B(n-1,x)⊕B(n-1,x+1)⊕B(n-2,x)", 0, 1.5, show=False)
-        trans_latex(self, LAT1_4, LAT1_5)
-        self.wait(2)
+        show_subtitle(self, "如果把翻转~提取出来，便有了一开始的推导公式：")
+        LAT4 = show_latex(self, "B(n,x)=B(n-1,x-1)⊕B(n-1,x)⊕B(n-1,x+1)⊕B(n-2,x)", 0, -1.5)
+        show_subtitle(self, "按钮是上一行左中右按钮和上上行按钮叠加。")
+        LAT5 = show_latex(self, "L(n,x)=L(n-1,x-1)⊕L(n-1,x)⊕L(n-1,x+1)⊕L(n-2,x)", 0, -2.0)
+        show_subtitle(self, "灯是上一行左中右按钮和上上行灯叠加。")
+        del_latex(self, [LAT1, LAT2, LAT3, LAT4, LAT5]);
 
-        show_subtitle(self, "以及，灯是上一行左中右按钮和上上行灯叠加。")
-        LAT2_2 = show_latex(self, "L(n,x)=L(n-1,x-1)⊕L(n-1,x)⊕L(n-1,x+1)⊕L(n-2,x)", 0, 2.0, show=False)
-        trans_latex(self, LAT2_1, LAT2_2)
-        self.wait(4)
+#【演示，显示并朗读这些公式】
 
-        show_subtitle(self, "可以注意到，按钮和灯的递推公式具有相同的形式，", "这是因为上一行灯就是下一行按钮。")
+        show_subtitle(self, "之前叠加时是将多个B行一起叠加。", "如果拆分为每个B元素，则相当于从上左中右的位置一个个叠加。")
+#【演示】还是叠加L6，但是这次是一个一个元素
+        show_subtitle(self, "这里用公式尽管是一个个元素叠加的，", "但是由于每个元素已经包含了之前叠加的结果，效果上和用行叠加是相同的。")
+#【演示】还是叠加L6，这次是一起叠加
+
+        show_subtitle(self, "因为B(n+1,x)=~L(n,x)，", "因此上一行灯矩阵和下一行按钮矩阵是相同的。")
 #【演示】L1到B6
         show_subtitle(self, "因为最终需要推导的是灯矩阵，因此灯矩阵是从按钮的第一行推导5行。", "因为最后一次推导的是灯，因此按钮矩阵也是5行。")
 #【演示】继续推导L6。。。
 
-        del_latex(self, [LAT0_2, LAT2_2]);
-
 #——————————————————————
 
         show_subtitle(self, "对于翻转的情况，则可以单独列出来，以类似的方法推导，写成Y公式：")
-        LAT3 = show_latex(self, "Y(n,y)=~(Y(n-1,y-1)⊕Y(n-1,y)⊕Y(n-1,y+1)⊕Y(n-2,y))", 0, 1.5)
+        LAT = show_latex(self, "Y(n,y)=~(Y(n-1,y-1)⊕Y(n-1,y)⊕Y(n-1,y+1)⊕Y(n-2,y))", 0, 2)
         show_subtitle(self, "下一行的翻转是上一行左中右和上上行叠加后的翻转。")
 #【演示】翻转矩阵
         show_subtitle(self, "可以注意到，这里的公式Y和B的推导公式是类似的的。", "只不过，Y是从零向量开始推导的，并且不能省略翻转符号~。")
@@ -1681,7 +1678,7 @@ class LightsOut(Scene):
         show_subtitle(self, "3. 不使用x而使用y：翻转是前面所有按钮的翻转叠加后提取出来的，", "代表的是灯的翻转，而不是某个按钮的翻转。")
 #【演示】将y=1..5写出来
 
-        del_latex(self, [LAT1_5, LAT3]);
+        del_latex(self, [LAT]);
 
 #——————————————————————
 
