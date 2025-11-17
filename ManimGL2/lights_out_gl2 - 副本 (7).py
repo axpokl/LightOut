@@ -1420,7 +1420,7 @@ LATEX_RIGHT = [
 class LightsOut(Scene):
     def construct(self):
         self.camera.background_color = BLACK
-        """
+
         show_title(self, "点灯游戏的$O(n^2)$解法")
 #演示n=5,7,11
         show_title(self, "首行叠加法（续上集）")
@@ -1613,7 +1613,7 @@ class LightsOut(Scene):
                     toggle_lgt(self, gridY, 0, 0, anim=0.01)
 
 #——————————————————————
-        """
+
         show_subtitle(self, "现在，如果我们把序号1-25用坐标x,y表示，", "则灯和按钮矩阵可写为上述公式。")
         LAT1_1 = show_latex(self, "L(n,x,y)=B(n,x,y-1)⊕B(n,x,y)⊕B(n,x,y+1)⊕B(n-1,x,y)", 0, 2.0)
         self.wait(2)
