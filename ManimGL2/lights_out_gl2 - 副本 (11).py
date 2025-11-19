@@ -1696,6 +1696,7 @@ class LightsOut(Scene):
         toggle_btn(self, G5_[1][1], 0, 0)
         toggle_btn(self, G5_[1][1], 1, 0)
         toggle_btn(self, G5_[1][1], 2, 0)
+        toggle_lgt(self, G5Y_[0][1], 0, 0)
         self.wait(4)
 
         show_subtitle(self, "这里，我们将第一个按钮B1的状态补全，", "因为将B1用第一行的按钮叠加时，有B1=B1。")
