@@ -10,6 +10,10 @@ HL_COLOR = RED
 HL_COLOR_2 = YELLOW
 DEFAULT_FONT = "SimHei"
 
+SCALE_LATEX = 1.0
+SCALE_SUBTITLE = 1.25
+SCALE_TITLE = 1.65
+
 def make_grid(scene, w, h, lgt_x=0.0, btn_x=0.0, lgt_y=0.0, btn_y=0.0, sz=1.0, rt=0.3, mat=None, mat_l=None, w_l=None, h_l=None, show=True, mat_g=None,):
     w_l = w if w_l is None else int(w_l)
     h_l = h if h_l is None else int(h_l)
@@ -1030,6 +1034,23 @@ def show_subtitle(scene, text, text2=None, run_in=0.3, run_out=0.3, font=DEFAULT
     except Exception:
         pass
     lines = VGroup(*[_mk_line_group(p, font, font_size, WHITE, baseline, auto_k, ref_tex) for p in parts])
+    try:
+        ref = Tex(ref_tex)
+        ref.scale(1)
+        h_ref = float(ref.get_height())
+    except Exception:
+        h_ref = 0.0
+    if h_ref > 1e-6:
+        target = h_ref * (SCALE_SUBTITLE * font_size / 32)
+        for line in lines.submobjects:
+            try:
+                h_line = float(line.get_height())
+            except Exception:
+                h_line = 0.0
+            if h_line > 1e-6:
+                s = target / h_line
+                if abs(s - 1.0) > 1e-3:
+                    line.scale(s)
     lines.arrange(DOWN, buff=line_gap).to_edge(DOWN, buff=buff)
     scene.add(lines)
     scene.play(FadeIn(lines, run_time=run_in))
@@ -1065,11 +1086,37 @@ def show_title(scene, line1=None, line2=None, run_in=0.3, run_out=0.3, font=DEFA
     except Exception:
         pass
     objs = []
+    try:
+        ref = Tex("N\\times N")
+        ref.scale(1)
+        h_ref = float(ref.get_height())
+    except Exception:
+        h_ref = 0.0
     if len(parts) >= 1 and parts[0] != "":
         t1 = _mk_line_group(parts[0], font, size1, WHITE)
+        if h_ref > 1e-6:
+            try:
+                h_line = float(t1.get_height())
+            except Exception:
+                h_line = 0.0
+            if h_line > 1e-6:
+                target = h_ref * (SCALE_TITLE * size1 / 48)
+                s = target / h_line
+                if abs(s - 1.0) > 1e-3:
+                    t1.scale(s)
         objs.append(t1)
     if len(parts) >= 2 and parts[1] != "":
         t2 = _mk_line_group(parts[1], font, size2, WHITE)
+        if h_ref > 1e-6:
+            try:
+                h_line2 = float(t2.get_height())
+            except Exception:
+                h_line2 = 0.0
+            if h_line2 > 1e-6:
+                target2 = h_ref * (SCALE_TITLE * size2 / 32)
+                s2 = target2 / h_line2
+                if abs(s2 - 1.0) > 1e-3:
+                    t2.scale(s2)
         objs.append(t2)
     if not objs:
         return None
@@ -1082,23 +1129,43 @@ def show_title(scene, line1=None, line2=None, run_in=0.3, run_out=0.3, font=DEFA
     scene._title_mobj = grp
     return grp
 
-def show_latex(scene, text, x=0.0, y=0.0, run_in=0.3, run_out=0.3, font=DEFAULT_FONT, font_size=32, buff=0.5, line_gap=0.2, baseline=0.0, auto_k=0.5, ref_tex="N\\times N", show=True, color_map=None, default_color=WHITE):
+def show_latex(scene, text, x=0.0, y=0.0, run_in=0.3, run_out=0.3, font=DEFAULT_FONT, font_size=32, buff=0.5, line_gap=0.1, baseline=0.0, auto_k=0.5, ref_tex="N\\times N", show=True, color_map=None, default_color=WHITE):
     parts = []
     if isinstance(text, (list, tuple)):
         parts = [str(p) for p in text if p is not None]
     else:
         if text is None:
             return None
-        parts = str(text).split("\n")
+        s = str(text)
+        if "<br" in s:
+            s = s.replace("<br/>", "<br>").replace("<br />", "<br>")
+            s = s.replace("\n", "<br>")
+            parts = s.split("<br>")
+        else:
+            parts = s.split("\n")
     parts = [p for p in parts if p is not None]
     if len(parts) == 0 or all(p == "" for p in parts):
         return None
     if color_map is None:
         color_map = {"cR": RED, "cB": LIGHT_BLUE, "cP": PINK, "cY": YELLOW}
-    lines = VGroup(*[
-        _mk_line_group_color(p, font, font_size, default_color, baseline, auto_k, ref_tex, color_map)
-        for p in parts
-    ])
+    lines = VGroup(*[_mk_line_group_color(p, font, font_size, default_color, baseline, auto_k, ref_tex, color_map) for p in parts])
+    try:
+        ref = Tex(ref_tex)
+        ref.scale(1)
+        h_ref = float(ref.get_height())
+    except Exception:
+        h_ref = 0.0
+    if h_ref > 1e-6:
+        target = h_ref * (SCALE_LATEX * font_size / 32)
+        for line in lines.submobjects:
+            try:
+                h_line = float(line.get_height())
+            except Exception:
+                h_line = 0.0
+            if h_line > 1e-6:
+                s = target / h_line
+                if abs(s - 1.0) > 1e-3:
+                    line.scale(s)
     lines.arrange(DOWN, buff=line_gap, aligned_edge=LEFT)
     lines.move_to(ORIGIN)
     lines.shift(RIGHT * x + UP * y)
@@ -1118,7 +1185,6 @@ def show_latex(scene, text, x=0.0, y=0.0, run_in=0.3, run_out=0.3, font=DEFAULT_
 def trans_latex(scene, latex_from, latex_to, rt=1.0):
     if latex_from is None or latex_to is None:
         return None
-    latex_to.move_to(latex_from.get_center())
     scene.play(ReplacementTransform(latex_from, latex_to), run_time=rt)
     stack = getattr(scene, "_latex_stack", None)
     if stack is None:
@@ -1900,6 +1966,7 @@ class LightsOut(Scene):
         del_top_labels(self, topy_objs)
         del_left_labels(self, left_objs)
         del_grids(self, [G5_, G5Y_]) 
+
         """
         show_title(self, "优化生成矩阵（续上集）")
         show_subtitle(self, "在生成优化矩阵章节中，我将矩阵的行重排。", "其实是调换了n和y的位置，使原来从左到右为第y个矩阵变为了第n个矩阵。")
@@ -1910,7 +1977,7 @@ class LightsOut(Scene):
         for k in range(rows):
             for y in range(cols):
                 mx = (y*2-cols)*(1+sz)+1
-                my = -k*sz+0.5
+                my = -k*sz
                 G5_[k][y] = make_grid(self, w=cols, h=1, lgt_x=mx, btn_x=mx, lgt_y=my, btn_y=my, sz=sz, mat=[MAT5K[k][y][:]], mat_l=[MAT5K[k+1][y][:]], show=True, rt=0.01)
                 mx = (y*2-cols)*(1+sz)+1+sz*(cols+3)/2
                 G5Y_[k][y] = make_grid(self, w=1, h=1, lgt_x=mx, btn_x=mx, lgt_y=my, btn_y=my, sz=sz, mat=[[MAT5KY[k][y]]], mat_l=[[MAT5KY[k+1][y]]],show=True, rt=0.01)
@@ -1928,7 +1995,7 @@ class LightsOut(Scene):
                 if k == 0: topy_objs[k][y] = add_top_labels(self, G5Y_[k][y], [f"n{y+1}"], which="lgt", scale=0.4, rt=0.01)
                 left_objs[k][y] = add_left_labels(self, G5_[k][y], [f"y{k+1}"], which="lgt", scale=0.4, rt=0.01)
         show_subtitle(self, "这些矩阵具有一个性质，我称之为：十字偶校验约束。", "这个性质对任意第n个矩阵都满足，因此省去了n。")
-        LAT = show_latex(self, "<cY>B(x-1,y)⊕B(x+1,y)⊕B(x,y-1)⊕B(x,y+1)=0", 0, 2.0)
+        LAT1_1 = show_latex(self, "<cY>B(x-1,y)⊕B(x+1,y)⊕B(x,y-1)⊕B(x,y+1)=0", 0, 1.5)
         self.wait(2)
         show_subtitle(self, "上下左右四个格子叠加为零。这里和之前是的情况是一样的，", "只不过n和y调换了，因此位置发生了变化。")
         hl_cells(self, [G5_[0][1]], which="btn", indices=[(1, 0)], color=HL_COLOR_2)
@@ -1941,36 +2008,42 @@ class LightsOut(Scene):
         show_subtitle(self, "在后面会说的O(n^2)算法中，", "其本质也是利用这个性质进行的优化。")
         self.wait(2)
 
-        """
         show_subtitle(self, "下面让我用数学归纳法，证明这个性质。")
         self.wait(2)
         show_subtitle(self, "由于右边一个按钮矩阵就是左边一个灯矩阵，", "这边我们就拿前三个按钮矩阵为例。")
-【演示】去除多余的灯矩阵和右边几个矩阵
+#【演示】去除多余的灯矩阵和右边几个矩阵
+#【演示】圈出左边两个矩阵，然后再圈出第三矩阵
         show_subtitle(self, "首先，我们假定前两个矩阵B(n-1)和B(n-2)满足这个性质，", "现在来证明则B(n)也满足这个性质。")
-【演示】圈出左边两个矩阵，然后再圈出第三矩阵
-B(n,x-1,y)⊕B(n,x+1,y)⊕B(n,x,y-1)⊕B(n,x,y+1)=0
-【演示】圈出第三矩阵一个圈
+        LAT1_2 = show_latex(self, "<cY>B(n,x-1,y)⊕B(n,x+1,y)⊕B(n,x,y-1)⊕B(n,x,y+1)", 0, 1.5, show=False)
+        trans_latex(self, LAT1_1, LAT1_2)
+#【演示】圈出第三矩阵一个圈
         show_subtitle(self, "将刚才的矩阵递推关系加上参数y并重写。")
-B(n,x,y)=B(n-1,x-1,y)⊕B(n-1,x,y)⊕B(n-1,x+1,y)⊕B(n-2,x,y)
-        show_subtitle(self, "对于B(n)，我们将递推关系代入这个式子。")
-这里将式子竖起来，然后传入多行。
-B(n,x-1,y)⊕B(n,x+1,y)⊕B(n,x,y-1)⊕B(n,x,y+1)=
-(B(n-1,x-1-1,y)⊕B(n-1,x-1,y)⊕B(n-1,x+1-1,y)⊕B(n-2,x-1,y))⊕
-(B(n-1,x-1+1,y)⊕B(n-1,x+1,y)⊕B(n-1,x+1+1,y)⊕B(n-2,x+1,y))⊕
-(B(n-1,x-1,y-1)⊕B(n-1,x,y-1)⊕B(n-1,x+1,y-1)⊕B(n-2,x,y-1))⊕
-(B(n-1,x-1,y+1)⊕B(n-1,x,y+1)⊕B(n-1,x+1,y+1)⊕B(n-2,x,y+1))
-【演示】4个里面各选一次，然后选择左边的对应元素
-        show_subtitle(self, "重新排列顺序，类似生成矩阵章节，将y和n掉换。")
-(B(n-1,x-1-1,y)⊕B(n-1,x-1+1,y)⊕B(n-1,x-1,y-1)⊕B(n-1,x-1,y+1))⊕
-(B(n-1,x-1,y)⊕B(n-1,x+1,y)⊕B(n-1,x,y-1)⊕B(n-1,x,y+1))⊕
-(B(n-1,x+1-1,y)⊕B(n-1,x+1+1,y)⊕B(n-1,x+1,y-1)⊕B(n-1,x+1,y+1))⊕
-(B(n-2,x-1,y)⊕B(n-2,x+1,y))⊕B(n-2,x,y-1)⊕B(n-2,x,y+1))
-【演示】依次画出左边的4各圈
+        LAT2_1 = show_latex(self, "<cP>B(n,x,y)=B(n-1,x-1,y)⊕B(n-1,x,y)⊕B(n-1,x+1,y)⊕B(n-2,x,y)", 0, 1.0)
+        show_subtitle(self, "对于B(n)，我们将式子竖着写成四项，", "然后将递推关系代入这个式子。")
+        LAT1_3 = show_latex(self, "<cY>B(n,x-1,y)⊕<br><cY>B(n,x+1,y)⊕<br><cY>B(n,x,y-1)⊕<br><cY>B(n,x,y+1)", 0, 2.0, show=False, font_size=24)
+        trans_latex(self, LAT1_2, LAT1_3)
+        LAT1_4 = show_latex(self,
+            "<cY>(B(n-1,x-1-1,y)⊕B(n-1,x-1+1,y)⊕B(n-1,x-1,y-1)⊕B(n-1,x-1,y+1))⊕<br>"
+            "<cY>(B(n-1,x-1,y)⊕B(n-1,x+1,y)⊕B(n-1,x,y-1)⊕B(n-1,x,y+1))⊕<br>"
+            "<cY>(B(n-1,x+1-1,y)⊕B(n-1,x+1+1,y)⊕B(n-1,x+1,y-1)⊕B(n-1,x+1,y+1))⊕<br>"
+            "<cY>(B(n-2,x-1,y)⊕B(n-2,x+1,y)⊕B(n-2,x,y-1)⊕B(n-2,x,y+1))",
+            0, 2.0, show=False, font_size=24)
+        trans_latex(self, LAT1_3, LAT1_4)
+#【演示】4个里面各选一次，然后选择左边的对应元素
+        show_subtitle(self, "代入后的式子包含16个项目。现在重新排列项目顺序，将y和n掉换，类似生成矩阵章节。")
+        LAT1_5 = show_latex(self,
+            "<cY>(B(n-1,x-1-1,y)⊕B(n-1,x-1,y)⊕B(n-1,x+1-1,y)⊕B(n-2,x-1,y))⊕<br>"
+            "<cY>(B(n-1,x-1+1,y)⊕B(n-1,x+1,y)⊕B(n-1,x+1+1,y)⊕B(n-2,x+1,y))⊕<br>"
+            "<cY>(B(n-1,x-1,y-1)⊕B(n-1,x,y-1)⊕B(n-1,x+1,y-1)⊕B(n-2,x,y-1))⊕<br>"
+            "<cY>(B(n-1,x-1,y+1)⊕B(n-1,x,y+1)⊕B(n-1,x+1,y+1)⊕B(n-2,x,y+1))",
+            0, 2.0, show=False, font_size=24)
+        trans_latex(self, LAT1_4, LAT1_5)
+#【演示】依次画出左边的4各圈
         show_subtitle(self, "不难发现，这四项属于B(n-1)或B(n-2)，", "并且元素之间的关系满足十字偶校验约束，因此式子化为了零。")
-
-0⊕0⊕0⊕0=0。
-【演示】四个圈叠加到右边
-
+        LAT1_6 = show_latex(self, "<cY>0⊕<br><cY>0⊕<br><cY>0⊕<br><cY>0", 0, 2.0, show=False, font_size=24)
+        trans_latex(self, LAT1_5, LAT1_6)
+#【演示】四个圈叠加到右边
+        """
         show_subtitle(self, "现在，我们只需要证明最左边两个矩阵满足要求即可。", "第一个矩阵是单位矩阵，显然满足要求。")
 
 【演示】圈出第一个矩阵
