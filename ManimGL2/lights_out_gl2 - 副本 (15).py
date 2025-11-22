@@ -1647,7 +1647,7 @@ LATEX_RIGHT = [
 class LightsOut(Scene):
     def construct(self):
         self.camera.background_color = BLACK
-        """
+
         show_title(self, "点灯游戏的$O(n^2)$解法")
 #演示n=5,7,11
         show_title(self, "首行叠加法（续上集）")
@@ -1917,12 +1917,12 @@ class LightsOut(Scene):
         show_subtitle(self, "如果把翻转~提取出来，便有了一开始的推导公式。")
         self.wait(2)
         show_subtitle(self, "也就是，按钮是上一行左中右按钮和上上行按钮叠加。")
-        LAT1_5 = show_latex(self, "<cP>B(n,x)=<cP>B(n-1,x-1)⊕B(n-1,x)⊕B(n-1,x+1)⊕B(n-2,x)", 0, 1.5, show=False)
+        LAT1_5 = show_latex(self, "<cP>B(n,x)=<cP>B(n-1,x-1)⊕B(n-1,x)⊕B(n-1,x+1)⊕B(n-2,x)", 0, 2.0, show=False)
         trans_latex(self, LAT1_4, LAT1_5)
         self.wait(2)
 
         show_subtitle(self, "以及，灯是上一行左中右按钮和上上行灯叠加。")
-        LAT2_2 = show_latex(self, "<cB>L(n,x)=<cB>L(n-1,x-1)⊕L(n-1,x)⊕L(n-1,x+1)⊕L(n-2,x)", 0, 2.0, show=False)
+        LAT2_2 = show_latex(self, "<cB>L(n,x)=<cB>L(n-1,x-1)⊕L(n-1,x)⊕L(n-1,x+1)⊕L(n-2,x)", 0, 1.5, show=False)
         trans_latex(self, LAT2_1, LAT2_2)
         self.wait(4)
         del_cells(self, [G5_[1][1]], which="btn", indices=[(0, 0)])
@@ -1976,7 +1976,6 @@ class LightsOut(Scene):
         del_left_labels(self, left_objs)
         del_grids(self, [G5_, G5Y_]) 
 
-        """
         show_title(self, "优化生成矩阵（续上集）")
         show_subtitle(self, "在生成优化矩阵章节中，我将矩阵的行重排。", "其实是调换了n和y的位置，使原来从左到右为第y个矩阵变为了第n个矩阵。")
         cols, rows = 5, 5
@@ -2154,4 +2153,67 @@ class LightsOut(Scene):
         self.wait(2)
         del_bd(self, bd)
 
+        """
+《首行求逆法》
 
+对于O(n^2)的算法，我们也是使用类似的方法，尽可能的不去对完整矩阵进行操作，而是通过第一行来求逆或求解。
+【演示】从B到B的第一行
+
+这里，让我以我们以n=7为例。我们的目标是，对于BX=Y，在已知B和Y的情况下求X。
+【演示】显示公式
+这里的B就是前面提到的按钮矩阵B，而Y就是翻转矩阵Y的最后一行。
+【演示】显示b，X，Y
+
+如果将n在不同情况下B的第一行写在一起，这样的B矩阵长这样。
+
+n	B
+0	1.......
+1	11......
+2	101.....
+3	0111....
+4	00001...
+5	011011..
+6	1000101.
+7	10110111
+
+【演示】一行行展示B矩阵，圈出递推公式
+
+注意，这里的B矩阵不是刚才说的当n确定时的完整的B矩阵。
+另外，这里从n=0开始一共递推n次，第n列的1不包含在B矩阵的第一行内。
+例如n=5时，第一行为01101，最后一个1省去。
+
+另外，把Y的第一行写在一起是这样的：
+
+n	Y
+0	........
+1	1.......
+2	11......
+3	101.....
+4	0000....
+5	10001...
+6	100001..
+7	0101010.
+
+为了实现这个目标，我们需要首先将B进行分解。
+这里，让我首先介绍一个非常重要的矩阵H。H矩阵的一般形式如下：
+
+n	H
+1	01.....
+2	101....
+3	.101...
+4	..101..
+5	...101.
+6	....101
+7	.....10
+
+【演示】显示矩阵H
+H(y,x)​=​∣x−y∣=1
+【演示】展示朗读公式（x-y的绝对值）
+如果将向量v乘以该矩阵，等同于将向量v的每个元素向左右扩散后叠加：
+v(x)*H=v(x-1)⊕v(x+1)
+【演示】随便找个向量0100010，然后分解成两个向量，然后叠加1010101
+这是因为矩阵的对应行就是向量每个元素左右扩散的结果。
+【演示】向量竖着，然后叠加1010000和0000101
+
+——————————————————————
+        """
