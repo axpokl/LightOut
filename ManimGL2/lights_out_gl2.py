@@ -1595,18 +1595,20 @@ def show_algo_table(
     scene.add(table)
     if run_in > 0:
         scene.play(FadeIn(table, run_time=run_in))
-    scene._latex_table = table
+    scene._algo_table = table
     return table
 
-def hide_algo_table(scene, run_out=0.3, remove=True):
-    table = getattr(scene, "_algo_table", None)
+def hide_algo_table(scene, table=None, run_out=0.3, remove=True):
+    if table is None:
+        table = getattr(scene, "_algo_table", None)
     if table is None:
         return None
     if run_out > 0:
         scene.play(FadeOut(table, run_time=run_out))
     if remove:
         scene.remove(table)
-    scene._algo_table = None
+    if getattr(scene, "_algo_table", None) is table:
+        scene._algo_table = None
     return table
 
 def build_case(i, w, h, l=1):
@@ -1778,7 +1780,7 @@ class LightsOut(Scene):
     def construct(self):
         self.camera.background_color = BLACK
 
-        """
+#        """
         show_title(self, "点灯游戏的$O(n^2)$解法")
 #演示n=5,7,11
         show_title(self, "首行叠加法（续上集）")
@@ -1916,12 +1918,12 @@ class LightsOut(Scene):
         hl_cells(self, [G5_[1][1]], which="btn", indices=[(0, 0)])
         hl_cells(self, [G5_[1][1]], which="btn", indices=[(1, 0)])
         hl_cells(self, [G5_[1][1]], which="btn", indices=[(2, 0)])
-        add_cell(self, G5_[0][0], G5_[1][0], 0, 0, 0, 0, color_from=RED, color_to=YELLOW, rt=0.3)
-        add_cell(self, G5_[1][0], G5_[1][0], 0, 0, 0, 0, color_from=RED, color_to=YELLOW, rt=0.3)
-        add_cell(self, G5_[1][0], G5_[1][0], 1, 0, 1, 0, color_from=RED, color_to=YELLOW, rt=0.3)
-        add_cell(self, G5_[1][1], G5_[1][0], 0, 0, 0, 0, color_from=RED, color_to=YELLOW, rt=0.3)
-        add_cell(self, G5_[1][1], G5_[1][0], 1, 0, 1, 0, color_from=RED, color_to=YELLOW, rt=0.3)
-        add_cell(self, G5_[1][1], G5_[1][0], 2, 0, 2, 0, color_from=RED, color_to=YELLOW, rt=0.3)
+        add_cell(self, G5_[0][0], G5_[1][0], 0, 0, 0, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
+        add_cell(self, G5_[1][0], G5_[1][0], 0, 0, 0, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
+        add_cell(self, G5_[1][0], G5_[1][0], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
+        add_cell(self, G5_[1][1], G5_[1][0], 0, 0, 0, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
+        add_cell(self, G5_[1][1], G5_[1][0], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
+        add_cell(self, G5_[1][1], G5_[1][0], 2, 0, 2, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
 
         show_subtitle(self, "又比如，L7=B2⊕B6⊕B7⊕B8", "=B2⊕~(B1⊕B2)⊕~(B1⊕B2⊕B3)⊕~(B2⊕B3⊕B4)=~B4")
         toggle_btn(self, G5_[0][1], 1, 0)
@@ -1937,15 +1939,15 @@ class LightsOut(Scene):
         hl_cells(self, [G5_[1][2]], which="btn", indices=[(1, 0)])
         hl_cells(self, [G5_[1][2]], which="btn", indices=[(2, 0)])
         hl_cells(self, [G5_[1][2]], which="btn", indices=[(3, 0)])
-        add_cell(self, G5_[0][1], G5_[1][1], 1, 0, 1, 0, color_from=RED, color_to=YELLOW, rt=0.3)
-        add_cell(self, G5_[1][0], G5_[1][1], 0, 0, 0, 0, color_from=RED, color_to=YELLOW, rt=0.3)
-        add_cell(self, G5_[1][0], G5_[1][1], 1, 0, 1, 0, color_from=RED, color_to=YELLOW, rt=0.3)
-        add_cell(self, G5_[1][1], G5_[1][1], 0, 0, 0, 0, color_from=RED, color_to=YELLOW, rt=0.3)
-        add_cell(self, G5_[1][1], G5_[1][1], 1, 0, 1, 0, color_from=RED, color_to=YELLOW, rt=0.3)
-        add_cell(self, G5_[1][1], G5_[1][1], 2, 0, 2, 0, color_from=RED, color_to=YELLOW, rt=0.3)
-        add_cell(self, G5_[1][2], G5_[1][1], 1, 0, 1, 0, color_from=RED, color_to=YELLOW, rt=0.3)
-        add_cell(self, G5_[1][2], G5_[1][1], 2, 0, 2, 0, color_from=RED, color_to=YELLOW, rt=0.3)
-        add_cell(self, G5_[1][2], G5_[1][1], 3, 0, 3, 0, color_from=RED, color_to=YELLOW, rt=0.3)
+        add_cell(self, G5_[0][1], G5_[1][1], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
+        add_cell(self, G5_[1][0], G5_[1][1], 0, 0, 0, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
+        add_cell(self, G5_[1][0], G5_[1][1], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
+        add_cell(self, G5_[1][1], G5_[1][1], 0, 0, 0, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
+        add_cell(self, G5_[1][1], G5_[1][1], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
+        add_cell(self, G5_[1][1], G5_[1][1], 2, 0, 2, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
+        add_cell(self, G5_[1][2], G5_[1][1], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
+        add_cell(self, G5_[1][2], G5_[1][1], 2, 0, 2, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
+        add_cell(self, G5_[1][2], G5_[1][1], 3, 0, 3, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
 
         show_subtitle(self, "这样不断递推，我们可以将任意L表示为某些B1到B5的叠加，再加上翻转。")
         for k in range(rows):
@@ -2165,11 +2167,11 @@ class LightsOut(Scene):
 
         show_subtitle(self, "将刚才的矩阵递推关系加上参数y并重写。")
         LAT2_1 = show_latex(self, "<cP>B(n,x,y)=B(n-1,x-1,y)⊕B(n-1,x,y)⊕B(n-1,x+1,y)⊕B(n-2,x,y)", 0, 1.0)
-        hl_cells(self, [G5_[0][2]], which="btn", indices=[(1, 0)], color=HL_COLOR)
-        hl_cells(self, [G5_[0][0]], which="btn", indices=[(1, 0)], color=HL_COLOR)
-        hl_cells(self, [G5_[0][1]], which="btn", indices=[(0, 0)], color=HL_COLOR)
-        hl_cells(self, [G5_[0][1]], which="btn", indices=[(1, 0)], color=HL_COLOR)
-        hl_cells(self, [G5_[0][1]], which="btn", indices=[(2, 0)], color=HL_COLOR)
+        hl_cells(self, [G5_[0][2]], which="btn", indices=[(1, 0)], color=HL_COLOR_1)
+        hl_cells(self, [G5_[0][0]], which="btn", indices=[(1, 0)], color=HL_COLOR_1)
+        hl_cells(self, [G5_[0][1]], which="btn", indices=[(0, 0)], color=HL_COLOR_1)
+        hl_cells(self, [G5_[0][1]], which="btn", indices=[(1, 0)], color=HL_COLOR_1)
+        hl_cells(self, [G5_[0][1]], which="btn", indices=[(2, 0)], color=HL_COLOR_1)
         self.wait(2)
 
         show_subtitle(self, "对于B(n)，我们将式子竖着写成四项，", "然后将递推关系代入这个式子。")
@@ -2284,11 +2286,12 @@ class LightsOut(Scene):
         self.wait(2)
         del_bd(self, bd)
         del_grids(self, [G5_, G5Y_]) 
-        """
+#        """
 
         table = show_algo_table(self, x=0.0, y=0.0, font_size=18, row_gap=0.075, col_gap=0.5)
         self.wait(2)
         hide_algo_table(self, table)
+
 
         """
 《首行求逆法》
