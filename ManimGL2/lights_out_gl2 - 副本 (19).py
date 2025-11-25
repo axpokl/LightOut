@@ -2432,7 +2432,7 @@ class LightsOut(Scene):
         self.wait(2)
         del_grids(self, [grid_B])
 
-        grid_Y = make_grid(self, 8, 8, mat_l=MAT_Y, mat_g={"lgt": MAT_MK2, "btn": MAT8_0}, btn_c=Y_COLOR, lgt_c=Y_COLOR, sz=0.5)
+        grid_Y = make_grid(self, 8, 8, mat_l=MAT_Y, mat_g={"lgt": MAT_MK1, "btn": MAT8_0}, btn_c=Y_COLOR, lgt_c=Y_COLOR, sz=0.5)
         self.wait(2)
         del_grids(self, [grid_Y])
 
@@ -2452,7 +2452,7 @@ class LightsOut(Scene):
         self.wait(2)
         del_grids(self, [grid_F])
 
-        grid_P = make_grid(self, 8, 8, mat_l=MAT_P, mat_g={"lgt": MAT_MK2, "btn": MAT8_0}, btn_c=P_COLOR, lgt_c=P_COLOR, sz=0.5)
+        grid_P = make_grid(self, 8, 8, mat_l=MAT_P, mat_g={"lgt": MAT_MK1, "btn": MAT8_0}, btn_c=P_COLOR, lgt_c=P_COLOR, sz=0.5)
         self.wait(2)
         del_grids(self, [grid_P])
 
@@ -2460,7 +2460,7 @@ class LightsOut(Scene):
         self.wait(2)
         del_grids(self, [grid_G])
 
-        grid_Q = make_grid(self, 8, 8, mat_l=MAT_Q, mat_g={"lgt": MAT_MK2, "btn": MAT8_0}, btn_c=Q_COLOR, lgt_c=Q_COLOR, sz=0.5)
+        grid_Q = make_grid(self, 8, 8, mat_l=MAT_Q, mat_g={"lgt": MAT_MK1, "btn": MAT8_0}, btn_c=Q_COLOR, lgt_c=Q_COLOR, sz=0.5)
         self.wait(2)
         del_grids(self, [grid_Q])
 

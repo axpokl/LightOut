@@ -28,7 +28,7 @@ SCALE_LATEX = 1.0
 SCALE_SUBTITLE = 1.25
 SCALE_TITLE = 1.65
 
-def make_grid(scene, w, h, lgt_x=0.0, btn_x=0.0, lgt_y=0.0, btn_y=0.0, btn_c=B_COLOR, lgt_c=L_COLOR, sz=1.0, rt=0.3, mat=None, mat_l=None, w_l=None, h_l=None, show=True, mat_g=None):
+def make_grid(scene, w, h, lgt_x=0.0, btn_x=0.0, lgt_y=0.0, btn_y=0.0, sz=1.0, rt=0.3, mat=None, mat_l=None, w_l=None, h_l=None, show=True, mat_g=None,):
     w_l = w if w_l is None else int(w_l)
     h_l = h if h_l is None else int(h_l)
     lgt = [[False for _ in range(w_l)] for _ in range(h_l)]
@@ -108,7 +108,7 @@ def make_grid(scene, w, h, lgt_x=0.0, btn_x=0.0, lgt_y=0.0, btn_y=0.0, btn_c=B_C
             if not grid_vis_lgt[j][i]: lbd_hl.set_stroke(opacity=0)
             lgt_bd_hl[j][i]=lbd_hl
             lgt_bd_hl_grp.add(lbd_hl)
-            lsp = Square(side_length=lgt_sz).set_stroke(width=0, opacity=0).set_fill(lgt_c,1)
+            lsp = Square(side_length=lgt_sz).set_stroke(width=0, opacity=0).set_fill(L_COLOR,1)
             lsp.move_to(center + lgt_shift)
             if not grid_vis_lgt[j][i]: lsp.set_opacity(0)
             lgt_sp[j][i]=lsp
@@ -125,7 +125,7 @@ def make_grid(scene, w, h, lgt_x=0.0, btn_x=0.0, lgt_y=0.0, btn_y=0.0, btn_c=B_C
             if not grid_vis_btn[j][i]: bbd_hl.set_stroke(opacity=0)
             btn_bd_hl[j][i]=bbd_hl
             btn_bd_hl_grp.add(bbd_hl)
-            bsp = Circle(radius=btn_sz).set_stroke(width=0, opacity=0).set_fill(btn_c,1)
+            bsp = Circle(radius=btn_sz).set_stroke(width=0, opacity=0).set_fill(B_COLOR,1)
             bsp.move_to(center + btn_shift)
             if not grid_vis_btn[j][i]: bsp.set_opacity(0)
             btn_sp[j][i]=bsp
@@ -1702,132 +1702,6 @@ def make_mat_ky(n):
 MAT5K = make_mat_k(5)
 MAT5KY = make_mat_ky(5)
 
-MAT8_0 = [[0]*8 for _ in range(8)]
-MAT_MK1 = [[1 if j <= i else 0 for j in range(8)] for i in range(8)]
-MAT_MK2 = [[1 if j < i else 0 for j in range(8)] for i in range(8)]
-
-MAT_B = [
-    [1,0,0,0,0,0,0,0],
-    [1,1,0,0,0,0,0,0],
-    [1,0,1,0,0,0,0,0],
-    [0,1,1,1,0,0,0,0],
-    [0,0,0,0,1,0,0,0],
-    [0,1,1,0,1,1,0,0],
-    [1,0,0,0,1,0,1,0],
-    [1,0,1,1,0,1,1,1],
-]
-
-MAT_Y = [
-    [0,0,0,0,0,0,0,0],
-    [1,0,0,0,0,0,0,0],
-    [1,1,0,0,0,0,0,0],
-    [1,0,1,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [1,0,0,0,1,0,0,0],
-    [1,0,0,0,0,1,0,0],
-    [0,1,0,1,0,1,0,0],
-]
-
-MAT_H = [
-    [0,1,0,0,0,0,0],
-    [1,0,1,0,0,0,0],
-    [0,1,0,1,0,0,0],
-    [0,0,1,0,1,0,0],
-    [0,0,0,1,0,1,0],
-    [0,0,0,0,1,0,1],
-    [0,0,0,0,0,1,0],
-]
-
-MAT_K = [
-    [1,0,0,0,0,0,0,0],
-    [0,1,0,0,0,0,0,0],
-    [1,0,1,0,0,0,0,0],
-    [0,0,0,1,0,0,0,0],
-    [0,0,1,0,1,0,0,0],
-    [0,1,0,0,0,1,0,0],
-    [1,0,1,0,1,0,1,0],
-    [0,0,0,0,0,0,0,1],
-]
-
-MAT_C = [
-    [1,0,0,0,0,0,0,0],
-    [1,1,0,0,0,0,0,0],
-    [0,0,1,0,0,0,0,0],
-    [1,1,1,1,0,0,0,0],
-    [1,0,1,0,1,0,0,0],
-    [0,0,0,0,1,1,0,0],
-    [1,0,1,0,0,0,1,0],
-    [1,1,1,1,1,1,1,1],
-]
-
-MAT_F = [
-    [1,0,0,0,0,0,0,0],
-    [0,1,0,0,0,0,0,0],
-    [1,0,1,0,0,0,0,0],
-    [0,0,0,1,0,0,0,0],
-    [1,0,1,0,1,0,0,0],
-    [0,1,0,0,0,1,0,0],
-    [1,0,0,0,1,0,1,0],
-    [0,0,0,0,0,0,0,1],
-]
-
-MAT_P = [
-    [0,0,0,0,0,0,0,0],
-    [1,0,0,0,0,0,0,0],
-    [1,0,0,0,0,0,0,0],
-    [1,1,1,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,1,0,0,1,0,0,0],
-    [0,0,1,0,1,0,0,0],
-    [1,1,1,1,1,1,1,0],
-]
-
-MAT_G = [
-    [1,0,0,0,0,0,0,0],
-    [1,0,0,0,0,0,0,0],
-    [1,0,0,0,0,0,0,0],
-    [1,0,0,0,0,0,0,0],
-    [1,0,1,0,1,0,0,0],
-    [0,1,1,0,0,0,0,0],
-    [1,0,0,0,0,0,0,0],
-    [1,0,0,0,0,0,0,0],
-]
-
-MAT_Q = [
-    [0,0,0,0,0,0,0,0],
-    [1,0,0,0,0,0,0,0],
-    [1,0,0,0,0,0,0,0],
-    [1,1,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,1,0,0,0,0,0,0],
-    [0,0,1,0,0,0,0,0],
-    [1,1,0,0,0,0,0,0],
-]
-
-MAT_B5 = [
-    [0,1,1,0,1],
-    [1,1,1,0,0],
-    [1,1,0,1,1],
-    [0,0,1,1,1],
-    [1,0,1,1,0],
-]
-
-MAT_Q5 = [
-    [1,1,0,0,0],
-    [1,1,1,0,0],
-    [0,1,1,0,0],
-    [0,1,1,1,0],
-    [1,0,1,0,1],
-]
-
-MAT_E5 = [
-    [1,0,0,0,1],
-    [0,1,0,1,0],
-    [0,0,1,1,1],
-    [0,0,0,0,0],
-    [0,0,0,0,0],
-]
-
 LATEX1 = [
     {"type": "text", "content": "递推公式（Fibonacci 多项式的 GF(2) 版本）：", "scale": 1.0, "indent": 0.0},
     {"type": "tex_lines", "scale": 0.6, "content": [
@@ -2406,79 +2280,26 @@ class LightsOut(Scene):
         self.wait(2)
         del_bd(self, bd)
         del_grids(self, [G5_, G5Y_]) 
-
-
-#        table = show_algo_table(self, x=0.0, y=0.0, font_size=18, row_gap=0.075, col_gap=0.5)
-#        self.wait(2)
-#        hide_algo_table(self, table)
-
         """
 
-        show_title(self, "首行求逆法")
+        table = show_algo_table(self, x=0.0, y=0.0, font_size=18, row_gap=0.075, col_gap=0.5)
+        self.wait(2)
+        hide_algo_table(self, table)
 
-        show_subtitle(self, "对于O(n^2)的算法，我们也是使用类似的方法，", "尽可能的不去对完整矩阵进行操作，而是通过第一行来求逆或求解。")
+
+
+《首行求逆法》
+
+        show_subtitle(self, "对于O(n^2)的算法，我们也是使用类似的方法，尽可能的不去对完整矩阵进行操作，而是通过第一行来求逆或求解。")
 #【演示】从B到B的第一行
 
-        show_subtitle(self, "这里，让我以我们以n=7为例。", "我们的目标是，对于BX=Y，在已知B和Y的情况下求X。")
+        show_subtitle(self, "这里，让我以我们以n=7为例。我们的目标是，对于BX=Y，在已知B和Y的情况下求X。")
 #【演示】显示公式
         show_subtitle(self, "这里的B就是前面提到的按钮矩阵B，而Y就是翻转矩阵Y的最后一行。")
 #【演示】显示b，X，Y
 
         show_subtitle(self, "如果将n在不同情况下B的第一行写在一起，这样的B矩阵长这样。")
 
-
-
-        grid_B = make_grid(self, 8, 8, mat_l=MAT_B, mat_g={"lgt": MAT_MK1, "btn": MAT8_0}, btn_c=B_COLOR, lgt_c=B_COLOR, sz=0.5)
-        self.wait(2)
-        del_grids(self, [grid_B])
-
-        grid_Y = make_grid(self, 8, 8, mat_l=MAT_Y, mat_g={"lgt": MAT_MK2, "btn": MAT8_0}, btn_c=Y_COLOR, lgt_c=Y_COLOR, sz=0.5)
-        self.wait(2)
-        del_grids(self, [grid_Y])
-
-        grid_H = make_grid(self, 7, 7, mat_l=MAT_H, btn_c=L_COLOR, lgt_c=L_COLOR, sz=0.5)
-        self.wait(2)
-        del_grids(self, [grid_H])
-
-        grid_K = make_grid(self, 8, 8, mat_l=MAT_K, mat_g={"lgt": MAT_MK1, "btn": MAT8_0}, btn_c=K_COLOR, lgt_c=K_COLOR, sz=0.5)
-        self.wait(2)
-        del_grids(self, [grid_K])
-
-        grid_C = make_grid(self, 8, 8, mat_l=MAT_C, mat_g={"lgt": MAT_MK1, "btn": MAT8_0}, btn_c=C_COLOR, lgt_c=C_COLOR, sz=0.5)
-        self.wait(2)
-        del_grids(self, [grid_C])
-
-        grid_F = make_grid(self, 8, 8, mat_l=MAT_F, mat_g={"lgt": MAT_MK1, "btn": MAT8_0}, btn_c=F_COLOR, lgt_c=F_COLOR, sz=0.5)
-        self.wait(2)
-        del_grids(self, [grid_F])
-
-        grid_P = make_grid(self, 8, 8, mat_l=MAT_P, mat_g={"lgt": MAT_MK2, "btn": MAT8_0}, btn_c=P_COLOR, lgt_c=P_COLOR, sz=0.5)
-        self.wait(2)
-        del_grids(self, [grid_P])
-
-        grid_G = make_grid(self, 8, 8, mat_l=MAT_G, mat_g={"lgt": MAT_MK1, "btn": MAT8_0}, btn_c=G_COLOR, lgt_c=G_COLOR, sz=0.5)
-        self.wait(2)
-        del_grids(self, [grid_G])
-
-        grid_Q = make_grid(self, 8, 8, mat_l=MAT_Q, mat_g={"lgt": MAT_MK2, "btn": MAT8_0}, btn_c=Q_COLOR, lgt_c=Q_COLOR, sz=0.5)
-        self.wait(2)
-        del_grids(self, [grid_Q])
-
-        grid_B5 = make_grid(self, 5, 5, mat_l=MAT_B5, btn_c=B_COLOR, lgt_c=B_COLOR, sz=0.5)
-        self.wait(2)
-        del_grids(self, [grid_B5])
-
-        grid_Q5 = make_grid(self, 5, 5, mat_l=MAT_Q5, btn_c=Q_COLOR, lgt_c=Q_COLOR, sz=0.5)
-        self.wait(2)
-        del_grids(self, [grid_Q5])
-
-        grid_E5 = make_grid(self, 5, 5, mat_l=MAT_E5, btn_c=L_COLOR, lgt_c=L_COLOR, sz=0.5)
-        self.wait(2)
-        del_grids(self, [grid_E5])
-
-
-
-        """
 n	B
 0	1.......
 1	11......
@@ -2493,7 +2314,8 @@ n	B
 
         show_subtitle(self, "注意，这里的B矩阵不是刚才说的当n确定时的完整的B矩阵。")
 
-        show_subtitle(self, "另外，这里从n=0开始一共递推n次，第n列的1不包含在B矩阵的第一行内。", "例如n=5时，第一行为01101，最后一个1省去。")
+        show_subtitle(self, "另外，这里从n=0开始一共递推n次，第n列的1不包含在B矩阵的第一行内。")
+        show_subtitle(self, "例如n=5时，第一行为01101，最后一个1省去。")
 
         show_subtitle(self, "把Y的第一行写在一起是这样的。")
 
@@ -2532,7 +2354,7 @@ v(x)*H=v(x-1)⊕v(x+1)
 
 #——————————————————————
 
-        show_subtitle(self, "如果将多个H相乘，也就是H^n，", "则其首行H^n(0)从单位矩阵n=0开始，看起来像是这样的。")
+        show_subtitle(self, "如果将多个H相乘，也就是H^n，则其首行H^n(0)从单位矩阵n=0开始，看起来像是这样的。")
 
 n	K
 0	1.......
