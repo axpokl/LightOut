@@ -2480,7 +2480,7 @@ class LightsOut(Scene):
 #        hide_algo_table(self, table)
 
         """
-#——————————————————————
+
         show_title(self, "首行求逆法")
 
         show_subtitle(self, "对于O(n^2)的算法，我们也是使用类似的方法，", "尽可能的不去对完整矩阵进行操作，而是通过第一行来求逆或求解。")
@@ -2498,25 +2498,21 @@ class LightsOut(Scene):
         LAT_B = show_latex(self, LATEX_B, 0, 2.0)
         grid_B = make_grid(self, 8, 8, mat_l=MAT_B, mat_g={"lgt": MAT_MK1, "btn": MAT8_0}, btn_c=B_COLOR, lgt_c=B_COLOR, sz=0.4)
         left_obj = add_left_labels(self, grid_B, list(range(8)), which="btn", dx=0.4)
-        hl_cells(self, [grid_B], which="btn", indices=[(1,1),(0,2),(1,2),(2,2)])
-        hl_cells(self, [grid_B], which="btn", indices=[(1,3)], color=HL_COLOR_2)
+#【演示】圈出递推公式
         self.wait(2)
         show_subtitle(self, "注意，这里的B矩阵不是刚才说的当n确定时的完整的B矩阵。")
         self.wait(2)
-        del_cells(self, [grid_B], which="btn", indices=[(1,1),(0,2),(1,2),(2,2)])
-        del_cells(self, [grid_B], which="btn", indices=[(1,3)])
         show_subtitle(self, "另外，这里从n=0开始一共递推n次，第n列的1不包含在B矩阵的第一行内。", "例如n=5时，第一行为01101，最后一个1省去。")
-        grid_B_ = make_grid(self, 8, 8, mat_l=MAT_B, mat_g={"lgt": MAT_MK2, "btn": MAT8_0}, btn_c=B_COLOR, lgt_c=B_COLOR, sz=0.4, show=False)
-        trans_grid(self,grid_B,grid_B_, keep_from=False);
         self.wait(2)
         del_latex(self, [LAT_B])
         del_left_labels(self, left_obj)
-        del_grids(self, [grid_B_])
+        del_grids(self, [grid_B])
 
         show_subtitle(self, "把Y的第一行写在一起是这样的。")
         LAT_Y = show_latex(self, LATEX_Y, 0, 2.0)
         grid_Y = make_grid(self, 8, 8, mat_l=MAT_Y, mat_g={"lgt": MAT_MK2, "btn": MAT8_0}, btn_c=Y_COLOR, lgt_c=Y_COLOR, sz=0.4)
         left_obj = add_left_labels(self, grid_Y, list(range(8)), which="btn", dx=0.4)
+#【演示】圈出递推公式
         self.wait(2)
         del_latex(self, [LAT_Y])
         del_left_labels(self, left_obj)
@@ -2538,7 +2534,7 @@ class LightsOut(Scene):
         del_latex(self, [LAT_H, LAT_V])
         del_left_labels(self, left_obj)
         del_grids(self, [grid_H])
-
+#——————————————————————
 
         show_subtitle(self, "如果将多个H相乘，也就是H^n，", "则其首行H^n(0)从单位矩阵n=0开始，看起来像是这样的。")
         grid_K = make_grid(self, 8, 8, mat_l=MAT_K, mat_g={"lgt": MAT_MK1, "btn": MAT8_0}, btn_c=K_COLOR, lgt_c=K_COLOR, sz=0.4)
@@ -2549,11 +2545,8 @@ class LightsOut(Scene):
         self.wait(2)
         show_subtitle(self, "这里下一行是上一行乘以H，也就是上一行左右扩散的叠加。", "因此对于K的每个元素，有以上公式。")
         LAT_K2 = show_latex(self, LATEX_K, 0, 2.0)
-        hl_cells(self, [grid_K], which="btn", indices=[(0,2),(2,2)])
-        hl_cells(self, [grid_K], which="btn", indices=[(1,3)], color=HL_COLOR_2)
+#【演示】圈出递推公式
         self.wait(2)
-        del_cells(self, [grid_K], which="btn", indices=[(0,2),(2,2)])
-        del_cells(self, [grid_K], which="btn", indices=[(1,3)])
         del_latex(self, [LAT_K1, LAT_K2])
         del_left_labels(self, left_obj)
         del_grids(self, [grid_K])
@@ -2561,7 +2554,7 @@ class LightsOut(Scene):
         show_subtitle(self, "不难发现，首行叠加法中的各个B矩阵，可以使用H表示为以上公式。")
 
         LAT_BH = show_latex(self, "<cB>B(n)=B(n-1)*<cH>H<cB>⊕B(n-1)⊕B(n-2)", 0, 2.5)
-        LAT_BH0 = show_latex(self, "<cB>B(0)=<cI>I<cH>=H^0", 0, 2.0)
+        LAT_BH0 = show_latex(self, "<cB>B(0)=<cI>I=<cH>H^0", 0, 2.0)
         LAT_BH1 = show_latex(self, "<cB>B(1)=<cH>H=<cH>H^0+H^1", 0, 1.5)
         LAT_BH2 = show_latex(self, "<cB>B(2)=B(1)*<cH>H<cB>+B(1)+B(0)=<cH>(H^2+H^1)+(H^1+H^0)+H^0=H^2", 0, 1.0)
 
@@ -2573,15 +2566,12 @@ class LightsOut(Scene):
         grid_C = make_grid(self, 8, 8, mat_l=MAT_C, mat_g={"lgt": MAT_MK1, "btn": MAT8_0}, btn_c=C_COLOR, lgt_c=C_COLOR, sz=0.4)
         left_obj = add_left_labels(self, grid_C, list(range(8)), which="btn", dx=0.4)
         LAT_C = show_latex(self, LATEX_C, 0, 2.0)
-        hl_cells(self, [grid_C], which="btn", indices=[(1,1),(0,2),(1,2)])
-        hl_cells(self, [grid_C], which="btn", indices=[(1,3)], color=HL_COLOR_2)
+#【演示】圈出递推公式
         self.wait(2)
         show_subtitle(self, "注意，这里的乘以H的操作在系数上代表右移而不是左右扩散，", "因此表达式中只有x-1而没有x+1。")
         self.wait(2)
         show_subtitle(self, "这个C矩阵和后面提到的F矩阵息息相关。")
         self.wait(2)
-        del_cells(self, [grid_C], which="btn", indices=[(1,1),(0,2),(1,2)])
-        del_cells(self, [grid_C], which="btn", indices=[(1,3)])
         del_latex(self, [LAT_BH, LAT_C])
         del_left_labels(self, left_obj)
         del_grids(self, [grid_C])
