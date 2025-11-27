@@ -986,23 +986,11 @@ def _mk_line_group_color(line, font, size, default_color, baseline, auto_k, ref_
         scale = size / 38
         text = "".join(t for t, c in segs)
         m = Text(text, font=font)
-        m.scale(scale)
         m.set_color(default_color)
-        char_count = len(text)
-        glyph_count = len(m)
-        if glyph_count == char_count:
-            idx = 0
-            for t, c in segs:
-                if not t:
-                    continue
-                if c != default_color:
-                    for k in range(len(t)):
-                        m[idx + k].set_color(c)
-                idx += len(t)
-        else:
-            for t, c in segs:
-                if c != default_color and t:
-                    m.set_color_by_text(t, c)
+        for t, c in segs:
+            if c != default_color and t:
+                m.set_color_by_text(t, c)
+        m.scale(scale)
         return m
     parts = []
     for txt, col in segs:
@@ -1208,36 +1196,6 @@ def show_latex(scene, text, x=0.0, y=0.0, run_in=0.3, run_out=0.3, font=DEFAULT_
     parts = [p for p in parts if p is not None]
     if len(parts) == 0 or all(p == "" for p in parts):
         return None
-
-    try:
-        if isinstance(text, (list, tuple)):
-            raw_text = "".join(str(p) for p in text if p is not None)
-        else:
-            raw_text = "" if text is None else str(text)
-        raw_text = raw_text.replace("<br/>", "")
-        raw_text = raw_text.replace("<br />", "")
-        raw_text = raw_text.replace("<br>", "")
-        s = raw_text
-        res = []
-        i = 0
-        n = len(s)
-        while i < n:
-            ch = s[i]
-            if ch == "<" and i + 2 < n and s[i + 1] == "c":
-                j = i + 2
-                while j < n and s[j] != ">":
-                    j += 1
-                if j < n:
-                    i = j + 1
-                    continue
-            res.append(ch)
-            i += 1
-        raw_clean = "".join(res)
-        if raw_clean.strip():
-            with open("latex.txt", "a", encoding="utf-8") as f:
-                f.write(f"{_fmt_scene_time_ms(scene)} {raw_clean}\n")
-    except Exception:
-        pass
 
     lines = VGroup(*[_mk_line_group_color(p, font, font_size, default_color, baseline, auto_k, ref_tex, color_map) for p in parts])
     try:
