@@ -1,0 +1,6 @@
+{
+  "python.defaultInterpreterPath": "G:/Program Files/Python310/python.exe",
+  "python.analysis.extraPaths": [
+    "G:/Program Files/manim"
+  ]
+}
