@@ -281,7 +281,7 @@ def trans_grid(scene, G_from, G_to, rt=0.8, keep_from=False, target_override=Non
     if not keep_from:
         del_grids(scene, G_from, rt=0.0)
 
-def add_grid(scene, G_from, G_to, rt=0.8):
+def add_grid(scene, G_from, G_to, rt=0.8, keep_from=True):
     ht_btn, wt_btn = G_to["params"]["h"], G_to["params"]["w"]
     hf_btn, wf_btn = G_from["params"]["h"], G_from["params"]["w"]
     ht_lgt = G_to["params"].get("h_l", ht_btn)
@@ -330,7 +330,7 @@ def add_grid(scene, G_from, G_to, rt=0.8):
         G_from,
         G_to,
         rt=rt,
-        keep_from=True,
+        keep_from=keep_from,
         target_override=grp_final,
         extra_anims=anims,
     )
@@ -912,6 +912,62 @@ def set_all_lights(scene, grids, on=True, rt=0.3, clear_highlight=True):
     if anims:
         scene.play(*anims, run_time=rt)
 
+def mul_vec_mat_begin(scene, mat, vec, mat_color=I_COLOR, vec_color=Y_COLOR, res_color=X_COLOR, sz=0.4, w=None, h=None):
+    if h is None: h = len(mat)
+    if w is None: w = len(mat[0]) if h>0 else 0
+    grid_M = make_grid(scene, w, h, mat_l=mat, btn_c=mat_color, lgt_c=mat_color, sz=sz)
+    left_obj = add_left_labels(scene, grid_M, list(range(h)), which="btn", dx=0.4)
+    ctx = {"mat":mat,"vec":vec,"mat_color":mat_color,"vec_color":vec_color,"res_color":res_color,"sz":sz,"h":h,"w":w,"grid_M":grid_M,"left_obj":left_obj}
+    return ctx
+
+def mul_vec_mat_vec_and_rows(scene, ctx):
+    h = ctx["h"]
+    w = ctx["w"]
+    mat = ctx["mat"]
+    vec = ctx["vec"]
+    sz = ctx["sz"]
+    vec_color = ctx["vec_color"]
+    res_color = ctx["res_color"]
+    grid_V1 = make_grid(scene, h, 1, mat_l=[vec], btn_y=-2, lgt_y=-2, btn_c=vec_color, lgt_c=vec_color, sz=sz)
+    grid_V2 = make_grid(scene, 1, h, mat_l=[[v] for v in vec], btn_x=-2, lgt_x=-2, btn_c=vec_color, lgt_c=vec_color, sz=sz, show=False)
+    trans_grid(scene, grid_V1, grid_V2)
+    grid_res = make_grid(scene, w, 1, mat_l=[[0]*w], btn_y=-2, lgt_y=-2, btn_c=res_color, lgt_c=res_color, sz=sz)
+    vh_grids = []
+    bd_list = []
+    for i in range(h):
+        if not vec[i]:
+            continue
+        y = sz*((h-1)/2-i)
+        g = make_grid(scene, w, 1, mat_l=[mat[i]], btn_y=y, lgt_y=y, btn_c=vec_color, lgt_c=vec_color, sz=sz)
+        vh_grids.append(g)
+    ctx["grid_V2"] = grid_V2
+    ctx["grid_res"] = grid_res
+    ctx["vh_grids"] = vh_grids
+    ctx["bd_list"] = bd_list
+    return ctx
+
+def mul_vec_mat_accumulate(scene, ctx):
+    vh_grids = ctx["vh_grids"]
+    bd_list = ctx["bd_list"]
+    grid_res = ctx["grid_res"]
+    for i in range(len(vh_grids)):
+        add_grid(scene, vh_grids[i], grid_res, keep_from=False)
+    return grid_res
+
+def mul_vec_mat_cleanup(scene, ctx, clear_res=True):
+    grids = [ctx["grid_M"], ctx["grid_V2"]] + ctx["vh_grids"]
+    if clear_res:
+        grids.append(ctx["grid_res"])
+    del_left_labels(scene, ctx["left_obj"])
+    del_grids(scene, grids)
+
+def mul_vec_mat(scene, mat, vec, mat_color=I_COLOR, vec_color=Y_COLOR, res_color=X_COLOR, sz=0.4, w=None, h=None):
+    ctx = mul_vec_mat_begin(scene, mat, vec, mat_color, vec_color, res_color, sz, w=w, h=h)
+    mul_vec_mat_vec_and_rows(scene, ctx)
+    mul_vec_mat_accumulate(scene, ctx)
+    mul_vec_mat_cleanup(scene, ctx, clear_res=True)
+    return ctx
+
 def _split_inline_math(s):
     parts = []
     buf = ""
@@ -1208,7 +1264,43 @@ def show_latex(scene, text, x=0.0, y=0.0, run_in=0.3, run_out=0.3, font=DEFAULT_
     parts = [p for p in parts if p is not None]
     if len(parts) == 0 or all(p == "" for p in parts):
         return None
-
+    lines = VGroup(*[_mk_line_group_color(p, font, font_size, default_color, baseline, auto_k, ref_tex, color_map) for p in parts])
+    h0 = 0.0
+    for line in lines.submobjects:
+        try:
+            h_line = float(line.get_height())
+        except Exception:
+            h_line = 0.0
+        if h_line > h0:
+            h0 = h_line
+    try:
+        ref = Tex(ref_tex)
+        ref.scale(1)
+        h_ref = float(ref.get_height())
+    except Exception:
+        h_ref = 0.0
+    if h_ref > 1e-6:
+        target = h_ref * (SCALE_LATEX * font_size / 32)
+        for line in lines.submobjects:
+            try:
+                h_line = float(line.get_height())
+            except Exception:
+                h_line = 0.0
+            if h_line > 1e-6:
+                s = target / h_line
+                if abs(s - 1.0) > 1e-3:
+                    line.scale(s)
+    h1 = 0.0
+    for line in lines.submobjects:
+        try:
+            h_line = float(line.get_height())
+        except Exception:
+            h_line = 0.0
+        if h_line > h1:
+            h1 = h_line
+    lines.arrange(DOWN, buff=line_gap, aligned_edge=LEFT)
+    lines.move_to(ORIGIN)
+    lines.shift(RIGHT * x + UP * y)
     try:
         if isinstance(text, (list, tuple)):
             raw_text = "".join(str(p) for p in text if p is not None)
@@ -1235,31 +1327,9 @@ def show_latex(scene, text, x=0.0, y=0.0, run_in=0.3, run_out=0.3, font=DEFAULT_
         raw_clean = "".join(res)
         if raw_clean.strip():
             with open("latex.txt", "a", encoding="utf-8") as f:
-                f.write(f"{_fmt_scene_time_ms(scene)} {raw_clean}\n")
+                f.write(f"{_fmt_scene_time_ms(scene)} {h0:.6f} {h1:.6f} {raw_clean}\n")
     except Exception:
         pass
-
-    lines = VGroup(*[_mk_line_group_color(p, font, font_size, default_color, baseline, auto_k, ref_tex, color_map) for p in parts])
-    try:
-        ref = Tex(ref_tex)
-        ref.scale(1)
-        h_ref = float(ref.get_height())
-    except Exception:
-        h_ref = 0.0
-    if h_ref > 1e-6:
-        target = h_ref * (SCALE_LATEX * font_size / 32)
-        for line in lines.submobjects:
-            try:
-                h_line = float(line.get_height())
-            except Exception:
-                h_line = 0.0
-            if h_line > 1e-6:
-                s = target / h_line
-                if abs(s - 1.0) > 1e-3:
-                    line.scale(s)
-    lines.arrange(DOWN, buff=line_gap, aligned_edge=LEFT)
-    lines.move_to(ORIGIN)
-    lines.shift(RIGHT * x + UP * y)
     if not show or scene is None:
         return lines
     scene.add(lines)
@@ -1914,6 +1984,16 @@ MAT_Q = [
     [1,1,0,0,0,0,0,0],
 ]
 
+MAT_QH = [
+    [1,1,0,0,0,0,0],
+    [1,1,1,0,0,0,0],
+    [0,1,1,1,0,0,0],
+    [0,0,1,1,1,0,0],
+    [0,0,0,1,1,1,0],
+    [0,0,0,0,1,1,1],
+    [0,0,0,0,0,1,1],
+]
+
 MAT_B5 = [
     [0,1,1,0,1],
     [1,1,1,0,0],
@@ -1937,6 +2017,18 @@ MAT_E5 = [
     [0,0,0,0,0],
     [0,0,0,0,0],
 ]
+
+VEC_V7 = [0,1,0,0,0,1,0]
+
+VEC_B7 = [1,0,1,1,0,1,1]
+VEC_Y7 = [0,1,0,1,0,1,0]
+VEC_K7 = [0,0,0,0,0,0,0]
+VEC_F7 = [0,0,0,0,0,0,0,1]
+VEC_C7 = [1,1,1,1,1,1,1]
+VEC_P7 = [1,1,1,1,1,1,1]
+VEC_Q7 = [1,1,0,0,0,0,0]
+VEC_G7 = [1,0,0,0,0,0,0,0]
+VEC_X7 = [1,1,0,1,0,1,1]
 
 LATEX1 = [
     {"type": "text", "content": "递推公式（Fibonacci 多项式的 GF(2) 版本）：", "scale": 1.0, "indent": 0.0},
@@ -2032,7 +2124,7 @@ class LightsOut(Scene):
     def construct(self):
         self.camera.background_color = BLACK
 
-        """
+
         show_title(self, "点灯游戏的$O(n^2)$解法")
 #演示n=5,7,11
         show_title(self, "首行叠加法（续上集）")
@@ -2053,7 +2145,7 @@ class LightsOut(Scene):
         for k in range(rows):
             for y in range(cols):
                 mx = (y*2-cols)*(1+sz)+1
-                my = -k*sz+0.5
+                my = -k*sz
                 G5_[k][y] = make_grid(self, w=cols, h=1, lgt_x=mx, btn_x=mx, lgt_y=my, btn_y=my, sz=sz, mat=[MAT5K[k][y][:]], mat_l=[MAT5K[k+1][y][:]], show=True, rt=0.05)
                 mx = (y*2-cols)*(1+sz)+1+sz*(cols+3)/2
                 G5Y_[k][y] = make_grid(self, w=1, h=1, lgt_x=mx, btn_x=mx, lgt_y=my, btn_y=my, sz=sz, mat=[[MAT5KY[k][y]]], mat_l=[[MAT5KY[k+1][y]]],show=True, rt=0.05)
@@ -2081,11 +2173,11 @@ class LightsOut(Scene):
         del_grids(self, G5Y_);
 
         show_subtitle(self, "让我们举一个具体的例子。", "在5x5的格子中，我们将灯和按钮编号为1-25。")
-        self.wait(2)
-        show_subtitle(self, "在《叠加法》中，我们将灯表示为所有按钮的叠加。", "例如：L1=B1⊕B2⊕B6，L6=B1⊕B6⊕B7⊕B11。")
         cols, rows = 5, 5
         G5 = make_grid(self, w=cols, h=rows, lgt_x=-4, btn_x=-4, sz=0.5)
         objs = add_grid_labels(self, G5, [[f"B{c*rows + r + 1}" for c in range(cols)] for r in range(rows)], which="btn", scale=0.5)
+        self.wait(2)
+        show_subtitle(self, "在《叠加法》中，我们将灯表示为所有按钮的叠加。", "例如：L1=B1⊕B2⊕B6，L6=B1⊕B6⊕B7⊕B11。")
         sz = 0.18
         G5_ = [[None] * cols for _ in range(rows)]
         mat_l = make_mat_l(rows)
@@ -2123,7 +2215,7 @@ class LightsOut(Scene):
         for k in range(rows):
             for y in range(cols):
                 mx = (y*2-cols)*(1+sz)+1
-                my = -k*sz+0.5
+                my = -k*sz
                 G5_[k][y] = make_grid(self, w=cols, h=1, lgt_x=mx, btn_x=mx, lgt_y=my, btn_y=my, sz=sz, mat=[[0]*cols], mat_l=[[0]*cols], show=True, rt=0.01)
                 mx = (y*2-cols)*(1+sz)+1+sz*(cols+3)/2
                 G5Y_[k][y] = make_grid(self, w=1, h=1, lgt_x=mx, btn_x=mx, lgt_y=my, btn_y=my, sz=sz, mat=[[0]*cols for _ in range(rows)], mat_l=[[0]], show=True, rt=0.01)
@@ -2233,7 +2325,7 @@ class LightsOut(Scene):
         for k in range(rows):
             for y in range(cols):
                 mx = (y*2-cols)*(1+sz)+1
-                my = -k*sz+0.5
+                my = -k*sz
                 mx = (y*2-cols)*(1+sz)+1+sz*(cols+3)/2
                 if k == 0: top_objs[k][y] = add_top_labels(self, G5_[k][y], ["x1","x2","x3","x4","x5"], which="lgt", scale=0.4, rt=0.01)
                 if k == 0: topy_objs[k][y] = add_top_labels(self, G5Y_[k][y], [f"y{y+1}"], which="lgt", scale=0.4, rt=0.01)
@@ -2543,11 +2635,10 @@ class LightsOut(Scene):
         del_left_labels(self, left_objs)
         del_grids(self, [G5_, G5Y_]) 
 
-        """
 #        table = show_algo_table(self, x=0.0, y=0.0, font_size=18, row_gap=0.075, col_gap=0.5)
 #        self.wait(2)
 #        hide_algo_table(self, table)
-        """
+
 #——————————————————————
         show_title(self, "首行求逆法")
 
@@ -2608,30 +2699,18 @@ class LightsOut(Scene):
 
         show_subtitle(self, "为了实现这个目标，我们需要首先将B进行分解。", "这里，让我首先介绍一个非常重要的矩阵H。")
         LAT_H = show_latex(self, LATEX_H, 0, 2.0)
-        grid_H = make_grid(self, 7, 7, mat_l=MAT_H, btn_c=H_COLOR, lgt_c=H_COLOR, sz=0.4)
-        left_obj = add_left_labels(self, grid_H, list(range(7)), which="btn", dx=0.4)
+        ctx = mul_vec_mat_begin(self, mat=MAT_H, vec=VEC_V7, mat_color=H_COLOR, vec_color=V_COLOR, res_color=V_COLOR, sz=0.4)
         show_subtitle(self, "对于H的每一个元素，如果x和y的差为一则为一，否则为零。")
         self.wait(2)
         show_subtitle(self, "如果将向量v乘以该矩阵，等同于将向量v的每个元素向左右扩散后叠加。")
         LAT_V = show_latex(self, "<cV>v(x)*<cH>H<cV>=v(x-1)⊕v(x+1)", 0, 2.5)
-        grid_V1 = make_grid(self, 7, 1, mat_l=[[0,1,0,0,0,1,0]], btn_y=-2, lgt_y=-2, btn_c=V_COLOR, lgt_c=V_COLOR, sz=0.4)
-        grid_V2 = make_grid(self, 1, 7, mat_l=[[0],[1],[0],[0],[0],[1],[0]], btn_x=-2, lgt_x=-2, btn_c=V_COLOR, lgt_c=V_COLOR, sz=0.4, show=False)
-        trans_grid(self, grid_V1, grid_V2)
-        grid_V3 = make_grid(self, 7, 1, mat_l=[[0,0,0,0,0,0,0]], btn_y=-2, lgt_y=-2, btn_c=V_COLOR, lgt_c=V_COLOR, sz=0.4)
-
-        grid_VH1 = make_grid(self, 7, 1, mat_l=[MAT_H[1]], btn_y=0.8, lgt_y=0.8, btn_c=V_COLOR, lgt_c=V_COLOR, sz=0.4)
-        grid_VH2 = make_grid(self, 7, 1, mat_l=[MAT_H[5]], btn_y=-0.8, lgt_y=-0.8, btn_c=V_COLOR, lgt_c=V_COLOR, sz=0.4)
-        bd1 = hl_bd(self, grid_VH1)
-        bd2 = hl_bd(self, grid_VH2)
-        add_grid(self, grid_VH1, grid_V3)
-        del_bd(self,bd1)
-        add_grid(self, grid_VH2, grid_V3)
-        del_bd(self,bd2)
+        mul_vec_mat_vec_and_rows(self, ctx)
+        self.wait(2)
         show_subtitle(self, "这是因为矩阵的对应行就是向量每个元素左右扩散的结果。")
+        mul_vec_mat_accumulate(self, ctx)
         self.wait(2)
         del_latex(self, [LAT_H, LAT_V])
-        del_left_labels(self, left_obj)
-        del_grids(self, [grid_H, grid_V3, grid_V2, grid_VH1, grid_VH2])
+        mul_vec_mat_cleanup(self, ctx, clear_res=True)
 
         show_subtitle(self, "如果将多个H相乘，也就是H^n，", "则其首行H^n(0)从单位矩阵n=0开始，看起来像是这样的。")
         grid_K = make_grid(self, 8, 8, mat_l=MAT_K, mat_g={"lgt": MAT_MK1, "btn": MAT8_0}, btn_c=K_COLOR, lgt_c=K_COLOR, sz=0.4)
@@ -2679,7 +2758,6 @@ class LightsOut(Scene):
         del_left_labels(self, left_obj)
         del_grids(self, [grid_C])
 
-
         show_subtitle(self, "现在，定义多项式p(x)。", "我们的目标是把B拆分成H^n，使用多项式p(H)表示B。")
         LAT_P1 = show_latex(self, "<cP>p(x)=p0*x^0+p1*x^1+p2*x^2...=SUM+(pi*x^i)", 0, 2.5)
         self.wait(2)
@@ -2718,7 +2796,8 @@ class LightsOut(Scene):
         show_subtitle(self, "于是，我们便有：b*F=p*K*F=p。这样我们便求出了p。")
         LAT_P = show_latex(self, LATEX_P, 0, 2.0)
         self.wait(2)
-#【演示】演示，计算P矩阵（b竖着，叠加）
+        mul_vec_mat(self, w=7, h=7, mat=MAT_F, vec=VEC_B7, mat_color=F_COLOR, vec_color=B_COLOR, res_color=P_COLOR, sz=0.4)
+
         show_subtitle(self, "将多项式p(x)写成矩阵的形式，记为P。")
         grid_P = make_grid(self, 8, 8, mat_l=MAT_P, mat_g={"lgt": MAT_MK2, "btn": MAT8_0}, btn_c=P_COLOR, lgt_c=P_COLOR, sz=0.4)
         left_obj = add_left_labels(self, grid_P, list(range(8)), which="btn", dx=0.4)
@@ -2751,14 +2830,12 @@ class LightsOut(Scene):
         grid_G = make_grid(self, 8, 8, mat_l=MAT_G, mat_g={"lgt": MAT_MK1, "btn": MAT8_0}, btn_c=G_COLOR, lgt_c=G_COLOR, sz=0.4)
         left_obj = add_left_labels(self, grid_G, list(range(8)), which="btn", dx=0.4)
         LAT_G = show_latex(self, LATEX_G, 0, 2.0)
+        hl_cells(self, [grid_G], which="btn", indices=[(0,0),(0,1),(0,2),(0,3),(4,4),(2,5),(0,6),(0,7)], color=HL_COLOR_1)
         self.wait(2)
+        del_cells(self, [grid_G], which="btn", indices=[(0,0),(0,1),(0,2),(0,3),(4,4),(2,5),(0,6),(0,7)])
         del_latex(self, [LAT_G])
         del_left_labels(self, left_obj)
         del_grids(self, [grid_G])
-
-#【演示】圈出每一行最高系数格
-
-
 
         show_subtitle(self, "有了b*F=p之后，后续的计算我们都不需要用到完整的B，", "而只需要这个第一行b。")
         self.wait(2)
@@ -2781,13 +2858,28 @@ class LightsOut(Scene):
         del_grids(self, [grid_B])
 
         show_subtitle(self, "为了求出p=b*F，我们需要将向量和矩阵相乘，", "一般情况下时间复杂度是O(n^2)。")
-#【演示】演示，计算P矩阵（b竖着，叠加）
-        self.wait(2)
+        LAT_P = show_latex(self, LATEX_P, 0, 2.0)
+        mul_vec_mat(self, w=7, h=7, mat=MAT_F, vec=VEC_B7, mat_color=F_COLOR, vec_color=B_COLOR, res_color=P_COLOR, sz=0.4)
+        del_latex(self, [LAT_P])
+
         show_subtitle(self, "因为矩阵F是有递推规律的，理论上使用FFT等算法，", "可以把乘法优化到O(n*log(n))。")
+        LAT_F = show_latex(self, LATEX_F, 0, 2.0)
+        grid_F = make_grid(self, 8, 8, mat_l=MAT_F, mat_g={"lgt": MAT_MK1, "btn": MAT8_0}, btn_c=F_COLOR, lgt_c=F_COLOR, sz=0.4)
+        left_obj = add_left_labels(self, grid_F, list(range(8)), which="btn", dx=0.4)
+        hl_cells(self, [grid_F], which="btn", indices=[(1,1),(0,2)])
+        hl_cells(self, [grid_F], which="btn", indices=[(1,3)], color=HL_COLOR_2)
         self.wait(2)
+        del_cells(self, [grid_F], which="btn", indices=[(1,1),(0,2)])
+        del_cells(self, [grid_F], which="btn", indices=[(1,3)])
+        del_latex(self, [LAT_F])
+        del_left_labels(self, left_obj)
+        del_grids(self, [grid_F])
+
         show_subtitle(self, "现在我们已求得了p，并将原始问题转换为了p(H)X=Y。", "那这又有什么用呢？")
+        LAT_Y = show_latex(self, "<cX>p(H)X=Y", 0, 2.0)
 #演示P(H)X=Y
         self.wait(2)
+        del_latex(self, [LAT_Y])
 
 #——————————————————————
 
@@ -2801,6 +2893,8 @@ class LightsOut(Scene):
 
         show_subtitle(self, "这样，我们就能立刻求出X。")
 #演示X=q(H)Y（做乘法）
+        mul_vec_mat(self, w=7, h=7, mat=MAT_QH, vec=VEC_Y7, mat_color=Q_COLOR, vec_color=Y_COLOR, res_color=X_COLOR, sz=0.4)
+#这里需要修改（拆分），先演示第一行，再把整个矩阵画出来， 并且不消失
         self.wait(2)
 
         show_subtitle(self, "让我把这样的多项式q(x)我们称之为p(x)的逆多项式。", "那么，如何求出逆多项式q(x)呢？")
@@ -2835,7 +2929,7 @@ class LightsOut(Scene):
         del_latex(self, [LAT_Q1, LAT_Q2])
         del_left_labels(self, left_obj)
         del_grids(self, [grid_Q])
-        """
+
 #——————————————————————
 
         show_subtitle(self, "这里，由于我们已求得q(x)。我们也可以利用这个式子来求X。")
@@ -2864,9 +2958,9 @@ class LightsOut(Scene):
         self.wait(2)
 
         show_subtitle(self, "n=5时的伪逆矩阵Q'和消元后的E'矩阵是这样的。")
-        grid_B5 = make_grid(self, 5, 5, lgt_x=-2, btn_x=-2, mat_l=MAT_B5, btn_c=B_COLOR, lgt_c=B_COLOR, sz=0.4)
+        grid_B5 = make_grid(self, 5, 5, lgt_x=-3, btn_x=-3, mat_l=MAT_B5, btn_c=B_COLOR, lgt_c=B_COLOR, sz=0.4)
         grid_Q5 = make_grid(self, 5, 5, lgt_x=-0, btn_x=-0, mat_l=MAT_Q5, btn_c=Q_COLOR, lgt_c=Q_COLOR, sz=0.4)
-        grid_E5 = make_grid(self, 5, 5, lgt_x=+2, btn_x=+2, mat_l=MAT_E5, btn_c=L_COLOR, lgt_c=L_COLOR, sz=0.4)
+        grid_E5 = make_grid(self, 5, 5, lgt_x=+3, btn_x=+3, mat_l=MAT_E5, btn_c=L_COLOR, lgt_c=L_COLOR, sz=0.4)
         self.wait(2)
 
         show_subtitle(self, "可以证明，Q'和E'具有这样的形式")
@@ -2886,7 +2980,7 @@ class LightsOut(Scene):
         self.wait(2)
 #Wr=Ur*Qr：
 
-        show_subtitle(self, "矩阵Q'和E'一定具有这样的形式，并且可以用分块矩阵乘法很容易的证明这两个性质。", "有兴趣的观众可以自行证明。")
+        show_subtitle(self, "矩阵Q'和E'一定具有这样的形式。利用分块矩阵乘法，", "可以很容易证明这两个性质。有兴趣的观众可以自行证明。")
         self.wait(2)
 
         show_subtitle(self, "可以发现，这里的q(x)并不是Q'的第一行，", "并且求得的X也不是原方程的解。")

@@ -1,5 +1,6 @@
 del subtitle.txt
 del title.txt
+del latex.txt
 
 manimgl lights_out_gl2.py LightsOutThreeGridsGL -w --file_name lights_out
 if errorlevel 1 (
