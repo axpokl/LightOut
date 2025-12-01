@@ -1187,7 +1187,7 @@ def _parse_color_segments(line, color_map, default_color):
 
 def _mk_line_group_color(line, font, size, default_color, baseline, auto_k, ref_tex, color_map):
     segs = _parse_color_segments(line, color_map, default_color)
-    if len(segs) == 1 and segs[0][1] == default_color:
+    if len(segs) == 1 and segs[0][1] == default_color and "<" not in line:
         return _mk_line_group(line, font, size, default_color, baseline, auto_k, ref_tex)
     if "$" not in line:
         scale = size / 38
@@ -2232,21 +2232,21 @@ LATEX_RIGHT = [
 ]
 
 LATEX_MAT = [
-    (L_COLOR,  "L",   "-",   "灯矩阵第一行",                 "公式递推",     "L(n,x)=L(n-1,x-1)⊕L(n-1,x)⊕L(n-1,x+1)⊕L(n-2,x)"),
-    (B_COLOR,  "B",   "-",   "按钮矩阵第一行",               "公式递推",     "B(n,x)=B(n-1,x-1)⊕B(n-1,x)⊕B(n-1,x+1)⊕B(n-2,x)"),
-    (Y_COLOR,  "Y",   "-",   "灯矩阵最后一行",               "公式递推",     "Y(n,y)=~(Y(n-1,y-1)⊕Y(n-1,y)⊕Y(n-1,y+1)⊕Y(n-2,y))"),
-    (H_COLOR,  "H",   "-",   "H^n第一行（Krylov扩散基矩阵）", "公式递推", "H(y,x)=(∣x-y∣=1)"),
-    (K_COLOR,  "K",   "-",   "H^n第一行（Krylov扩散基矩阵）", "公式递推", "K(n,x)=K(n-1,x-1)⊕K(n-1,x+1)"),
-    (F_COLOR,  "F",   "-",   "K的逆矩阵（Krylov解耦矩阵）",       "公式递推", "F(n,x)=F(n-1,x-1)⊕F(n-2,x)"),
-    (C_COLOR,  "C",   "-",   "B关于H的系数矩阵",             "公式递推",     "C(n,x)=C(n-1,x-1)⊕C(n-1,x)⊕C(n-2,x)"),
-    (P_COLOR,  "P",   "B,F", "多项式p(H)的系数",            "矩阵向量乘法", "p=b*F"),
-    (Q_COLOR,  "Q",   "F,P", "多项式p(x)的在f(x)下的逆",    "扩展欧几里得", "q=p^-1 mod F"),
-    (G_COLOR,  "G",   "F,P", "多项式p(x)和q(x)最大共因子", "扩展欧几里得", "g=gcd(f,p)=gcd(f,c)"),
-    (Z_COLOR,  "Z",   "Q,Y", "部分逆按钮解",               "矩阵向量乘法", "z=Q*y"),
-    (D_COLOR,  "D",   "G",   "多项式g(x)的矩阵",           "矩阵向量乘法", "d=g*K"),
-    (ID_COLOR, "ID",  "D",   "H每一行的主元索引",          "求最大值",     "ID=max(D(n))"),
-    (X_COLOR,  "X",   "D,Z", "最终首行按钮解",             "前向异或消元", "z=G*x"),
-    (T_COLOR,  "T",   "X",   "最终按钮解矩阵",             "公式递推",     "T(n,x)=T(n-1,x-1)⊕T(n-1,x)⊕T(n-1,x+1)⊕T(n-2,x)"),
+    (L_COLOR,  "L",   "-",   "灯矩阵第一行",                 "公式递推",     "<cL>L(n,x)=L(n-1,x-1)⊕L(n-1,x)⊕L(n-1,x+1)⊕L(n-2,x)"),
+    (B_COLOR,  "B",   "-",   "按钮矩阵第一行",               "公式递推",     "<cB>B(n,x)=B(n-1,x-1)⊕B(n-1,x)⊕B(n-1,x+1)⊕B(n-2,x)"),
+    (Y_COLOR,  "Y",   "-",   "灯矩阵最后一行",               "公式递推",     "<cY>Y(n,y)=~(Y(n-1,y-1)⊕Y(n-1,y)⊕Y(n-1,y+1)⊕Y(n-2,y))"),
+    (H_COLOR,  "H",   "-",   "H^n第一行（Krylov扩散基矩阵）", "公式递推", "<cH>H(y,x)=(∣x-y∣=1)"),
+    (K_COLOR,  "K",   "-",   "H^n第一行（Krylov扩散基矩阵）", "公式递推", "<cK>K(n,x)=K(n-1,x-1)⊕K(n-1,x+1)"),
+    (F_COLOR,  "F",   "-",   "K的逆矩阵（Krylov解耦矩阵）",       "公式递推", "<cF>F(n,x)=F(n-1,x-1)⊕F(n-2,x)"),
+    (C_COLOR,  "C",   "-",   "B关于H的系数矩阵",             "公式递推",     "<cC>C(n,x)=C(n-1,x-1)⊕C(n-1,x)⊕C(n-2,x)"),
+    (P_COLOR,  "P",   "F,b", "多项式p(H)的系数",            "矩阵向量乘法", "<cP>p=<cF>F<cB>b"),
+    (Q_COLOR,  "Q",   "F,p", "多项式p(x)的在f(x)下的逆",    "扩展欧几里得", "<cQ>q=<cP>p^-1<cQ> mod <cF>F"),
+    (G_COLOR,  "G",   "F,F", "多项式p(x)和q(x)最大共因子", "扩展欧几里得", "<cG>g=gcd(<cF>f<cG>,<cP>p<cG>)=gcd(<cF>f<cG>,<cC>c)"),
+    (Z_COLOR,  "Z",   "Q,y", "部分逆按钮解",               "矩阵向量乘法", "<cZ>z=<cQ>Q<cY>y"),
+    (D_COLOR,  "D",   "K,g",   "多项式g(x)的矩阵",           "矩阵向量乘法", "<cD>d=<cK>K<cG>g"),
+    (ID_COLOR, "ID",  "D",   "H每一行的主元索引",          "求最大值",     "<cID>ID=max(<cD>D(n)<cID>)"),
+    (X_COLOR,  "X",   "D,z", "最终首行按钮解",             "前向异或消元", "<cZ>z=<cG>G<cX>x"),
+    (T_COLOR,  "T",   "x",   "最终按钮解矩阵",             "公式递推",     "<cT>T(n,x)=T(n-1,x-1)⊕T(n-1,x)⊕T(n-1,x+1)⊕T(n-2,x)"),
 ]
 
 (
@@ -2266,7 +2266,7 @@ LATEX_MAT = [
  LATEX_X,
  LATEX_T
 ) = [
-    f"<c{row[1]}>{row[5]}"
+    f"{row[5]}"
     for row in LATEX_MAT
 ]
 
@@ -2837,10 +2837,10 @@ class LightsOut(Scene):
         del_top_labels(self, topy_objs)
         del_left_labels(self, left_objs)
         del_grids(self, [G5_, G5Y_]) 
-
-#        table = show_algo_table(self, x=0.0, y=0.0, font_size=18, row_gap=0.075, col_gap=0.5)
-#        self.wait(2)
-#        hide_algo_table(self, table)
+        """
+        table = show_algo_table(self, x=0.0, y=0.0, font_size=18, row_gap=0.075, col_gap=0.5)
+        self.wait(2)
+        hide_algo_table(self, table)
 
 #——————————————————————
         show_title(self, "首行求逆法")
@@ -2849,13 +2849,13 @@ class LightsOut(Scene):
         grid_B1 = make_grid(self, 7, 1, mat_l=[MAT7K[7][0]], btn_c=B_COLOR, lgt_c=B_COLOR, sz=0.4, btn_y=1.2, lgt_y=1.2)
         topy_obj_B = add_top_labels(self, grid_B1, ["", "", "", "B", "", "", ""], which="btn", scale=0.7)
         self.wait(2)
-        show_subtitle(self, "这里，让我以我们以n=7为例。", "这里的B就是前面提到的按钮矩阵B，而Y就是翻转矩阵Y的最后一行。")
+        show_subtitle(self, "这里，让我以我们以n=7为例。", "这里的B就是前面提到的按钮矩阵B，而y就是翻转矩阵Y的最后一行。")
         grid_B = make_grid(self, 7, 7, mat_l=MAT7K[7], btn_c=B_COLOR, lgt_c=B_COLOR, sz=0.4)
         grid_Y = make_grid(self, 1, 7, mat_l=[[v] for v in MAT7KY[7]], btn_c=Y_COLOR, lgt_c=Y_COLOR, btn_x=2, lgt_x=2, sz=0.4)
-        topy_obj_Y = add_top_labels(self, grid_Y, ["Y"], which="btn", scale=0.7)
+        topy_obj_Y = add_top_labels(self, grid_Y, ["y"], which="btn", scale=0.7)
         self.wait(2)
 
-        show_subtitle(self, "我们的目标是，对于BX=Y，在已知B的第一行和Y的情况下求X。")
+        show_subtitle(self, "我们的目标是，对于Bx=y，在已知B的第一行和y的情况下求x。")
         pB   = grid_B["params"]
         sz   = pB["sz"]
         h_l  = pB["h_l"]
@@ -2867,7 +2867,7 @@ class LightsOut(Scene):
         grid_B_row = make_grid(self, 7, 1, lgt_x=lgt_x, btn_x=btn_x, lgt_y=row0_y, btn_y=row0_y, sz=sz, show=False)
         bd_B_row = hl_bd(self, grid_B_row)
         grid_X = make_grid(self, 1, 7, mat_l=[[1],[1],[0],[1],[0],[1],[1]], btn_c=X_COLOR, lgt_c=X_COLOR, btn_x=2.8, lgt_x=2.8, sz=0.4)
-        topy_obj_X = add_top_labels(self, grid_X, ["X"], which="btn", scale=0.7)
+        topy_obj_X = add_top_labels(self, grid_X, ["x"], which="btn", scale=0.7)
         mul_vec_mat(self, w=7, h=7, mat=MAT7K[7], vec=VEC_X7, mat_color=B_COLOR, vec_color=X_COLOR, res_color=Y_COLOR, mat_label="B", vec_label="x", res_label="y", sz=0.4)
         del_bd(self, bd_B_row)
         del_top_labels(self, [topy_obj_B, topy_obj_Y, topy_obj_X])
@@ -2972,20 +2972,20 @@ class LightsOut(Scene):
         show_subtitle(self, "将矩阵H代入多项式p(x)，得到p(H)，并用其表示矩阵B。")
         LAT_P2 = show_latex(self, "<cB>B<cP>=p(<cH>H<cP>)=p0*<cH>H^0<cP>⊕p1*<cH>H^1<cP>⊕p2*<cH>H^2<cP>⊕...=SUM⊕(pi*<cH>H^i<cP>)", 0, 2.0)
         self.wait(2)
-        show_subtitle(self, "这样，原始求X的问题就变为了p(H)X=Y。")
-        LAT_P3 = show_latex(self, "<cB>B<cX>X<cP>=<cY>Y<cP> <==> p(<cH>H<cP>)<cX>X<cP>=<cY>Y", 0, 1.5)
+        show_subtitle(self, "这样，原始求x的问题就变为了p(H)x=y。")
+        LAT_P3 = show_latex(self, "<cB>B<cX>x<cP>=<cY>y<cP> <==> p(<cH>H<cP>)<cX>x<cP>=<cY>y", 0, 1.5)
         self.wait(2)
         show_subtitle(self, "现在，我们需要把多项式p(H)的系数计算出来。", "这个系数构成的向量我们记为p。")
         LAT_P4 = show_latex(self, "<cP>p=(p0,p1,p2...)", 0, 1.0)
         self.wait(2)
-        show_subtitle(self, "为了简化运算，我们只关心矩阵第一行B(0)，记为b。", "根据刚才的定义，我们可以得到b=p*K。")
-        LAT_P5 = show_latex(self, "<cB>b<br><cB>=B(0)<br><cP>=p(<cH>H(0)<cP>)<br><cP>=p0*<cH>H^0(0)<cP>⊕p1*<cH>H^1(0)<cP>⊕p2*<cH>H^2(0)<cP>⊕...<br><cP>=p0*<cK>K(0)<cP>⊕p1*<cK>K(1)<cP>⊕p2*<cK>K(2)<cP>⊕...<br><cP>=p*<cK>K", 0, -0.5)
+        show_subtitle(self, "为了简化运算，我们只关心矩阵第一行B(0)，记为b。", "根据刚才的定义，我们可以得到b=K*p。")
+        LAT_P5 = show_latex(self, "<cB>b<br><cB>=B(0)<br><cP>=p(<cH>H(0)<cP>)<br><cP>=p0*<cH>H^0(0)<cP>⊕p1*<cH>H^1(0)<cP>⊕p2*<cH>H^2(0)<cP>⊕...<br><cP>=p0*<cK>K(0)<cP>⊕p1*<cK>K(1)<cP>⊕p2*<cK>K(2)<cP>⊕...<br><cP>=<cK>K<cP>p", 0, -0.5)
         self.wait(2)
         del_latex(self, [LAT_P1, LAT_P2, LAT_P3, LAT_P4, LAT_P5])
-        LAT_B = show_latex(self, "<cB>b=<cP>p*<cK>K", 0, 2.0)
+        LAT_B = show_latex(self, "<cB>b=<cK>K<cP>p", 0, 2.0)
         mul_vec_mat(self, w=7, h=7, mat=MAT_K, vec=VEC_P7, mat_color=K_COLOR, vec_color=P_COLOR, res_color=B_COLOR, mat_label="K", vec_label="p", res_label="b", sz=0.4)
         del_latex(self, [LAT_B])
-        """
+
         show_subtitle(self, "为了求得p，我们可以将两边同时乘以K的逆矩阵K^-1。", "为了方便我们记为F，又称反Krylov矩阵或解耦矩阵。")
         grid_F = make_grid(self, 8, 8, mat_l=MAT_F, mat_g={"lgt": MAT_MK1, "btn": MAT8_0}, btn_c=F_COLOR, lgt_c=F_COLOR, sz=0.4)
         left_obj = add_left_labels(self, grid_F, list(range(8)), which="btn", dx=0.4)
@@ -3013,26 +3013,28 @@ class LightsOut(Scene):
         del_latex(self, [LAT_K, LAT_F])
         del_left_labels(self, left_obj)
 
-        show_subtitle(self, "于是，我们便有：b*F=p*K*F=p。这样我们便求出了p。")
+        show_subtitle(self, "于是，我们便有：F*b=F*K*p=p。这样我们便求出了p。")
         move_grid(self, grid_F0, btn_y=-0.2, lgt_y=-0.2, btn_x=0.2, lgt_x=0.2)
         grid_F2 = make_grid(self, 7, 7, mat_l=MAT_F, mat_g={"lgt": MAT_MK1, "btn": MAT8_0}, btn_c=F_COLOR, lgt_c=F_COLOR, sz=0.4)
         del_grids(self, [grid_F0])
         LAT_P = show_latex(self, LATEX_P, 0, 2.0)
-        mul_vec_mat(self, w=7, h=7, mat=MAT_F, vec=VEC_B7, mat_color=F_COLOR, vec_color=B_COLOR, res_color=P_COLOR, mat_label="F", vec_label="b", res_label="p", sz=0.4)
-#    grid_V1 = make_grid(scene, h, 1, mat_l=[vec], btn_y=-2, lgt_y=-2, btn_c=vec_color, lgt_c=vec_color, sz=sz)
-#    grid_V2 = make_grid(scene, 1, h, mat_l=[[v] for v in vec], btn_x=-2, lgt_x=-2, btn_c=vec_color, lgt_c=vec_color, sz=sz, show=False)
-#拆分mul-vec
+        ctx = mul_vec_mat_begin(self, w=7, h=7, mat=MAT_F, vec=VEC_B7, mat_color=F_COLOR, vec_color=B_COLOR, res_color=P_COLOR, mat_label="F", vec_label="b", res_label="p", sz=0.4)
+        mul_vec_mat_vec_and_rows(self, ctx)
+        mul_vec_mat_accumulate(self, ctx)
         del_grids(self, [grid_F2])
-#不删除P，移动P到上面
+        grid_P0 = make_grid(self, 7, 1, mat_l=[VEC_P7], btn_y=-2, lgt_y=-2, btn_c=P_COLOR, lgt_c=P_COLOR, sz=0.4)
+        mul_vec_mat_cleanup(self, ctx, clear_res=True)
+        move_grid(self, grid_P0, btn_y=-1.4, lgt_y=-1.4, btn_x=-0.2, lgt_x=-0.2)
+
         show_subtitle(self, "将多项式p(x)写成矩阵的形式，记为P。")
         grid_P = make_grid(self, 8, 8, mat_l=MAT_P, mat_g={"lgt": MAT_MK2, "btn": MAT8_0}, btn_c=P_COLOR, lgt_c=P_COLOR, sz=0.4)
+        del_grids(self, [grid_P0])
         left_obj = add_left_labels(self, grid_P, list(range(8)), which="btn", dx=0.4)
         self.wait(2)
         del_latex(self, [LAT_P])
         del_left_labels(self, left_obj)
         del_grids(self, [grid_P])
 
-        """
         show_subtitle(self, "这里说明一下，矩阵F的每行对应多项式f(n,x)，", "也就是上一集视频《解的数量》章节中提到的OEIS中的Fibonacci多项式。")
         LAT_F = show_latex(self, "<cF>f(n,x)=x·f(n-1,x)⊕f(n-2,x)", 0, 2.5)
         self.wait(2)
@@ -3064,11 +3066,11 @@ class LightsOut(Scene):
         del_latex(self, [LAT_G])
         del_left_labels(self, left_obj)
         del_grids(self, [grid_G])
-
+        """
         show_subtitle(self, "有了b*F=p之后，后续的计算我们都不需要用到完整的B，", "而只需要这个第一行b。")
 #再次显示b*F=p
         self.wait(2)
-        show_subtitle(self, "这是因为我们已经将问题从BX=Y转为了p(H)=Y。", "由此，在前面说到的生成矩阵也只需要计算第一行b。")
+        show_subtitle(self, "这是因为我们已经将问题从Bx=y转为了p(H)=y。", "由此，在前面说到的生成矩阵也只需要计算第一行b。")
 #再次展示生成矩阵
         self.wait(2)
         show_subtitle(self, "由于在不同n的情况下计算b的方式是一样的，", "我们可以把n-1情况下算出的b，直接用于计算n的情况。")
@@ -3106,9 +3108,9 @@ class LightsOut(Scene):
         del_left_labels(self, left_obj)
         del_grids(self, [grid_F])
 
-        show_subtitle(self, "现在我们已求得了p，并将原始问题转换为了p(H)X=Y。", "那这又有什么用呢？")
-        LAT_Y = show_latex(self, "<cX>p(H)X=Y", 0, 2.0)
-#演示P(H)X=Y
+        show_subtitle(self, "现在我们已求得了p，并将原始问题转换为了p(H)x=y。", "那这又有什么用呢？")
+        LAT_Y = show_latex(self, "<cX>p(H)x=y", 0, 2.0)
+#演示P(H)x=y
         self.wait(2)
         del_latex(self, [LAT_Y])
 
@@ -3119,12 +3121,12 @@ class LightsOut(Scene):
         self.wait(2)
 #展示q(x),p(x),f(x)
 #展示多项式乘法，然后再mod f(x)
-        show_subtitle(self, "这里的f(x)就是前面提到的多项式f(n,x)。", "那么，将原始两边同时乘以q(H)，便有：X=q(H)*Y。")
-        LAT_Q2 = show_latex(self, "<cX>X=<cQ>q(<cH>H<cQ>)<cP>p(<cH>H<cP>)<cX>X=<cQ>q(<cH>H<cQ>)<cY>Y", 0, 2.0)
+        show_subtitle(self, "这里的f(x)就是前面提到的多项式f(n,x)。", "那么，将原始两边同时乘以q(H)，便有：x=q(H)*y。")
+        LAT_Q2 = show_latex(self, "<cX>x=<cQ>q(<cH>H<cQ>)<cP>p(<cH>H<cP>)<cX>x=<cQ>q(<cH>H<cQ>)<cY>y", 0, 2.0)
         self.wait(2)
 
-        show_subtitle(self, "这样，我们就能立刻求出X。")
-#演示X=q(H)Y（做乘法）
+        show_subtitle(self, "这样，我们就能立刻求出x。")
+#演示x=q(H)y（做乘法）
         mul_vec_mat(self, w=7, h=7, mat=MAT_QH, vec=VEC_Y7, mat_color=Q_COLOR, vec_color=Y_COLOR, res_color=X_COLOR, vec_label="y", res_label="x", sz=0.4)
 #这里需要修改（拆分），先演示第一行，再把整个矩阵画出来， 并且不消失
         self.wait(2)
@@ -3164,20 +3166,20 @@ class LightsOut(Scene):
 
 #——————————————————————
 
-        show_subtitle(self, "这里，由于我们已求得q(x)。我们也可以利用这个式子来求X。")
+        show_subtitle(self, "这里，由于我们已求得q(x)。我们也可以利用这个式子来求x。")
         self.wait(2)
 
-#X=q(H)*Y=(q0*H^0⊕q1*H^1⊕q2*H^2⊕...)*Y=q0*H^0*Y⊕q1*H^1*Y⊕q2*H^2*Y⊕...=SUM?
-        show_subtitle(self, "这里，我们可以从Y开始，不断将其和H相乘，", "使用左右扩散的办法计算下一个H^n*Y，然后和qn叠加，得到X。")
+#x=q(H)*y=(q0*H^0⊕q1*H^1⊕q2*H^2⊕...)*y=q0*H^0*y⊕q1*H^1*y⊕q2*H^2*y⊕...=SUM?
+        show_subtitle(self, "这里，我们可以从Y开始，不断将其和H相乘，", "使用左右扩散的办法计算下一个H^n*y，然后和qn叠加，得到x。")
         self.wait(2)
 
-        show_subtitle(self, "通过这个办法，我们也可以在O(n^2)中求得X。")
+        show_subtitle(self, "通过这个办法，我们也可以在O(n^2)中求得x。")
         self.wait(2)
 
         show_subtitle(self, "事实上，q(x)的系数也就是B的逆矩阵Q的第一行，", "并且可以证明B的逆矩阵Q也满足十字偶校验约束。")
         self.wait(2)
 
-        show_subtitle(self, "因此，可以通过递推公式，", "用逆矩阵第一行q(x)直接求出整个逆矩阵Q，然后再和Y相乘获得X。")
+        show_subtitle(self, "因此，可以通过递推公式，", "用逆矩阵第一行q(x)直接求出整个逆矩阵Q，然后再和y相乘获得x。")
         self.wait(2)
 
         show_subtitle(self, "不过，这整个求解的过程有一个问题，", "就是我们假设满足q(x)p(x)=1 mod f(x)的多项式q(x)存在。")
@@ -3186,7 +3188,7 @@ class LightsOut(Scene):
         show_subtitle(self, "如果矩阵B不可逆呢？例如当n=5的时候，g(x)不为1，q(x)不是p(x)的逆。", "或者说，满足q(x)p(x)=1 mod f(x)的q(x)不存在。")
         self.wait(2)
 
-        show_subtitle(self, "这种情况下，求得的q(x)和Q'不同，并且也不满足q(x)p(x)=1 mod f(x)。", "并且Q'也不满足十字偶校验约束，因此无法通过公式递推再相乘求解X。")
+        show_subtitle(self, "这种情况下，求得的q(x)和Q'不同，并且也不满足q(x)p(x)=1 mod f(x)。", "并且Q'也不满足十字偶校验约束，因此无法通过公式递推再相乘求解x。")
         self.wait(2)
 
         show_subtitle(self, "n=5时的伪逆矩阵Q'和消元后的E'矩阵是这样的。")
@@ -3215,7 +3217,7 @@ class LightsOut(Scene):
         show_subtitle(self, "矩阵Q'和E'一定具有这样的形式。利用分块矩阵乘法，", "可以很容易证明这两个性质。有兴趣的观众可以自行证明。")
         self.wait(2)
 
-        show_subtitle(self, "可以发现，这里的q(x)并不是Q'的第一行，", "并且求得的X也不是原方程的解。")
+        show_subtitle(self, "可以发现，这里的q(x)并不是Q'的第一行，", "并且求得的x也不是原方程的解。")
         self.wait(2)
 
 #公式递推法：f(x)=x^2+x^5
