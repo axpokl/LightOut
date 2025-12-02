@@ -1075,7 +1075,7 @@ def mul_vec_mat_vec_and_rows(scene, ctx):
         if not vec[i]:
             continue
         y = sz * ((h - 1) / 2 - i)
-        g = make_grid(scene, w, 1, mat_l=[mat[i]], btn_y=y, lgt_y=y, btn_c=vec_color, lgt_c=vec_color, sz=sz)
+        g = make_grid(scene, w, 1, mat_l=[mat[i]], btn_y=y, lgt_y=y, btn_c=vec_color, lgt_c=vec_color, sz=sz, rt=0.15)
         vh_grids.append(g)
     ctx["grid_V2"] = grid_V2
     ctx["vh_grids"] = vh_grids
@@ -1098,7 +1098,7 @@ def mul_vec_mat_accumulate(scene, ctx):
     bd_list = ctx["bd_list"]
     grid_res = ctx["grid_res"]
     for i in range(len(vh_grids)):
-        add_grid(scene, vh_grids[i], grid_res, keep_from=False)
+        add_grid(scene, vh_grids[i], grid_res, keep_from=False, rt=0.3)
     return grid_res
 
 def mul_vec_mat_cleanup(scene, ctx, clear_res=True):
@@ -1114,10 +1114,11 @@ def mul_vec_mat_cleanup(scene, ctx, clear_res=True):
         del_left_labels(scene, ctx["res_label_obj"])
     del_grids(scene, grids)
 
-def mul_vec_mat(scene, mat, vec, mat_color=I_COLOR, vec_color=Y_COLOR, res_color=X_COLOR, sz=0.4, w=None, h=None, mat_label=None, vec_label=None, res_label=None):
+def mul_vec_mat(scene, mat, vec, mat_color=I_COLOR, vec_color=Y_COLOR, res_color=X_COLOR, sz=0.4, w=None, h=None, mat_label=None, vec_label=None, res_label=None, wait=1.0):
     ctx = mul_vec_mat_begin(scene, mat, vec, mat_color, vec_color, res_color, sz, w=w, h=h, mat_label=mat_label, vec_label=vec_label, res_label=res_label)
     mul_vec_mat_vec_and_rows(scene, ctx)
     mul_vec_mat_accumulate(scene, ctx)
+    scene.wait(wait)
     mul_vec_mat_cleanup(scene, ctx, clear_res=True)
     return ctx
 
@@ -1373,7 +1374,6 @@ def show_title(scene, line1=None, line2=None, run_in=0.3, run_out=0.3, font=DEFA
         return None
     grp = VGroup(*objs).arrange(DOWN, buff=line_gap)
     grp.move_to(ORIGIN)
-
     scene.add(grp)
     scene.play(FadeIn(grp, run_time=run_in))
     scene.wait(pause)
@@ -2174,7 +2174,7 @@ LATEX_MAT = [
     (C_COLOR,  "C",   "-",   "B关于H的系数矩阵",             "公式递推",     "<cC>C(n,x)=C(n-1,x-1)⊕C(n-1,x)⊕C(n-2,x)"),
     (P_COLOR,  "P",   "F,b", "多项式p(H)的系数",            "矩阵向量乘法", "<cP>p=<cF>F<cB>b"),
     (Q_COLOR,  "Q",   "F,p", "多项式p(x)的在f(x)下的逆",    "扩展欧几里得", "<cQ>q=<cP>p^-1<cQ> mod <cF>F"),
-    (G_COLOR,  "G",   "F,F", "多项式p(x)和q(x)最大共因子", "扩展欧几里得", "<cG>g=gcd(<cF>f<cG>,<cP>p<cG>)=gcd(<cF>f<cG>,<cC>c)"),
+    (G_COLOR,  "G",   "F,F", "多项式p(x)和q(x)最大共因子", "扩展欧几里得", "<cG>g=gcd(<cF>f<cG>,<cC>c<cG>)=gcd(<cF>f<cG>,<cP>p<cG>)"),
     (Z_COLOR,  "Z",   "Q,y", "部分逆按钮解",               "矩阵向量乘法", "<cZ>z=<cQ>Q<cY>y"),
     (D_COLOR,  "D",   "K,g",   "多项式g(x)的矩阵",           "矩阵向量乘法", "<cD>d=<cK>K<cG>g"),
     (ID_COLOR, "ID",  "D",   "H每一行的主元索引",          "求最大值",     "<cID>ID=max(<cD>D(n)<cID>)"),
@@ -2206,6 +2206,7 @@ LATEX_MAT = [
 class LightsOut(Scene):
     def construct(self):
         self.camera.background_color = BLACK
+
 
         show_title(self, "点灯游戏的$O(n^2)$解法")
 #演示n=5,7,11
@@ -2837,7 +2838,7 @@ class LightsOut(Scene):
         del_left_labels(self, left_obj)
         del_grids(self, [grid_Y])
 
-        show_subtitle(self, "为了实现这个目标，我们需要首先将B进行分解。", "这里，让我首先介绍一个非常重要的矩阵H。")
+        show_subtitle(self, "为了实现这个目标，我们需要首先将B进行分解。", "这里，让我首先介绍一个非常重要的矩阵H，称为邻接矩阵。")
         LAT_H = show_latex(self, LATEX_H, 0, 2.0)
         ctx = mul_vec_mat_begin(self, mat=MAT_H, vec=VEC_V7, mat_color=H_COLOR, vec_color=V_COLOR, res_color=V_COLOR, mat_label="H", vec_label="v", res_label="v'", sz=0.4)
         show_subtitle(self, "对于H的每一个元素，如果x和y的差为一则为一，否则为零。")
@@ -2986,12 +2987,11 @@ class LightsOut(Scene):
         show_subtitle(self, "可以发现，如果B是可逆的，则g(x)=1，n=r，r’=0。", "否则，r'的值决定了解的数量，即2^r'。")
         self.wait(2)
         del_latex(self, [LAT_F, LAT_C, LAT_B, LAT_R, LAT_G])
-#这里保留LAT_G?和后面latG不一样
-        show_subtitle(self, "将g(x)写成矩阵的形式，记为G。")
+
+        show_subtitle(self, "将g(x)写成矩阵的形式，记为G。", "这里，gcd(f,c)和gcd(f,p)是相等的，有兴趣的小伙伴可以自行证明。")
         grid_G = make_grid(self, 8, 8, mat_l=MAT_G, mat_g={"lgt": MAT_MK1, "btn": MAT8_0}, btn_c=G_COLOR, lgt_c=G_COLOR, sz=0.4)
         left_obj = add_left_labels(self, grid_G, list(range(8)), which="btn", dx=0.4)
         LAT_G = show_latex(self, LATEX_G, 0, 2.0)
-#注意，这里的GCD同时等于f,p
         hl_cells(self, [grid_G], which="btn", indices=[(0,0),(0,1),(0,2),(0,3),(4,4),(2,5),(0,6),(0,7)], color=HL_COLOR_1)
         self.wait(2)
         del_cells(self, [grid_G], which="btn", indices=[(0,0),(0,1),(0,2),(0,3),(4,4),(2,5),(0,6),(0,7)])
@@ -3000,45 +3000,80 @@ class LightsOut(Scene):
         del_grids(self, [grid_G])
 
         show_subtitle(self, "有了b*F=p之后，后续的计算我们都不需要用到完整的B，", "而只需要这个第一行b。")
-#再次显示b*F=p
-        self.wait(2)
+        LAT_P = show_latex(self, LATEX_P, 0, 2.0)
+        mul_vec_mat(self, w=7, h=7, mat=MAT_F, vec=VEC_B7, mat_color=F_COLOR, vec_color=B_COLOR, res_color=P_COLOR, mat_label="F", vec_label="b", res_label="p", sz=0.4)
+        del_latex(self, [LAT_P])
         show_subtitle(self, "这是因为我们已经将问题从Bx=y转为了p(H)=y。", "由此，在前面说到的生成矩阵也只需要计算第一行b。")
-#再次展示生成矩阵
+        cols, n = 7, 7
+        sz = 0.4
+        rows = n + 1
+        G5_ = [[None] for _ in range(rows)]
+        top_objs = [[None] for _ in range(rows)]
+        left_objs = [[None] for _ in range(rows)]
+        start_y = (rows - 1) * sz / 2
+        for k in range(rows):
+            mx = -sz / 2
+            my = start_y - k * sz
+            G5_[k][0] = make_grid(self, w=cols, h=1, lgt_x=mx, btn_x=mx, lgt_y=my, btn_y=my, sz=sz, mat=[[0]*cols], mat_l=[MAT7K[k][0][:]], show=True, lgt_c=B_COLOR)
+            if k == 0: top_objs[k][0] = add_top_labels(self, G5_[k][0], ["B1","B2","B3","B4","B5","B6","B7"], which="btn", scale=0.4, rt=0.01)
+            left_objs[k][0] = add_left_labels(self, G5_[k][0], [f"n{k}"], which="btn", scale=0.4, rt=0.01)
         self.wait(2)
+        del_left_labels(self, left_objs, rt=0.3)
+        del_top_labels(self, top_objs, rt=0.3)
+
         show_subtitle(self, "由于在不同n的情况下计算b的方式是一样的，", "我们可以把n-1情况下算出的b，直接用于计算n的情况。")
         LAT_B1 = show_latex(self, "<cB>b(n,x)=b(n-1,x-1)⊕b(n-1,x)⊕b(n-1,x+1)⊕b(n-2,x)", 0, 2.5)
         LAT_B2 = show_latex(self, LATEX_B, 0, 2.0)
         grid_B = make_grid(self, 8, 8, mat_l=MAT_B, mat_g={"lgt": MAT_MK1, "btn": MAT8_0}, btn_c=B_COLOR, lgt_c=B_COLOR, sz=0.4)
+        del_grids(self, G5_, rt=0.01)
         left_obj = add_left_labels(self, grid_B, list(range(8)), which="btn", dx=0.4)
-#高亮格子
-        self.wait(2)
+        hl_cells(self, [grid_B], which="btn", indices=[(1,1),(0,2),(1,2),(2,2)])
+        hl_cells(self, [grid_B], which="btn", indices=[(1,3)], color=HL_COLOR_2)
+        self.wait(1)
         show_subtitle(self, "这样，如果我们是从n=0开始计算的，", "我们只需要O(n)的时间复杂度便可求出b。")
         self.wait(2)
-        show_subtitle(self, "同样，计算K和F也是如此。因为每行之间有递推公式，", "如果从n=0开始计算，也可以在O(n)时间内求出。")
-        self.wait(2)
-        show_subtitle(self, "如果需要直接计算特定n，可以用别的方式优化到O(n*log(n))。", "因为这里的算法不涉及这个优化，因此不再赘述。")
-        self.wait(2)
         del_latex(self, [LAT_B1, LAT_B2])
+        del_cells(self, [grid_B], which="btn", indices=[(1,1),(0,2),(1,2),(2,2)])
+        del_cells(self, [grid_B], which="btn", indices=[(1,3)])
         del_left_labels(self, left_obj)
         del_grids(self, [grid_B])
 
-        show_subtitle(self, "为了求出p=b*F，我们需要将向量和矩阵相乘，", "一般情况下时间复杂度是O(n^2)。")
-        LAT_P = show_latex(self, LATEX_P, 0, 2.0)
-        mul_vec_mat(self, w=7, h=7, mat=MAT_F, vec=VEC_B7, mat_color=F_COLOR, vec_color=B_COLOR, res_color=P_COLOR, mat_label="F", vec_label="b", res_label="p", sz=0.4)
-        del_latex(self, [LAT_P])
-
-        show_subtitle(self, "因为矩阵F是有递推规律的，理论上使用FFT等算法，", "可以把乘法优化到O(n*log(n))。")
+        show_subtitle(self, "同样，计算K和F也是如此。因为每行之间有递推公式，", "如果从n=0开始计算，也可以在O(n)时间内求出。")
+        LAT_K = show_latex(self, LATEX_K, 0, 2.0)
+        grid_K = make_grid(self, 8, 8, mat_l=MAT_K, mat_g={"lgt": MAT_MK1, "btn": MAT8_0}, btn_c=K_COLOR, lgt_c=K_COLOR, sz=0.4)
+        left_obj = add_left_labels(self, grid_K, list(range(8)), which="btn", dx=0.4)
+        hl_cells(self, [grid_K], which="btn", indices=[(0,2),(2,2)])
+        hl_cells(self, [grid_K], which="btn", indices=[(1,3)], color=HL_COLOR_2)
+        self.wait(1)
+        del_latex(self, [LAT_K])
+        del_cells(self, [grid_K], which="btn", indices=[(0,2),(2,2)])
+        del_cells(self, [grid_K], which="btn", indices=[(1,3)])
+        del_left_labels(self, left_obj)
+        del_grids(self, [grid_K])
         LAT_F = show_latex(self, LATEX_F, 0, 2.0)
         grid_F = make_grid(self, 8, 8, mat_l=MAT_F, mat_g={"lgt": MAT_MK1, "btn": MAT8_0}, btn_c=F_COLOR, lgt_c=F_COLOR, sz=0.4)
         left_obj = add_left_labels(self, grid_F, list(range(8)), which="btn", dx=0.4)
         hl_cells(self, [grid_F], which="btn", indices=[(1,1),(0,2)])
         hl_cells(self, [grid_F], which="btn", indices=[(1,3)], color=HL_COLOR_2)
+        show_subtitle(self, "如果需要直接计算特定n，可以用别的方式优化到O(n*log(n))。", "因为这里的算法不涉及这个优化，因此不再赘述。")
         self.wait(2)
+        del_latex(self, [LAT_F])
         del_cells(self, [grid_F], which="btn", indices=[(1,1),(0,2)])
         del_cells(self, [grid_F], which="btn", indices=[(1,3)])
-        del_latex(self, [LAT_F])
         del_left_labels(self, left_obj)
+
+        show_subtitle(self, "为了求出p=F*b，我们需要将向量和矩阵相乘，", "一般情况下时间复杂度是O(n^2)。")
+        move_grid(self, grid_F, btn_y=-0.2, lgt_y=-0.2, btn_x=0.2, lgt_x=0.2)
+        grid_F2 = make_grid(self, 7, 7, mat_l=MAT_F, mat_g={"lgt": MAT_MK1, "btn": MAT8_0}, btn_c=F_COLOR, lgt_c=F_COLOR, sz=0.4)
         del_grids(self, [grid_F])
+        LAT_P = show_latex(self, LATEX_P, 0, 2.0)
+        ctx = mul_vec_mat_begin(self, w=7, h=7, mat=MAT_F, vec=VEC_B7, mat_color=F_COLOR, vec_color=B_COLOR, res_color=P_COLOR, mat_label="F", vec_label="b", res_label="p", sz=0.4)
+        mul_vec_mat_vec_and_rows(self, ctx)
+        mul_vec_mat_accumulate(self, ctx)
+        show_subtitle(self, "因为矩阵F是有递推规律的，理论上使用FFT等算法，", "可以把乘法优化到O(n*log(n))。")
+        del_latex(self, [LAT_P])
+        del_grids(self, [grid_F2])
+        mul_vec_mat_cleanup(self, ctx, clear_res=True)
 
         show_subtitle(self, "现在我们已求得了p，并将原始问题转换为了p(H)x=y。", "那这又有什么用呢？")
         LAT_Y = show_latex(self, "<cX>p(H)x=y", 0, 2.0)

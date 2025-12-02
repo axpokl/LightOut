@@ -2207,7 +2207,7 @@ class LightsOut(Scene):
     def construct(self):
         self.camera.background_color = BLACK
 
-        """
+
         show_title(self, "点灯游戏的$O(n^2)$解法")
 #演示n=5,7,11
         show_title(self, "首行叠加法（续上集）")
@@ -2838,7 +2838,7 @@ class LightsOut(Scene):
         del_left_labels(self, left_obj)
         del_grids(self, [grid_Y])
 
-        show_subtitle(self, "为了实现这个目标，我们需要首先将B进行分解。", "这里，让我首先介绍一个非常重要的矩阵H。")
+        show_subtitle(self, "为了实现这个目标，我们需要首先将B进行分解。", "这里，让我首先介绍一个非常重要的矩阵H，称为邻接矩阵。")
         LAT_H = show_latex(self, LATEX_H, 0, 2.0)
         ctx = mul_vec_mat_begin(self, mat=MAT_H, vec=VEC_V7, mat_color=H_COLOR, vec_color=V_COLOR, res_color=V_COLOR, mat_label="H", vec_label="v", res_label="v'", sz=0.4)
         show_subtitle(self, "对于H的每一个元素，如果x和y的差为一则为一，否则为零。")
@@ -2998,7 +2998,7 @@ class LightsOut(Scene):
         del_latex(self, [LAT_G])
         del_left_labels(self, left_obj)
         del_grids(self, [grid_G])
-        """
+
         show_subtitle(self, "有了b*F=p之后，后续的计算我们都不需要用到完整的B，", "而只需要这个第一行b。")
         LAT_P = show_latex(self, LATEX_P, 0, 2.0)
         mul_vec_mat(self, w=7, h=7, mat=MAT_F, vec=VEC_B7, mat_color=F_COLOR, vec_color=B_COLOR, res_color=P_COLOR, mat_label="F", vec_label="b", res_label="p", sz=0.4)
@@ -3080,7 +3080,7 @@ class LightsOut(Scene):
 #演示P(H)x=y
         self.wait(2)
         del_latex(self, [LAT_Y])
-        """
+
 #——————————————————————
 
         show_subtitle(self, "试想一下，如果有一个多项式q(x)，", "满足q(x)*p(x)=1 mod f(x)。")
@@ -3198,4 +3198,3 @@ class LightsOut(Scene):
 #【演示】这里可以圈出g(x)以及最高次幂=2
 
 #——————————————————————
-        """
