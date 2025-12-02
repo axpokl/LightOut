@@ -1461,7 +1461,7 @@ def show_latex(scene, text, x=0.0, y=0.0, run_in=0.3, run_out=0.3, font=DEFAULT_
     stack.append(lines)
     return lines
 
-def trans_latex(scene, latex_from, latex_to, rt=0.8):
+def trans_latex(scene, latex_from, latex_to, rt=1.0):
     if latex_from is None or latex_to is None:
         return None
     scene.play(ReplacementTransform(latex_from, latex_to), run_time=rt)
@@ -3084,6 +3084,8 @@ class LightsOut(Scene):
         """
         show_subtitle(self, "试想一下，如果有一个多项式q(x)，", "满足q(x)*p(x)=1 mod f(x)。")
         LAT_Q1 = show_latex(self, "<cQ>q(x)<cP>p(x)<cI>=1 mod <cF>f(x)", 0, 2.5)
+        self.wait(2)
+
         sz = 0.35
         grid_p = make_grid(self, 7, 1, mat_l=[VEC_P7], btn_x=-(13-7)*sz/2, lgt_x=-(13-7)*sz/2, btn_y=(7+3)*sz/2, lgt_y=(7+3)*sz/2, btn_c=P_COLOR, lgt_c=P_COLOR, sz=sz)
         label_p = add_left_labels(self, grid_p, ["p"], which="btn", dx=0.4)
@@ -3097,13 +3099,11 @@ class LightsOut(Scene):
         for r in range(7):
             grid_row = make_grid(self, 7, 1, mat_l=[[0]*7], lgt_x=(r-3)*sz, btn_x=(r-3)*sz, btn_y=(7-1)*sz/2.0-r*sz, lgt_y=(7-1)*sz/2.0-r*sz, btn_c=X_COLOR, lgt_c=X_COLOR, sz=sz, rt=0.1)
             mid_rows.append(grid_row)
-        mid_rows_cp = []
         mid_rows_p = []
         for r in range(7):
             if not VEC_Q7[r]: continue
-            grid_copy_p = make_grid(self, 7, 1, mat_l=[VEC_P7], btn_x=-(13-7)*sz/2, lgt_x=-(13-7)*sz/2, btn_y=(7+3)*sz/2, lgt_y=(7+3)*sz/2, btn_c=P_COLOR, lgt_c=P_COLOR, sz=sz, show=False)
-            move_grid(self, grid_copy_p, lgt_x=(r-3)*sz, btn_x=(r-3)*sz, lgt_y=(7-1)*sz/2.0-r*sz, btn_y=(7-1)*sz/2.0-r*sz, sz=None)
-            mid_rows_cp.append(grid_copy_p)
+            grid_p_copy = make_grid(self, 7, 1, mat_l=[VEC_P7], btn_x=-(13-7)*sz/2, lgt_x=-(13-7)*sz/2, btn_y=(7+1)*sz/2, lgt_y=(7+1)*sz/2, btn_c=P_COLOR, lgt_c=P_COLOR, sz=sz, show=False)
+            move_grid(self, grid_p_copy, lgt_x=(r-3)*sz, btn_x=(r-3)*sz, lgt_y=(7-1)*sz/2.0-r*sz, btn_y=(7-1)*sz/2.0-r*sz, sz=None)
             grid_mid_p = make_grid(self, 13, 1, mat_l=[[0]*r+VEC_P7+[0]*(13-7-r)], mat_g=[[1 if (i>=r and i<r+7) else 0 for i in range(13)]], btn_y=(7-1)*sz/2.0-r*sz, lgt_y=(7-1)*sz/2.0-r*sz, btn_c=P_COLOR, lgt_c=P_COLOR, sz=sz, show=False)
             mid_rows_p.append(grid_mid_p)
         for grid_mid_p in mid_rows_p:
@@ -3113,24 +3113,25 @@ class LightsOut(Scene):
         self.wait(2)
         del_top_labels(self, label_q)
         del_left_labels(self, [label_p, label_g, label_f])
-        del_grids(self, [grid_p, mid_rows, mid_rows_cp, mid_rows_p, grid_g2, grid_f])
+        del_grids(self, [grid_p, grid_q, mid_rows, grid_p_copy, mid_rows_p, grid_g2, grid_f])
+
+        """
+        show_subtitle(self, "这里的f(x)就是前面提到的多项式f(n,x)。", "那么，将原始两边同时乘以q(H)，便有：x=q(H)*y。")
+        LAT_Q2 = show_latex(self, "<cX>x=<cQ>q(<cH>H<cQ>)<cP>p(<cH>H<cP>)<cX>x=<cQ>q(<cH>H<cQ>)<cY>y", 0, 2.0)
+        self.wait(2)
 
         show_subtitle(self, "这里的f(x)就是前面提到的多项式f(n,x)。", "那么，将原始两边同时乘以q(H)，便有：x=q(H)*y。")
-        sz=0.4
         LAT_Q2 = show_latex(self, "<cX>x=<cQ>q(<cH>H<cQ>)<cP>p(<cH>H<cP>)<cX>x=<cQ>q(<cH>H<cQ>)<cY>y", 0, 2.0)
-        grid_q0 = make_grid(self, 7, 1, mat_l=[VEC_Q7], btn_y=(7-1)*sz/2, lgt_y=(7-1)*sz/2, btn_c=P_COLOR, lgt_c=Q_COLOR, sz=sz, show=False)
-        trans_grid(self, grid_q, grid_q0)
         self.wait(2)
 
         show_subtitle(self, "这样，我们就能立刻求出x。")
+#演示x=q(H)y（做乘法）
         mul_vec_mat(self, w=7, h=7, mat=MAT_QH, vec=VEC_Y7, mat_color=Q_COLOR, vec_color=Y_COLOR, res_color=X_COLOR, vec_label="y", res_label="x", sz=0.4)
+#这里需要修改（拆分），先演示第一行，再把整个矩阵画出来， 并且不消失
 
         show_subtitle(self, "让我把这样的多项式q(x)我们称之为p(x)的逆多项式。", "那么，如何求出逆多项式q(x)呢？")
-        label_q = add_left_labels(self, grid_q0, ["q"], which="btn", dx=0.4)
         self.wait(2)
-        del_left_labels(self, [label_q])
-        del_grids(self, [grid_q0])
-        """
+
 #——————————————————————
 
 #下面演示欧几里得
