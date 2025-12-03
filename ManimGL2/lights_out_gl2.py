@@ -2338,6 +2338,17 @@ MAT_Y = [
     [0,1,0,1,0,1,0,0],
 ]
 
+MAT_YK = [
+    [0,1,0,1,0,1,0],
+    [1,0,0,0,0,0,1],
+    [0,1,0,0,0,1,0],
+    [1,0,1,0,1,0,1],
+    [0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0],
+]
+
 MAT_H = [
     [0,1,0,0,0,0,0],
     [1,0,1,0,0,0,0],
@@ -3186,7 +3197,7 @@ class LightsOut(Scene):
 
         show_subtitle(self, "为了实现这个目标，我们需要首先将B进行分解。", "这里，让我首先介绍一个非常重要的矩阵H，称为邻接矩阵。")
         LAT_H = show_latex(self, LATEX_H, 0, 2.0)
-        ctx = mul_vec_mat_begin(self, mat=MAT_H, vec=VEC_V7, mat_color=H_COLOR, vec_color=V_COLOR, res_color=V_COLOR, mat_label="H", vec_label="v", res_label="v'", sz=0.4)
+        ctx = mul_vec_mat_begin(self, mat=MAT_H, vec=VEC_V7, mat_color=H_COLOR, vec_color=V_COLOR, res_color=V_COLOR, mat_label="H", vec_label="v", res_label="v’", sz=0.4)
         show_subtitle(self, "对于H的每一个元素，如果x和y的差为一则为一，否则为零。")
         self.wait(2)
         show_subtitle(self, "如果将向量v乘以该矩阵，等同于将向量v的每个元素向左右扩散后叠加。")
@@ -3314,6 +3325,24 @@ class LightsOut(Scene):
         del_left_labels(self, left_obj)
         del_grids(self, [grid_P])
 
+#证明F = C ⊕ P
+#C(x)=f(x+1)
+#P=F*b
+#求证P=F+C=F*b
+#是否可以根据以下公式证明？
+#    (B_COLOR,  "B",   "-",   "按钮矩阵第一行",               "公式递推",     "<cB>B(n,x)=B(n-1,x-1)⊕B(n-1,x)⊕B(n-1,x+1)⊕B(n-2,x)"),
+#    (F_COLOR,  "F",   "-",   "K的逆矩阵（Krylov解耦矩阵）",       "公式递推", "<cF>F(n,x)=F(n-1,x-1)⊕F(n-2,x)"),
+#    (C_COLOR,  "C",   "-",   "B关于H的系数矩阵",             "公式递推",     "<cC>C(n,x)=C(n-1,x-1)⊕C(n-1,x)⊕C(n-2,x)"),
+#    (P_COLOR,  "P",   "F,b", "多项式p(H)的系数",            "矩阵向量乘法", "<cP>p=<cF>F<cB>b"),
+
+#C[n,i]​
+#=(B*F)[n,i]
+#​=sum⨁j=0..n:(B[n,j]​*F[j,i]​)
+#=(sum⨁j=0..n−1​:(B[n,j]​*F[j,i])​) ⊕ B[n,n]​*F[n,i]
+#=p[i]​ ⊕ B[n,n]​*F[n,i]
+#=p[i]⊕ 1*​F[n,i] 【B[n,n]=1，也就是B的对角线始终为1】
+#=p[i]⊕ ​F[n,i]
+
         show_subtitle(self, "这里说明一下，矩阵F的每行对应多项式f(n,x)，", "也就是上一集视频《解的数量》章节中提到的OEIS中的Fibonacci多项式。")
         LAT_F = show_latex(self, "<cF>f(n,x)=x·f(n-1,x)⊕f(n-2,x)", 0, 2.5)
         self.wait(2)
@@ -3323,18 +3352,18 @@ class LightsOut(Scene):
         show_subtitle(self, "这是因为B(n)矩阵也可以写为以上形式。", "这里的H⊕I等价于x+1。")
         LAT_B = show_latex(self, "<cB>B(n)=B(n-1)*(<cH>H<cB>⊕<cI>I<cB>)⊕B(n-2)", 0, 1.5)
         self.wait(2)
-        show_subtitle(self, "同时，上一集视频提到的公式r'(n)，", "可以表示为多项式f和c的最大公因子的最高次幂。")
+        show_subtitle(self, "同时，上一集视频提到的公式r’(n)，", "可以表示为多项式f和c的最大公因子的最高次幂。")
         LAT_R = show_latex(self, "<cR>r'(n)=deg(<cG>gcd(<cF>f(n,x)<cG>,<cC>c(n,x)<cG>)<cR>)", 0, 1.0)
         show_subtitle(self, "这里，gcd表示最大公因子，我们将其记为多项式g(x)。")
         self.wait(2)
         LAT_G = show_latex(self, "<cG>g(n,x)=gcd(<cF>f(n,x)<cG>,<cC>c(n,x)<cG>)", 0, 0.5)
         show_subtitle(self, "deg表示最高次幂，其等价于矩阵B丢失的秩，也就是n-r。", "这个g(x)和n-r在后续算法中也会提到。")
         self.wait(2)
-        show_subtitle(self, "可以发现，如果B是可逆的，则g(x)=1，n=r，r’=0。", "否则，r'的值决定了解的数量，即2^r'。")
+        show_subtitle(self, "可以发现，如果B是可逆的，则g(x)=1，n=r，r’=0。", "否则，r’的值决定了解的数量，即2^r’。")
         self.wait(2)
         del_latex(self, [LAT_F, LAT_C, LAT_B, LAT_R, LAT_G])
 
-        show_subtitle(self, "将g(x)写成矩阵的形式，记为G。", "这里，gcd(f,c)和gcd(f,p)是相等的，有兴趣的小伙伴可以自行证明。")
+        show_subtitle(self, "将g(x)写成矩阵的形式，记为G。", "由于F=C+P，因此gcd(f,c)和gcd(f,p)是相等的。")
         grid_G = make_grid(self, 8, 8, mat_l=MAT_G, mat_g={"lgt": MAT_MK1, "btn": MAT8_0}, btn_c=G_COLOR, lgt_c=G_COLOR, sz=0.4)
         left_obj = add_left_labels(self, grid_G, list(range(8)), which="btn", dx=0.4)
         LAT_G = show_latex(self, LATEX_G, 0, 2.0)
@@ -3468,7 +3497,7 @@ class LightsOut(Scene):
         self.wait(2)
 
         show_subtitle(self, "这样，我们就能立刻求出x。")
-        mul_vec_mat(self, w=7, h=7, mat=MAT_QH, vec=VEC_Y7, mat_color=Q_COLOR, vec_color=Y_COLOR, res_color=X_COLOR, mat_label="Q", vec_label="y", res_label="x", sz=0.4)
+        mul_vec_mat(self, w=7, h=7, mat=MAT_QH, vec=VEC_Y7, mat_color=Q_COLOR, vec_color=Y_COLOR, res_color=X_COLOR, mat_label="Q‘", vec_label="y", res_label="x", sz=0.4)
 
         show_subtitle(self, "让我把这样的多项式q(x)我们称之为p(x)的逆多项式。", "那么，如何求出逆多项式q(x)呢？")
         label_q = add_left_labels(self, grid_q0, ["q"], which="btn", dx=0.4)
@@ -3518,7 +3547,7 @@ class LightsOut(Scene):
         del_left_labels(self, [label_g, label_q])
         del_grids(self, [grid_p])
 
-        show_subtitle(self, "将q(x)写成矩阵Q。注意，这里的矩阵不是后面提到的完整的逆矩阵Q，", "而是多个q(x)拼接起来。")
+        show_subtitle(self, "将q(x)写成矩阵Q。注意，这里的矩阵不是后面提到的完整的逆矩阵Q’，", "而是多个q(x)拼接起来。")
         move_grid(self, grid_e, btn_y=-0.4, lgt_y=-0.4)
         grid_Q = make_grid(self, 8, 8, mat_l=MAT_Q, mat_g={"lgt": MAT_MK2, "btn": MAT8_0}, btn_c=Q_COLOR, lgt_c=Q_COLOR, sz=0.4)
         left_obj = add_left_labels(self, grid_Q, list(range(8)), which="btn", dx=0.4)
@@ -3533,35 +3562,38 @@ class LightsOut(Scene):
         show_subtitle(self, "这里，由于我们已求得q(x)。我们也可以利用这个式子来求x。")
         self.wait(2)
 
-#x=q(H)*y=(q0*H^0⊕q1*H^1⊕q2*H^2⊕...)*y=q0*H^0*y⊕q1*H^1*y⊕q2*H^2*y⊕...=SUM?
+        LAT_Q3 = show_latex(self, "<cX>x<br><cQ>=q(<cH>H<cQ>)<cY>y<br><cQ>=(q0*<cH>H^0<cQ>⊕q1*<cH>H^1<cQ>⊕q2*<cH>H^2<cQ>⊕...)*<cY>y<br><cQ>=q0*<cH>H^0*<cY>y<cQ>⊕q1*<cH>H^1*<cY>y<cQ>⊕q2*<cH>H^2*<cY>y<cQ>⊕...<br><cQ>=SUM?", 0, 2.5)
         show_subtitle(self, "这里，我们可以从Y开始，不断将其和H相乘，", "使用左右扩散的办法计算下一个H^n*y，然后和qn叠加，得到x。")
         self.wait(2)
 
-        show_subtitle(self, "通过这个办法，我们也可以在O(n^2)中求得x。")
-        self.wait(2)
+        LAT_Q4 = show_latex(self, "<cX>x<cQ>=q(<cH>H<cQ>)<cY>y<cQ>=SUM?", 0, 2.5, show=False)
+        trans_latex(LAT_Q3,LAT_Q4)
+        LAT_Y3 = show_latex(self, "<cY>Y'(n,x)=Y'(n-1,x-1)+Y'(n-1,x+1)", 0, 2.0)
+        mul_vec_mat(self, w=7, h=7, mat=MAT_YK, vec=VEC_Q7, mat_color=Y_COLOR, vec_color=Q_COLOR, res_color=X_COLOR, mat_label="Y‘", vec_label="q", res_label="x", sz=0.4)
 
-        show_subtitle(self, "事实上，q(x)的系数也就是B的逆矩阵Q的第一行，", "并且可以证明B的逆矩阵Q也满足十字偶校验约束。")
+        show_subtitle(self, "另一方面，q(x)的系数也就是B的逆矩阵Q’的第一行，", "并且可以证明B的逆矩阵Q’也满足十字偶校验约束。")
         self.wait(2)
+#显示矩阵Q'，圈出高亮
 
-        show_subtitle(self, "因此，可以通过递推公式，", "用逆矩阵第一行q(x)直接求出整个逆矩阵Q，然后再和y相乘获得x。")
-        self.wait(2)
+        show_subtitle(self, "因此，也可以通过递推公式，", "利用q(x)直接求出整个逆矩阵Q’，然后再和y相乘获得x。")
+        mul_vec_mat(self, w=7, h=7, mat=MAT_QH, vec=VEC_Y7, mat_color=Q_COLOR, vec_color=Y_COLOR, res_color=X_COLOR, mat_label="Q’", vec_label="y", res_label="x", sz=0.4)
 
         show_subtitle(self, "不过，这整个求解的过程有一个问题，", "就是我们假设满足q(x)p(x)=1 mod f(x)的多项式q(x)存在。")
         self.wait(2)
 
         show_subtitle(self, "如果矩阵B不可逆呢？例如当n=5的时候，g(x)不为1，q(x)不是p(x)的逆。", "或者说，满足q(x)p(x)=1 mod f(x)的q(x)不存在。")
         self.wait(2)
-
-        show_subtitle(self, "这种情况下，求得的q(x)和Q'不同，并且也不满足q(x)p(x)=1 mod f(x)。", "并且Q'也不满足十字偶校验约束，因此无法通过公式递推再相乘求解x。")
+#展示n=5的情况，用欧几里得法计算g(x)
+        show_subtitle(self, "这种情况下，求得的q(x)和Q’不同，并且也不满足q(x)p(x)=1 mod f(x)。", "并且Q’也不满足十字偶校验约束，因此无法通过公式递推再相乘求解x。")
         self.wait(2)
 
-        show_subtitle(self, "n=5时的伪逆矩阵Q'和消元后的E'矩阵是这样的。")
+        show_subtitle(self, "n=5时的伪逆矩阵Q’和消元后的E’矩阵是这样的。")
         grid_B5 = make_grid(self, 5, 5, lgt_x=-3, btn_x=-3, mat_l=MAT_B5, btn_c=B_COLOR, lgt_c=B_COLOR, sz=0.4)
         grid_Q5 = make_grid(self, 5, 5, lgt_x=-0, btn_x=-0, mat_l=MAT_Q5, btn_c=Q_COLOR, lgt_c=Q_COLOR, sz=0.4)
         grid_E5 = make_grid(self, 5, 5, lgt_x=+3, btn_x=+3, mat_l=MAT_E5, btn_c=L_COLOR, lgt_c=L_COLOR, sz=0.4)
         self.wait(2)
-
-        show_subtitle(self, "可以证明，Q'和E'具有这样的形式")
+#标签
+        show_subtitle(self, "可以证明，Q’和E’具有这样的形式")
         self.wait(2)
 
 #[Br	Ur]	[Qr	0]	[I	Wr]
@@ -3570,25 +3602,25 @@ class LightsOut(Scene):
         show_subtitle(self, "这里，矩阵B的秩为r，例如n=5时r=3，并以rxr为界将矩阵分为四块。")
         self.wait(2)
 
-        show_subtitle(self, "B矩阵左上角rxr的子矩阵Br满秩，", "并且B的Q'的左上角rxr子矩阵Qr伪Br的逆。")
+        show_subtitle(self, "B矩阵左上角rxr的子矩阵Br满秩，", "并且B的Q’的左上角rxr子矩阵Qr伪Br的逆。")
         self.wait(2)
 
 #Qr=Br^-1：
-        show_subtitle(self, "Q'左下角和E'右上角的静默操作相同，", "并且其值等于Ur乘以Qr。")
+        show_subtitle(self, "Q’左下角和E’右上角的静默操作相同，", "并且其值等于Ur乘以Qr。")
         self.wait(2)
 #Wr=Ur*Qr：
 
-        show_subtitle(self, "矩阵Q'和E'一定具有这样的形式。利用分块矩阵乘法，", "可以很容易证明这两个性质。有兴趣的观众可以自行证明。")
+        show_subtitle(self, "矩阵Q’和E’一定具有这样的形式。利用分块矩阵乘法，", "可以很容易证明这两个性质。有兴趣的观众可以自行证明。")
         self.wait(2)
 
-        show_subtitle(self, "可以发现，这里的q(x)并不是Q'的第一行，", "并且求得的x也不是原方程的解。")
+        show_subtitle(self, "可以发现，这里的q(x)并不是Q’的第一行，", "并且求得的x也不是原方程的解。")
         self.wait(2)
 
 #公式递推法：f(x)=x^2+x^5
 #欧几里得法：q(x)p(x)=x*(x+x^4)=x^2+x^5 ≠ 1 mod x^2+x^5
 #伪逆第一行：q(x)p(x)=(1+x)*(x+x^4)=x+x^2+x^4+x^5 ≠ 1 mod x^2+x^5
 
-        show_subtitle(self, "不难注意到，只有当矩阵B为可逆矩阵时，g(x)=1，并且g(x)的最高次幂为n-r=r'。", "那么对于不可逆的矩阵B，我们又有什么解决办法呢？")
+        show_subtitle(self, "不难注意到，只有当矩阵B为可逆矩阵时，g(x)=1，并且g(x)的最高次幂为n-r=r’。", "那么对于不可逆的矩阵B，我们又有什么解决办法呢？")
         self.wait(2)
         del_grids(self, [grid_B5, grid_Q5, grid_E5])
 
