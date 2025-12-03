@@ -248,11 +248,16 @@ def make_grid(scene, w, h, lgt_x=0.0, btn_x=0.0, lgt_y=0.0, btn_y=0.0, btn_c=B_C
         },
     }
 
-def trans_grid(scene, G_from, G_to, rt=0.8, keep_from=False, target_override=None, extra_anims=None,):
-    if G_to["groups"]["lgt_bd_base"].get_stroke_opacity() == 0:
-        G_to["groups"]["lgt_bd_base"].set_stroke(opacity=1)
-    if G_to["groups"]["btn_bd_base"].get_stroke_opacity() == 0:
-        G_to["groups"]["btn_bd_base"].set_stroke(opacity=1)
+def trans_grid(scene, A_from, A_to, rt=0.8, keep_from=False, target_override=None, extra_anims=None, B_from=None, B_to=None, B_target_override=None, B_extra_anims=None):
+    if A_to["groups"]["lgt_bd_base"].get_stroke_opacity() == 0:
+        A_to["groups"]["lgt_bd_base"].set_stroke(opacity=1)
+    if A_to["groups"]["btn_bd_base"].get_stroke_opacity() == 0:
+        A_to["groups"]["btn_bd_base"].set_stroke(opacity=1)
+    if B_to is not None:
+        if B_to["groups"]["lgt_bd_base"].get_stroke_opacity() == 0:
+            B_to["groups"]["lgt_bd_base"].set_stroke(opacity=1)
+        if B_to["groups"]["btn_bd_base"].get_stroke_opacity() == 0:
+            B_to["groups"]["btn_bd_base"].set_stroke(opacity=1)
     def composite(G):
         return VGroup(
             G["groups"]["lgt_sp"],
@@ -260,122 +265,324 @@ def trans_grid(scene, G_from, G_to, rt=0.8, keep_from=False, target_override=Non
             G["groups"]["btn_sp"],
             G["groups"]["btn_bd_base"],
         )
-    grp_from = composite(G_from).copy() if keep_from else composite(G_from)
-    grp_to = target_override if target_override is not None else composite(G_to)
+    grp_from_A = composite(A_from).copy() if keep_from else composite(A_from)
+    grp_to_A = target_override if target_override is not None else composite(A_to)
     if keep_from:
-        scene.add(grp_from)
+        scene.add(grp_from_A)
+    anims = [ReplacementTransform(grp_from_A, grp_to_A)]
+    grp_from_B = None
+    grp_to_B = None
+    if B_from is not None and B_to is not None:
+        grp_from_B = composite(B_from).copy() if keep_from else composite(B_from)
+        grp_to_B = B_target_override if B_target_override is not None else composite(B_to)
+        if keep_from:
+            scene.add(grp_from_B)
+        anims.append(ReplacementTransform(grp_from_B, grp_to_B))
     if extra_anims:
-        scene.play(ReplacementTransform(grp_from, grp_to), *extra_anims, run_time=rt)
-    else:
-        scene.play(ReplacementTransform(grp_from, grp_to), run_time=rt)
+        anims.extend(extra_anims)
+    if B_extra_anims:
+        anims.extend(B_extra_anims)
+    scene.play(*anims, run_time=rt)
     if target_override is not None:
         try:
-            scene.remove(grp_to)
+            scene.remove(grp_to_A)
         except Exception:
             pass
-    scene.add(G_to["groups"]["lgt_bd_hl"])
-    scene.add(G_to["groups"]["btn_bd_hl"])
+    if B_to is not None and B_target_override is not None and grp_to_B is not None:
+        try:
+            scene.remove(grp_to_B)
+        except Exception:
+            pass
+    scene.add(A_to["groups"]["lgt_bd_hl"])
+    scene.add(A_to["groups"]["btn_bd_hl"])
+    if B_to is not None:
+        scene.add(B_to["groups"]["lgt_bd_hl"])
+        scene.add(B_to["groups"]["btn_bd_hl"])
     try:
-        scene.bring_to_front(G_to["groups"]["lgt_bd_hl"])
-        scene.bring_to_front(G_to["groups"]["btn_bd_hl"])
+        scene.bring_to_front(A_to["groups"]["lgt_bd_hl"])
+        scene.bring_to_front(A_to["groups"]["btn_bd_hl"])
+        if B_to is not None:
+            scene.bring_to_front(B_to["groups"]["lgt_bd_hl"])
+            scene.bring_to_front(B_to["groups"]["btn_bd_hl"])
     except Exception:
         pass
     if not keep_from:
-        del_grids(scene, G_from, rt=0.0)
+        if B_from is not None:
+            del_grids(scene, [A_from, B_from], rt=0.0)
+        else:
+            del_grids(scene, A_from, rt=0.0)
 
-def add_grid(scene, G_from, G_to, rt=0.8, keep_from=True):
-    ht_btn, wt_btn = G_to["params"]["h"], G_to["params"]["w"]
-    hf_btn, wf_btn = G_from["params"]["h"], G_from["params"]["w"]
-    ht_lgt = G_to["params"].get("h_l", ht_btn)
-    wt_lgt = G_to["params"].get("w_l", wt_btn)
-    hf_lgt = G_from["params"].get("h_l", hf_btn)
-    wf_lgt = G_from["params"].get("w_l", wf_btn)
-    btn_x = [[0] * wt_btn for _ in range(ht_btn)]
-    for j in range(ht_btn):
-        for i in range(wt_btn):
-            b0 = 1 if G_to["btn"][j][i] else 0
-            b1 = 1 if (j < hf_btn and i < wf_btn and G_from["btn"][j][i]) else 0
-            btn_x[j][i] = b0 ^ b1
-    lgt_x = [[0] * wt_lgt for _ in range(ht_lgt)]
-    for j in range(ht_lgt):
-        for i in range(wt_lgt):
-            l0 = 1 if G_to["lgt"][j][i] else 0
-            l1 = 1 if (j < hf_lgt and i < wf_lgt and G_from["lgt"][j][i]) else 0
-            lgt_x[j][i] = l0 ^ l1
-    lgt_sp_final = []
-    for j in range(ht_lgt):
-        for i in range(wt_lgt):
-            m1 = G_to["lgt_sp"][j][i].copy()
-            m1.set_opacity(1.0 if lgt_x[j][i] else 0.0)
-            lgt_sp_final.append(m1)
-    btn_sp_final = []
-    for j in range(ht_btn):
-        for i in range(wt_btn):
-            m2 = G_to["btn_sp"][j][i].copy()
-            m2.set_opacity(1.0 if btn_x[j][i] else 0.0)
-            btn_sp_final.append(m2)
-    grp_final = VGroup(
-        VGroup(*lgt_sp_final),
-        G_to["groups"]["lgt_bd_base"].copy(),
-        VGroup(*btn_sp_final),
-        G_to["groups"]["btn_bd_base"].copy(),
+def add_grid(scene, A_from, A_to, B_from=None, B_to=None, rt=0.8, keep_from=True):
+    ht_btn_A, wt_btn_A = A_to["params"]["h"], A_to["params"]["w"]
+    hf_btn_A, wf_btn_A = A_from["params"]["h"], A_from["params"]["w"]
+    ht_lgt_A = A_to["params"].get("h_l", ht_btn_A)
+    wt_lgt_A = A_to["params"].get("w_l", wt_btn_A)
+    hf_lgt_A = A_from["params"].get("h_l", hf_btn_A)
+    wf_lgt_A = A_from["params"].get("w_l", wf_btn_A)
+    btn_x_A = [[0] * wt_btn_A for _ in range(ht_btn_A)]
+    for j in range(ht_btn_A):
+        for i in range(wt_btn_A):
+            b0 = 1 if A_to["btn"][j][i] else 0
+            b1 = 1 if (j < hf_btn_A and i < wf_btn_A and A_from["btn"][j][i]) else 0
+            btn_x_A[j][i] = b0 ^ b1
+    lgt_x_A = [[0] * wt_lgt_A for _ in range(ht_lgt_A)]
+    for j in range(ht_lgt_A):
+        for i in range(wt_lgt_A):
+            l0 = 1 if A_to["lgt"][j][i] else 0
+            l1 = 1 if (j < hf_lgt_A and i < wf_lgt_A and A_from["lgt"][j][i]) else 0
+            lgt_x_A[j][i] = l0 ^ l1
+    lgt_sp_final_A = []
+    for j in range(ht_lgt_A):
+        for i in range(wt_lgt_A):
+            m1 = A_to["lgt_sp"][j][i].copy()
+            m1.set_opacity(1.0 if lgt_x_A[j][i] else 0.0)
+            lgt_sp_final_A.append(m1)
+    btn_sp_final_A = []
+    for j in range(ht_btn_A):
+        for i in range(wt_btn_A):
+            m2 = A_to["btn_sp"][j][i].copy()
+            m2.set_opacity(1.0 if btn_x_A[j][i] else 0.0)
+            btn_sp_final_A.append(m2)
+    grp_final_A = VGroup(
+        VGroup(*lgt_sp_final_A),
+        A_to["groups"]["lgt_bd_base"].copy(),
+        VGroup(*btn_sp_final_A),
+        A_to["groups"]["btn_bd_base"].copy(),
     )
-    anims = []
-    for j in range(ht_lgt):
-        for i in range(wt_lgt):
-            _queue_opacity_anim(G_to["lgt_sp"][j][i], 1.0 if lgt_x[j][i] else 0.0, anims)
-    for j in range(ht_btn):
-        for i in range(wt_btn):
-            _queue_opacity_anim(G_to["btn_sp"][j][i], 1.0 if btn_x[j][i] else 0.0, anims)
-    trans_grid(
-        scene,
-        G_from,
-        G_to,
-        rt=rt,
-        keep_from=keep_from,
-        target_override=grp_final,
-        extra_anims=anims,
-    )
-    for j in range(ht_btn):
-        for i in range(wt_btn):
-            G_to["btn"][j][i] = bool(btn_x[j][i])
-            G_to["btn_sp"][j][i].set_opacity(1.0 if btn_x[j][i] else 0.0)
-    for j in range(ht_lgt):
-        for i in range(wt_lgt):
-            G_to["lgt"][j][i] = bool(lgt_x[j][i])
-            G_to["lgt_sp"][j][i].set_opacity(1.0 if lgt_x[j][i] else 0.0)
+    anims_A = []
+    for j in range(ht_lgt_A):
+        for i in range(wt_lgt_A):
+            _queue_opacity_anim(A_to["lgt_sp"][j][i], 1.0 if lgt_x_A[j][i] else 0.0, anims_A)
+    for j in range(ht_btn_A):
+        for i in range(wt_btn_A):
+            _queue_opacity_anim(A_to["btn_sp"][j][i], 1.0 if btn_x_A[j][i] else 0.0, anims_A)
+    if B_from is not None and B_to is not None:
+        ht_btn_B, wt_btn_B = B_to["params"]["h"], B_to["params"]["w"]
+        hf_btn_B, wf_btn_B = B_from["params"]["h"], B_from["params"]["w"]
+        ht_lgt_B = B_to["params"].get("h_l", ht_btn_B)
+        wt_lgt_B = B_to["params"].get("w_l", wt_btn_B)
+        hf_lgt_B = B_from["params"].get("h_l", hf_btn_B)
+        wf_lgt_B = B_from["params"].get("w_l", wf_btn_B)
+        btn_x_B = [[0] * wt_btn_B for _ in range(ht_btn_B)]
+        for j in range(ht_btn_B):
+            for i in range(wt_btn_B):
+                b0 = 1 if B_to["btn"][j][i] else 0
+                b1 = 1 if (j < hf_btn_B and i < wf_btn_B and B_from["btn"][j][i]) else 0
+                btn_x_B[j][i] = b0 ^ b1
+        lgt_x_B = [[0] * wt_lgt_B for _ in range(ht_lgt_B)]
+        for j in range(ht_lgt_B):
+            for i in range(wt_lgt_B):
+                l0 = 1 if B_to["lgt"][j][i] else 0
+                l1 = 1 if (j < hf_lgt_B and i < wf_lgt_B and B_from["lgt"][j][i]) else 0
+                lgt_x_B[j][i] = l0 ^ l1
+        lgt_sp_final_B = []
+        for j in range(ht_lgt_B):
+            for i in range(wt_lgt_B):
+                m1 = B_to["lgt_sp"][j][i].copy()
+                m1.set_opacity(1.0 if lgt_x_B[j][i] else 0.0)
+                lgt_sp_final_B.append(m1)
+        btn_sp_final_B = []
+        for j in range(ht_btn_B):
+            for i in range(wt_btn_B):
+                m2 = B_to["btn_sp"][j][i].copy()
+                m2.set_opacity(1.0 if btn_x_B[j][i] else 0.0)
+                btn_sp_final_B.append(m2)
+        grp_final_B = VGroup(
+            VGroup(*lgt_sp_final_B),
+            B_to["groups"]["lgt_bd_base"].copy(),
+            VGroup(*btn_sp_final_B),
+            B_to["groups"]["btn_bd_base"].copy(),
+        )
+        anims_B = []
+        for j in range(ht_lgt_B):
+            for i in range(wt_lgt_B):
+                _queue_opacity_anim(B_to["lgt_sp"][j][i], 1.0 if lgt_x_B[j][i] else 0.0, anims_B)
+        for j in range(ht_btn_B):
+            for i in range(wt_btn_B):
+                _queue_opacity_anim(B_to["btn_sp"][j][i], 1.0 if btn_x_B[j][i] else 0.0, anims_B)
+        trans_grid(scene, A_from, A_to, rt=rt, keep_from=keep_from, target_override=grp_final_A, extra_anims=anims_A, B_from=B_from, B_to=B_to, B_target_override=grp_final_B, B_extra_anims=anims_B)
+        for j in range(ht_btn_B):
+            for i in range(wt_btn_B):
+                B_to["btn"][j][i] = bool(btn_x_B[j][i])
+                B_to["btn_sp"][j][i].set_opacity(1.0 if btn_x_B[j][i] else 0.0)
+        for j in range(ht_lgt_B):
+            for i in range(wt_lgt_B):
+                B_to["lgt"][j][i] = bool(lgt_x_B[j][i])
+                B_to["lgt_sp"][j][i].set_opacity(1.0 if lgt_x_B[j][i] else 0.0)
+    else:
+        trans_grid(scene, A_from, A_to, rt=rt, keep_from=keep_from, target_override=grp_final_A, extra_anims=anims_A)
+    for j in range(ht_btn_A):
+        for i in range(wt_btn_A):
+            A_to["btn"][j][i] = bool(btn_x_A[j][i])
+            A_to["btn_sp"][j][i].set_opacity(1.0 if btn_x_A[j][i] else 0.0)
+    for j in range(ht_lgt_A):
+        for i in range(wt_lgt_A):
+            A_to["lgt"][j][i] = bool(lgt_x_A[j][i])
+            A_to["lgt_sp"][j][i].set_opacity(1.0 if lgt_x_A[j][i] else 0.0)
 
-def swap_grid(scene, A, B, rt=0.8):
-    pA, pB = A["params"].copy(), B["params"].copy()
-    dA_l = RIGHT*(pB["lgt_x"]-pA["lgt_x"]) + UP*(pB["lgt_y"]-pA["lgt_y"])
-    dA_b = RIGHT*(pB["btn_x"]-pA["btn_x"]) + UP*(pB["btn_y"]-pA["btn_y"])
+def swap_grid(scene, A_from, A_to, B_from=None, B_to=None, rt=0.8):
+    gA, gB = A_from["groups"], A_to["groups"]
+    dA_l = gB["lgt_sp"].get_center() - gA["lgt_sp"].get_center()
+    dA_b = gB["btn_sp"].get_center() - gA["btn_sp"].get_center()
     dB_l = -dA_l
     dB_b = -dA_b
-    gA, gB = A["groups"], B["groups"]
-    anims = [
-        gA["lgt_sp"].animate.shift(dA_l), gA["lgt_bd_base"].animate.shift(dA_l), gA["lgt_bd_hl"].animate.shift(dA_l),
-        gA["btn_sp"].animate.shift(dA_b), gA["btn_bd_base"].animate.shift(dA_b), gA["btn_bd_hl"].animate.shift(dA_b),
-        gB["lgt_sp"].animate.shift(dB_l), gB["lgt_bd_base"].animate.shift(dB_l), gB["lgt_bd_hl"].animate.shift(dB_l),
-        gB["btn_sp"].animate.shift(dB_b), gB["btn_bd_base"].animate.shift(dB_b), gB["btn_bd_hl"].animate.shift(dB_b),
-    ]
-    frA = A.get("extras", {}).get("outer_frames", [])
-    frB = B.get("extras", {}).get("outer_frames", [])
+    lgt_sp_A = gA["lgt_sp"]
+    lgt_sp_B = gB["lgt_sp"]
+    btn_sp_A = gA["btn_sp"]
+    btn_sp_B = gB["btn_sp"]
+    lgt_color_A = lgt_sp_A[0].get_fill_color() if len(lgt_sp_A) > 0 else None
+    lgt_color_B = lgt_sp_B[0].get_fill_color() if len(lgt_sp_B) > 0 else None
+    btn_color_A = btn_sp_A[0].get_fill_color() if len(btn_sp_A) > 0 else None
+    btn_color_B = btn_sp_B[0].get_fill_color() if len(btn_sp_B) > 0 else None
+    anims = []
+    a_lgt_anim = lgt_sp_A.animate.shift(dA_l)
+    b_lgt_anim = lgt_sp_B.animate.shift(dB_l)
+    a_btn_anim = btn_sp_A.animate.shift(dA_b)
+    b_btn_anim = btn_sp_B.animate.shift(dB_b)
+    if lgt_color_B is not None: a_lgt_anim = a_lgt_anim.set_fill(lgt_color_B)
+    if lgt_color_A is not None: b_lgt_anim = b_lgt_anim.set_fill(lgt_color_A)
+    if btn_color_B is not None: a_btn_anim = a_btn_anim.set_fill(btn_color_B)
+    if btn_color_A is not None: b_btn_anim = b_btn_anim.set_fill(btn_color_A)
+    anims.extend([
+        a_lgt_anim,
+        gA["lgt_bd_base"].animate.shift(dA_l),
+        gA["lgt_bd_hl"].animate.shift(dA_l),
+        a_btn_anim,
+        gA["btn_bd_base"].animate.shift(dA_b),
+        gA["btn_bd_hl"].animate.shift(dA_b),
+        b_lgt_anim,
+        gB["lgt_bd_base"].animate.shift(dB_l),
+        gB["lgt_bd_hl"].animate.shift(dB_l),
+        b_btn_anim,
+        gB["btn_bd_base"].animate.shift(dB_b),
+        gB["btn_bd_hl"].animate.shift(dB_b),
+    ])
+    frA = A_from.get("extras", {}).get("outer_frames", [])
+    frB = A_to.get("extras", {}).get("outer_frames", [])
     if frA:
         if len(frA) >= 1: anims.append(frA[0].animate.shift(dA_l))
         if len(frA) >= 2: anims.append(frA[1].animate.shift(dA_b))
     if frB:
         if len(frB) >= 1: anims.append(frB[0].animate.shift(dB_l))
         if len(frB) >= 2: anims.append(frB[1].animate.shift(dB_b))
+    if B_from is not None and B_to is not None:
+        gC, gD = B_from["groups"], B_to["groups"]
+        dC_l = gD["lgt_sp"].get_center() - gC["lgt_sp"].get_center()
+        dC_b = gD["btn_sp"].get_center() - gC["btn_sp"].get_center()
+        dD_l = -dC_l
+        dD_b = -dC_b
+        lgt_sp_C = gC["lgt_sp"]
+        lgt_sp_D = gD["lgt_sp"]
+        btn_sp_C = gC["btn_sp"]
+        btn_sp_D = gD["btn_sp"]
+        lgt_color_C = lgt_sp_C[0].get_fill_color() if len(lgt_sp_C) > 0 else None
+        lgt_color_D = lgt_sp_D[0].get_fill_color() if len(lgt_sp_D) > 0 else None
+        btn_color_C = btn_sp_C[0].get_fill_color() if len(btn_sp_C) > 0 else None
+        btn_color_D = btn_sp_D[0].get_fill_color() if len(btn_sp_D) > 0 else None
+        c_lgt_anim = lgt_sp_C.animate.shift(dC_l)
+        d_lgt_anim = lgt_sp_D.animate.shift(dD_l)
+        c_btn_anim = btn_sp_C.animate.shift(dC_b)
+        d_btn_anim = btn_sp_D.animate.shift(dD_b)
+        if lgt_color_D is not None: c_lgt_anim = c_lgt_anim.set_fill(lgt_color_D)
+        if lgt_color_C is not None: d_lgt_anim = d_lgt_anim.set_fill(lgt_color_C)
+        if btn_color_D is not None: c_btn_anim = c_btn_anim.set_fill(btn_color_D)
+        if btn_color_C is not None: d_btn_anim = d_btn_anim.set_fill(btn_color_C)
+        anims.extend([
+            c_lgt_anim,
+            gC["lgt_bd_base"].animate.shift(dC_l),
+            gC["lgt_bd_hl"].animate.shift(dC_l),
+            c_btn_anim,
+            gC["btn_bd_base"].animate.shift(dC_b),
+            gC["btn_bd_hl"].animate.shift(dC_b),
+            d_lgt_anim,
+            gD["lgt_bd_base"].animate.shift(dD_l),
+            gD["lgt_bd_hl"].animate.shift(dD_l),
+            d_btn_anim,
+            gD["btn_bd_base"].animate.shift(dD_b),
+            gD["btn_bd_hl"].animate.shift(dD_b),
+        ])
+        frC = B_from.get("extras", {}).get("outer_frames", [])
+        frD = B_to.get("extras", {}).get("outer_frames", [])
+        if frC:
+            if len(frC) >= 1: anims.append(frC[0].animate.shift(dC_l))
+            if len(frC) >= 2: anims.append(frC[1].animate.shift(dC_b))
+        if frD:
+            if len(frD) >= 1: anims.append(frD[0].animate.shift(dD_l))
+            if len(frD) >= 2: anims.append(frD[1].animate.shift(dD_b))
     if anims: scene.play(*anims, run_time=rt)
-    tmp = A.copy()
-    A.clear()
-    A.update(B)
-    B.clear()
-    B.update(tmp)
+    tmp = A_from.copy()
+    A_from.clear()
+    A_from.update(A_to)
+    A_to.clear()
+    A_to.update(tmp)
+    if B_from is not None and B_to is not None:
+        tmp2 = B_from.copy()
+        B_from.clear()
+        B_from.update(B_to)
+        B_to.clear()
+        B_to.update(tmp2)
     try:
-        scene.bring_to_front(A["groups"]["lgt_bd_hl"], A["groups"]["btn_bd_hl"], B["groups"]["lgt_bd_hl"], B["groups"]["btn_bd_hl"])
+        objs = [
+            A_from["groups"]["lgt_bd_hl"],
+            A_from["groups"]["btn_bd_hl"],
+            A_to["groups"]["lgt_bd_hl"],
+            A_to["groups"]["btn_bd_hl"],
+        ]
+        if B_from is not None and B_to is not None:
+            objs.extend([
+                B_from["groups"]["lgt_bd_hl"],
+                B_from["groups"]["btn_bd_hl"],
+                B_to["groups"]["lgt_bd_hl"],
+                B_to["groups"]["btn_bd_hl"],
+            ])
+        scene.bring_to_front(*objs)
     except Exception:
         pass
+
+def shift_grid(scene, A_from, B_from=None, k=1, rt=0.3):
+    if k <= 0: return
+    ht_lgt_A = A_from["params"].get("h_l", A_from["params"]["h"])
+    wt_lgt_A = A_from["params"].get("w_l", A_from["params"]["w"])
+    new_lgt_A = [[False]*wt_lgt_A for _ in range(ht_lgt_A)]
+    for j in range(ht_lgt_A):
+        for i in range(wt_lgt_A):
+            src = i - k
+            v = False
+            if 0 <= src < wt_lgt_A:
+                v = bool(A_from["lgt"][j][src])
+            new_lgt_A[j][i] = v
+    if B_from is not None:
+        ht_lgt_B = B_from["params"].get("h_l", B_from["params"]["h"])
+        wt_lgt_B = B_from["params"].get("w_l", B_from["params"]["w"])
+        new_lgt_B = [[False]*wt_lgt_B for _ in range(ht_lgt_B)]
+        for j in range(ht_lgt_B):
+            for i in range(wt_lgt_B):
+                src = i - k
+                v = False
+                if 0 <= src < wt_lgt_B:
+                    v = bool(B_from["lgt"][j][src])
+                new_lgt_B[j][i] = v
+    anims = []
+    for j in range(ht_lgt_A):
+        for i in range(wt_lgt_A):
+            target = 1.0 if new_lgt_A[j][i] else 0.0
+            _queue_opacity_anim(A_from["lgt_sp"][j][i], target, anims)
+    if B_from is not None:
+        for j in range(ht_lgt_B):
+            for i in range(wt_lgt_B):
+                target = 1.0 if new_lgt_B[j][i] else 0.0
+                _queue_opacity_anim(B_from["lgt_sp"][j][i], target, anims)
+    if anims:
+        scene.play(*anims, run_time=rt)
+    for j in range(ht_lgt_A):
+        for i in range(wt_lgt_A):
+            A_from["lgt"][j][i] = bool(new_lgt_A[j][i])
+            A_from["lgt_sp"][j][i].set_opacity(1.0 if new_lgt_A[j][i] else 0.0)
+    if B_from is not None:
+        for j in range(ht_lgt_B):
+            for i in range(wt_lgt_B):
+                B_from["lgt"][j][i] = bool(new_lgt_B[j][i])
+                B_from["lgt_sp"][j][i].set_opacity(1.0 if new_lgt_B[j][i] else 0.0)
 
 def move_grid(scene, G, lgt_x=0.0, btn_x=0.0, lgt_y=0.0, btn_y=0.0, rt=0.8, sz=None):
     px = G["params"].get("lgt_x", 0.0)
@@ -596,7 +803,7 @@ def del_cells(scene, grids, which="lgt", indices=None, rt=0.3):
     if anims:
         scene.play(*anims, run_time=rt)
 
-def add_cell(scene, G_from, G_to, sx, sy, tx, ty, rt=1.0, color_from=None, color_to=None):
+def add_cell(scene, G_from, G_to, sx, sy, tx, ty, rt=0.3, color_from=None, color_to=None):
     ht_lgt_to = G_to["params"].get("h_l", G_to["params"]["h"])
     wt_lgt_to = G_to["params"].get("w_l", G_to["params"]["w"])
     hf_btn_from = G_from["params"]["h"]
@@ -817,7 +1024,7 @@ def apply_mat(scene, G, MAT, anim=0.1, clear_end=True):
     if clear_end:
         clear_all_bd(G)
 
-def set_grid_mats(scene, grids, mat=None, mat_l=None, rt=0.8, clear_first=True, keep_border=True, reset_state=True):
+def set_grid_mats(scene, grids, mat=None, mat_l=None, rt=0.3, clear_first=True, keep_border=True, reset_state=True):
     if isinstance(grids, dict):
         gs = [[grids]]
     elif isinstance(grids, (list, tuple)):
@@ -1461,7 +1668,7 @@ def show_latex(scene, text, x=0.0, y=0.0, run_in=0.3, run_out=0.3, font=DEFAULT_
     stack.append(lines)
     return lines
 
-def trans_latex(scene, latex_from, latex_to, rt=1.0):
+def trans_latex(scene, latex_from, latex_to, rt=0.8):
     if latex_from is None or latex_to is None:
         return None
     scene.play(ReplacementTransform(latex_from, latex_to), run_time=rt)
@@ -1870,6 +2077,56 @@ def hide_algo_table(scene, table=None, run_out=0.3, remove=True):
         scene._algo_table = None
     return table
 
+def make_ops_euclid(mat_f, mat_p):
+    def vec_to_int(v):
+        x = 0
+        for i, b in enumerate(v):
+            if b: x |= (1 << i)
+        return x
+    def poly_deg(x):
+        if x == 0: return -1
+        return x.bit_length() - 1
+    n = max(len(mat_f), len(mat_p))
+    F = vec_to_int(mat_f + [0]*(n-len(mat_f)))
+    P = vec_to_int(mat_p + [0]*(n-len(mat_p)))
+    ops = []
+    steps = 0
+    while F != 0 and P != 0 and steps < 512:
+        df = poly_deg(F)
+        dp = poly_deg(P)
+        if df < dp:
+            ops.append(["swap", 0])
+            F, P = P, F
+            steps += 1
+            continue
+        shift = df - dp
+        if shift > 0:
+            ops.append(["shift", shift])
+            P = (P << shift) & ((1 << n) - 1)
+            steps += 1
+        ops.append(["add", 0])
+        F ^= P
+        steps += 1
+    if P == 0 and F != 0:
+        ops.append(["swap", 0])
+    return ops
+
+def euclid_grids(scene, grids, ops, start=0, end=None, rt=None):
+    if not ops: return
+    if end is None: end = len(ops) - 1
+    if start < 0: start = 0
+    if end >= len(ops): end = len(ops) - 1
+    f_grid, p_grid, e_grid, o_grid = grids
+    for k in range(start, end + 1):
+        op, arg = ops[k]
+        if op in (0, "add", "ADD", "a", "A"):
+            add_grid(scene, A_from=p_grid, A_to=f_grid, B_from=o_grid, B_to=e_grid, rt=rt)
+        elif op in (1, "swap", "SWAP", "s", "S"):
+            swap_grid(scene, A_from=f_grid, A_to=p_grid, B_from=e_grid, B_to=o_grid, rt=rt)
+        elif op in (2, "shift", "SHIFT", "sh", "SH"):
+            if arg and arg > 0:
+                shift_grid(scene, A_from=p_grid, B_from=o_grid, k=arg, rt=rt)
+
 def build_case(i, w, h, l=1):
     btn = [[0] * w for _ in range(h)]
     lgt = [[0] * w for _ in range(h)]
@@ -2112,6 +2369,8 @@ VEC_P7 = [1,1,1,1,1,1,1]
 VEC_Q7 = [1,1,0,0,0,0,0]
 VEC_G7 = [1,0,0,0,0,0,0,0]
 VEC_X7 = [1,1,0,1,0,1,1]
+VEC_E7 = [1,0,0,0,0,0,0]
+VEC_O7 = [0,0,0,0,0,0,0]
 
 LATEX1 = [
     {"type": "text", "content": "递推公式（Fibonacci 多项式的 GF(2) 版本）：", "scale": 1.0, "indent": 0.0},
@@ -2269,16 +2528,16 @@ class LightsOut(Scene):
             mat_btn.append(row_btn)
             mat_lgt_y.append(row_lgt_y)
             mat_btn_y.append(row_btn_y)
-        set_grid_mats(self, grids=G5_, mat=mat_btn, mat_l=mat_0, rt=0.3, clear_first=False)
-        set_grid_mats(self, grids=G5Y_, mat=mat_btn_y, mat_l=mat_0, rt=0.3, clear_first=False)
+        set_grid_mats(self, grids=G5_, mat=mat_btn, mat_l=mat_0, clear_first=False)
+        set_grid_mats(self, grids=G5Y_, mat=mat_btn_y, mat_l=mat_0, clear_first=False)
         self.wait(2)
-        set_grid_mats(self, grids=G5_, mat=mat_0, mat_l=mat_lgt, rt=0.3, clear_first=False)
-        set_grid_mats(self, grids=G5Y_, mat=mat_0, mat_l=mat_lgt_y, rt=0.3, clear_first=False)
+        set_grid_mats(self, grids=G5_, mat=mat_0, mat_l=mat_lgt, clear_first=False)
+        set_grid_mats(self, grids=G5Y_, mat=mat_0, mat_l=mat_lgt_y, clear_first=False)
         self.wait(4)
 
         show_subtitle(self, "而在上集视频中，因为最终目标是将灯用按钮表示，", "因此省去了按钮表示按钮，粉色原点直接为按钮表示灯。")
-        set_grid_mats(self, grids=G5_, mat=mat_lgt, mat_l=mat_0, rt=0.3, clear_first=False)
-        set_grid_mats(self, grids=G5Y_, mat=mat_lgt_y, mat_l=mat_0, rt=0.3, clear_first=False)
+        set_grid_mats(self, grids=G5_, mat=mat_lgt, mat_l=mat_0, clear_first=False)
+        set_grid_mats(self, grids=G5Y_, mat=mat_lgt_y, mat_l=mat_0, clear_first=False)
         self.wait(4)
 
         del_latex(self, [LAT1, LAT2]);
@@ -2378,12 +2637,12 @@ class LightsOut(Scene):
         hl_cells(self, [G5_[1][1]], which="btn", indices=[(0, 0)])
         hl_cells(self, [G5_[1][1]], which="btn", indices=[(1, 0)])
         hl_cells(self, [G5_[1][1]], which="btn", indices=[(2, 0)])
-        add_cell(self, G5_[0][0], G5_[1][0], 0, 0, 0, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
-        add_cell(self, G5_[1][0], G5_[1][0], 0, 0, 0, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
-        add_cell(self, G5_[1][0], G5_[1][0], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
-        add_cell(self, G5_[1][1], G5_[1][0], 0, 0, 0, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
-        add_cell(self, G5_[1][1], G5_[1][0], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
-        add_cell(self, G5_[1][1], G5_[1][0], 2, 0, 2, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
+        add_cell(self, G5_[0][0], G5_[1][0], 0, 0, 0, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
+        add_cell(self, G5_[1][0], G5_[1][0], 0, 0, 0, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
+        add_cell(self, G5_[1][0], G5_[1][0], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
+        add_cell(self, G5_[1][1], G5_[1][0], 0, 0, 0, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
+        add_cell(self, G5_[1][1], G5_[1][0], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
+        add_cell(self, G5_[1][1], G5_[1][0], 2, 0, 2, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
 
         show_subtitle(self, "又比如，L7=B2⊕B6⊕B7⊕B8", "=B2⊕~(B1⊕B2)⊕~(B1⊕B2⊕B3)⊕~(B2⊕B3⊕B4)=~B4")
         toggle_btn(self, G5_[0][1], 1, 0)
@@ -2399,15 +2658,15 @@ class LightsOut(Scene):
         hl_cells(self, [G5_[1][2]], which="btn", indices=[(1, 0)])
         hl_cells(self, [G5_[1][2]], which="btn", indices=[(2, 0)])
         hl_cells(self, [G5_[1][2]], which="btn", indices=[(3, 0)])
-        add_cell(self, G5_[0][1], G5_[1][1], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
-        add_cell(self, G5_[1][0], G5_[1][1], 0, 0, 0, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
-        add_cell(self, G5_[1][0], G5_[1][1], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
-        add_cell(self, G5_[1][1], G5_[1][1], 0, 0, 0, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
-        add_cell(self, G5_[1][1], G5_[1][1], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
-        add_cell(self, G5_[1][1], G5_[1][1], 2, 0, 2, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
-        add_cell(self, G5_[1][2], G5_[1][1], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
-        add_cell(self, G5_[1][2], G5_[1][1], 2, 0, 2, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
-        add_cell(self, G5_[1][2], G5_[1][1], 3, 0, 3, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.3)
+        add_cell(self, G5_[0][1], G5_[1][1], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
+        add_cell(self, G5_[1][0], G5_[1][1], 0, 0, 0, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
+        add_cell(self, G5_[1][0], G5_[1][1], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
+        add_cell(self, G5_[1][1], G5_[1][1], 0, 0, 0, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
+        add_cell(self, G5_[1][1], G5_[1][1], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
+        add_cell(self, G5_[1][1], G5_[1][1], 2, 0, 2, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
+        add_cell(self, G5_[1][2], G5_[1][1], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
+        add_cell(self, G5_[1][2], G5_[1][1], 2, 0, 2, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
+        add_cell(self, G5_[1][2], G5_[1][1], 3, 0, 3, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
 
         show_subtitle(self, "这样不断递推，我们可以将任意L表示为某些B1到B5的叠加，再加上翻转。")
         for k in range(rows):
@@ -2585,8 +2844,7 @@ class LightsOut(Scene):
         for k in range(rows):
             for y in range(cols):
                 if (k > y):
-                    swap_grid(self, G5_[k][y], G5_[y][k], rt=0.3)
-                    swap_grid(self, G5Y_[k][y], G5Y_[y][k], rt=0.3)
+                    swap_grid(self, G5_[k][y], G5_[y][k], G5Y_[k][y], G5Y_[y][k])
         top_objs = [[None] * cols for _ in range(rows)]
         topy_objs = [[None] * cols for _ in range(rows)]
         left_objs = [[None] * cols for _ in range(rows)]
@@ -2757,8 +3015,8 @@ class LightsOut(Scene):
             mat_btn.append(col_btn)
             mat_lgt_y.append(col_lgt_y)
             mat_btn_y.append(col_btn_y)
-        set_grid_mats(self, grids=G5_, mat=mat_btn, mat_l=mat_lgt, rt=0.3, clear_first=False)
-        set_grid_mats(self, grids=G5Y_, mat=mat_btn_y, mat_l=mat_lgt_y, rt=0.3, clear_first=False)
+        set_grid_mats(self, grids=G5_, mat=mat_btn, mat_l=mat_lgt, clear_first=False)
+        set_grid_mats(self, grids=G5Y_, mat=mat_btn_y, mat_l=mat_lgt_y, clear_first=False)
         bd = hl_bd(self, [G5_[0][4]])
         self.wait(2)
         del_bd(self, bd)
@@ -2906,7 +3164,7 @@ class LightsOut(Scene):
         LAT_P2 = show_latex(self, "<cB>B<cP>=p(<cH>H<cP>)=p0*<cH>H^0<cP>⊕p1*<cH>H^1<cP>⊕p2*<cH>H^2<cP>⊕...=SUM⊕(pi*<cH>H^i<cP>)", 0, 2.0)
         self.wait(2)
         show_subtitle(self, "这样，原始求x的问题就变为了p(H)x=y。")
-        LAT_P3 = show_latex(self, "<cB>B<cX>x<cP>=<cY>y<cP> <==> p(<cH>H<cP>)<cX>x<cP>=<cY>y", 0, 1.5)
+        LAT_P3 = show_latex(self, "<cB>B<cX>x<cP>=p(<cH>H<cP>)<cX>x<cP>=<cY>y", 0, 1.5)
         self.wait(2)
         show_subtitle(self, "现在，我们需要把多项式p(H)的系数计算出来。", "这个系数构成的向量我们记为p。")
         LAT_P4 = show_latex(self, "<cP>p=(p0,p1,p2...)", 0, 1.0)
@@ -3018,8 +3276,8 @@ class LightsOut(Scene):
             if k == 0: top_objs[k][0] = add_top_labels(self, G5_[k][0], ["B1","B2","B3","B4","B5","B6","B7"], which="btn", scale=0.4, rt=0.01)
             left_objs[k][0] = add_left_labels(self, G5_[k][0], [f"n{k}"], which="btn", scale=0.4, rt=0.01)
         self.wait(2)
-        del_left_labels(self, left_objs, rt=0.3)
-        del_top_labels(self, top_objs, rt=0.3)
+        del_left_labels(self, left_objs)
+        del_top_labels(self, top_objs)
 
         show_subtitle(self, "由于在不同n的情况下计算b的方式是一样的，", "我们可以把n-1情况下算出的b，直接用于计算n的情况。")
         LAT_B1 = show_latex(self, "<cB>b(n,x)=b(n-1,x-1)⊕b(n-1,x)⊕b(n-1,x+1)⊕b(n-2,x)", 0, 2.5)
@@ -3076,8 +3334,7 @@ class LightsOut(Scene):
         mul_vec_mat_cleanup(self, ctx, clear_res=True)
 
         show_subtitle(self, "现在我们已求得了p，并将原始问题转换为了p(H)x=y。", "那这又有什么用呢？")
-        LAT_Y = show_latex(self, "<cX>p(H)x=y", 0, 2.0)
-#演示P(H)x=y
+        LAT_Y = show_latex(self, "<cB>B<cX>x<cP>=p(<cH>H<cP>)<cX>x<cP>=<cY>y", 0, 0.0)
         self.wait(2)
         del_latex(self, [LAT_Y])
 
@@ -3085,26 +3342,74 @@ class LightsOut(Scene):
 
         show_subtitle(self, "试想一下，如果有一个多项式q(x)，", "满足q(x)*p(x)=1 mod f(x)。")
         LAT_Q1 = show_latex(self, "<cQ>q(x)<cP>p(x)<cI>=1 mod <cF>f(x)", 0, 2.5)
+        sz = 0.35
+        grid_p = make_grid(self, 7, 1, mat_l=[VEC_P7], btn_x=-(13-7)*sz/2, lgt_x=-(13-7)*sz/2, btn_y=(7+3)*sz/2, lgt_y=(7+3)*sz/2, btn_c=P_COLOR, lgt_c=P_COLOR, sz=sz)
+        label_p = add_left_labels(self, grid_p, ["p"], which="btn", dx=0.4)
+        grid_q = make_grid(self, 1, 7, mat_l=[[v] for v in VEC_Q7], btn_x=-(13/2.0+2.0)*sz, lgt_x=-(13/2.0+2.0)*sz, btn_c=Q_COLOR, lgt_c=Q_COLOR, sz=sz)
+        label_q = add_top_labels(self, grid_q, ["q"], which="btn", dy=0.4)
+        grid_g = make_grid(self, 13, 1, mat_l=[[0]*13], btn_y=-(7-2)*sz, lgt_y=-(7-2)*sz, btn_c=G_COLOR, lgt_c=G_COLOR, sz=sz)
+        label_g = add_left_labels(self, grid_g, ["g"], which="btn", dx=0.4)
+        grid_f = make_grid(self, 8, 1, mat_l=[VEC_F7], btn_y=-(7-1)*sz, lgt_y=-(7-1)*sz, btn_x=-(13-8)*sz/2, lgt_x=-(13-8)*sz/2, btn_c=F_COLOR, lgt_c=F_COLOR, sz=sz)
+        label_f = add_left_labels(self, grid_f, ["f"], which="btn", dx=0.4)
+        mid_rows = []
+        for r in range(7):
+            grid_row = make_grid(self, 7, 1, mat_l=[[0]*7], lgt_x=(r-3)*sz, btn_x=(r-3)*sz, btn_y=(7-1)*sz/2.0-r*sz, lgt_y=(7-1)*sz/2.0-r*sz, btn_c=X_COLOR, lgt_c=X_COLOR, sz=sz, rt=0.1)
+            mid_rows.append(grid_row)
+        mid_rows_cp = []
+        mid_rows_p = []
+        for r in range(7):
+            if not VEC_Q7[r]: continue
+            grid_copy_p = make_grid(self, 7, 1, mat_l=[VEC_P7], btn_x=-(13-7)*sz/2, lgt_x=-(13-7)*sz/2, btn_y=(7+3)*sz/2, lgt_y=(7+3)*sz/2, btn_c=P_COLOR, lgt_c=P_COLOR, sz=sz, show=False)
+            move_grid(self, grid_copy_p, lgt_x=(r-3)*sz, btn_x=(r-3)*sz, lgt_y=(7-1)*sz/2.0-r*sz, btn_y=(7-1)*sz/2.0-r*sz, sz=None)
+            mid_rows_cp.append(grid_copy_p)
+            grid_mid_p = make_grid(self, 13, 1, mat_l=[[0]*r+VEC_P7+[0]*(13-7-r)], mat_g=[[1 if (i>=r and i<r+7) else 0 for i in range(13)]], btn_y=(7-1)*sz/2.0-r*sz, lgt_y=(7-1)*sz/2.0-r*sz, btn_c=P_COLOR, lgt_c=P_COLOR, sz=sz, show=False)
+            mid_rows_p.append(grid_mid_p)
+        for grid_mid_p in mid_rows_p:
+            add_grid(self, grid_mid_p, grid_g)
+        grid_g2 = make_grid(self, 7, 1, mat_l=[VEC_G7], btn_y=-(7-2)*sz, lgt_y=-(7-2)*sz, btn_x=-(13-7)*sz/2, lgt_x=-(13-7)*sz/2, btn_c=G_COLOR, lgt_c=G_COLOR, sz=sz)
+        del_grids(self, [grid_g])
         self.wait(2)
-#展示q(x),p(x),f(x)
-#展示多项式乘法，然后再mod f(x)
+        del_top_labels(self, label_q)
+        del_left_labels(self, [label_p, label_g, label_f])
+        del_grids(self, [grid_p, mid_rows, mid_rows_cp, mid_rows_p, grid_g2, grid_f])
+
         show_subtitle(self, "这里的f(x)就是前面提到的多项式f(n,x)。", "那么，将原始两边同时乘以q(H)，便有：x=q(H)*y。")
+        sz=0.4
         LAT_Q2 = show_latex(self, "<cX>x=<cQ>q(<cH>H<cQ>)<cP>p(<cH>H<cP>)<cX>x=<cQ>q(<cH>H<cQ>)<cY>y", 0, 2.0)
+        grid_q0 = make_grid(self, 7, 1, mat_l=[VEC_Q7], btn_y=(7-1)*sz/2, lgt_y=(7-1)*sz/2, btn_c=P_COLOR, lgt_c=Q_COLOR, sz=sz, show=False)
+        trans_grid(self, grid_q, grid_q0)
         self.wait(2)
 
         show_subtitle(self, "这样，我们就能立刻求出x。")
-#演示x=q(H)y（做乘法）
         mul_vec_mat(self, w=7, h=7, mat=MAT_QH, vec=VEC_Y7, mat_color=Q_COLOR, vec_color=Y_COLOR, res_color=X_COLOR, vec_label="y", res_label="x", sz=0.4)
-#这里需要修改（拆分），先演示第一行，再把整个矩阵画出来， 并且不消失
-        self.wait(2)
 
         show_subtitle(self, "让我把这样的多项式q(x)我们称之为p(x)的逆多项式。", "那么，如何求出逆多项式q(x)呢？")
+        label_q = add_left_labels(self, grid_q0, ["q"], which="btn", dx=0.4)
         self.wait(2)
+        del_left_labels(self, [label_q])
+        del_grids(self, [grid_q0])
 
 #——————————————————————
 
 #下面演示欧几里得
-        show_subtitle(self, "这里，我们同样将q(x)的系数写为向量q，", "然后扩展欧几里得算法来求取q：")
+
+
+        sz = 0.4
+        dx, dy = 2.5, 0.5
+
+        grid_f = make_grid(self, w=8, h=1, lgt_x=-dx, btn_x=-dx, lgt_y= dy, btn_y= dy, sz=sz, mat_l=[VEC_F7], btn_c=F_COLOR, lgt_c=F_COLOR)
+        grid_p = make_grid(self, w=8, h=1, lgt_x=-dx, btn_x=-dx, lgt_y=-dy, btn_y=-dy, sz=sz, mat_l=[VEC_P7], btn_c=P_COLOR, lgt_c=P_COLOR)
+        grid_e = make_grid(self, w=8, h=1, lgt_x= dx, btn_x= dx, lgt_y= dy, btn_y= dy, sz=sz, mat_l=[VEC_E7], btn_c=Q_COLOR, lgt_c=Q_COLOR)
+        grid_o = make_grid(self, w=8, h=1, lgt_x= dx, btn_x= dx, lgt_y=-dy, btn_y=-dy, sz=sz, mat_l=[VEC_O7], btn_c=I_COLOR, lgt_c=I_COLOR)
+#4标签
+        ops_e = make_ops_euclid(VEC_F7, VEC_P7)
+        euclid_grids(self, [grid_f, grid_p, grid_e, grid_o], ops_e)
+#往左shift
+
+        show_subtitle(self, "这里，我们同样将q(x)的系数写为向量q，", "然后扩展欧几里得算法来求取q。")
+        self.wait(2)
+
+        show_subtitle(self, "这里，我们同时定义一个单位多项式e(x)和零多项式o(x)，", "在对f(x)和p(x)操作的时候对e(x)和o(x)做同样的操作。")
         self.wait(2)
 
         show_subtitle(self, "我们使用辗转相减法，将p(x)右移，", "使最高系数对齐，然后叠加到f(x)上。")
@@ -3113,16 +3418,16 @@ class LightsOut(Scene):
         show_subtitle(self, "如果叠加后的f(x)的最高次数小于p(x)，", "则将f(x)和p(x)互换，然后再次进行操作。")
         self.wait(2)
 
-        show_subtitle(self, "同时，我们定义一个单位多项式e(x)和零多项式o(x)，", "在对f(x)和p(x)操作的时候对e(x)和o(x)做同样操作。")
-        self.wait(2)
 
+#最后也要交换
         show_subtitle(self, "重复这样操作。最终f(x)会被叠加到零，", "而剩下的p(x)则为两个多项式的最大公因子，记为g(x)。")
         self.wait(2)
-#继续做欧几里得，圈出g(x)
+
+#改标签
         show_subtitle(self, "同时，最后剩下的o(x)则是p(x)的逆，也就是q(x)。")
         self.wait(2)
-#圈出q(x)|o(x)
-
+#改标签
+        """
         show_subtitle(self, "将q(x)写成矩阵Q。注意，这里的矩阵不是后面提到的完整的逆矩阵Q，", "而是多个q(x)拼接起来。")
         grid_Q = make_grid(self, 8, 8, mat_l=MAT_Q, mat_g={"lgt": MAT_MK2, "btn": MAT8_0}, btn_c=Q_COLOR, lgt_c=Q_COLOR, sz=0.4)
         left_obj = add_left_labels(self, grid_Q, list(range(8)), which="btn", dx=0.4)
@@ -3198,3 +3503,4 @@ class LightsOut(Scene):
 #【演示】这里可以圈出g(x)以及最高次幂=2
 
 #——————————————————————
+        """
