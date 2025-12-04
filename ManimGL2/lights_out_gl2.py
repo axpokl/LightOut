@@ -3180,7 +3180,7 @@ class LightsOut(Scene):
         show_subtitle(self, "另外，这里从n=0开始一共递推n次，最后一个1不包含在B矩阵的第一行内。", "例如n=7时，第一行为1011011，最后一个1省去。")
         grid_B_ = make_grid(self, 8, 8, mat_l=MAT_B, mat_g={"lgt": MAT_MK2, "btn": MAT8_0}, btn_c=B_COLOR, lgt_c=B_COLOR, sz=0.4, show=False)
         trans_grid(self,grid_B,grid_B_, keep_from=False);
-        show_subtitle(self, "改写后的矩阵记为B=B'⊕I")
+        show_subtitle(self, "改写后的矩阵记为B''=B'⊕I")
 #修改标签为B
         self.wait(2)
         del_bd(self, bd_b_row7)
@@ -3333,7 +3333,7 @@ class LightsOut(Scene):
         grid_F2 = make_grid(self, 7, 7, mat_l=MAT_F, mat_g={"lgt": MAT_MK1, "btn": MAT8_0}, btn_c=F_COLOR, lgt_c=F_COLOR, sz=0.4)
         del_grids(self, [grid_F0])
         LAT_P = show_latex(self, LATEX_P, 0, 2.0)
-        show_subtitle(self, "这里，为了和视频演示一致，由于b是竖着的，写为p=F*b，省去了转置符号。", "对于矩阵乘法运算来说，则有P=B*F。")
+        show_subtitle(self, "这里，为了和视频演示一致，由于b是竖着的，写为p=F*b，省去了转置符号。", "对于矩阵乘法运算来说，则有P=B''*F。")
         ctx = mul_vec_mat_begin(self, w=7, h=7, mat=MAT_F, vec=VEC_B7, mat_color=F_COLOR, vec_color=B_COLOR, res_color=P_COLOR, mat_label="F", vec_label="b", res_label="p", sz=0.4)
         mul_vec_mat_vec_and_rows(self, ctx)
         mul_vec_mat_accumulate(self, ctx)
@@ -3427,26 +3427,26 @@ class LightsOut(Scene):
         del_grids(self, [grid_F2])
         mul_vec_mat_cleanup(self, ctx, clear_res=True)
 
-#事实上，这里计算p的时候，我们将B的对角线去除了，有P=B*F。假如我们保留B的对角线，则有C=B'*F。
+#事实上，这里计算p的时候，我们将B''的对角线去除了，有P=B''*F。假如我们保留B''的对角线，则有C=B'*F。
 
-这里我们假定B*F=C'，可以推导出以上递推公式。
+这里我们假定B'*F=C'，可以推导出以上递推公式。
 
 #C'(n,x)
-#=(B*F)(n,x)
-#=Sum_j:B(n,j)*F(j,x)
-#=Sum_j:(B(n-1,j-1)⊕B(n-1,j)⊕B(n-1,j+1)⊕B(n-2,j))*F(j,x)
-#=(Sum_j:B(n-1,j-1)*F(j,x))⊕(Sum_j:B(n-1,j)*F(j,x))⊕(Sum_j:B(n-1,j+1)*F(j,x))⊕(Sum_j:B(n-2,j)*F(j,x))
-#=(Sum_j:B(n-1,j)*F(j+1,x))⊕(Sum_j:B(n-1,j)*F(j,x))⊕(Sum_j:B(n-1,j)*F(j-1,x))⊕(Sum_j:B(n-2,j)*F(j,x))
-#=(Sum_j:B(n-1,j)*(F(j,x-1)⊕F(j-1,x)))⊕(Sum_j:B(n-1,j)*F(j,x))⊕(Sum_j:B(n-1,j)*(F(j-1,x-1)⊕F(j-2,x)))⊕(Sum_j:B(n-2,j)*F(j,x))
-#=(Sum_j:B(n-1,j)*F(j,x-1))⊕(Sum_j:B(n-1,j)*F(j,x))⊕(Sum_j:B(n-2,j)*F(j,x))⊕(Sum_j:B(n-1,j)*(F(j-1,x)⊕F(j-1,x-1)⊕F(j-2,x)))
-#=(Sum_j:B(n-1,j)*F(j,x-1))⊕(Sum_j:B(n-1,j)*F(j,x))⊕(Sum_j:B(n-2,j)*F(j,x))
+#=(B'*F)(n,x)
+#=Sum_j:B'(n,j)*F(j,x)
+#=Sum_j:(B'(n-1,j-1)⊕B'(n-1,j)⊕B'(n-1,j+1)⊕B'(n-2,j))*F(j,x)
+#=(Sum_j:B'(n-1,j-1)*F(j,x))⊕(Sum_j:B'(n-1,j)*F(j,x))⊕(Sum_j:B'(n-1,j+1)*F(j,x))⊕(Sum_j:B'(n-2,j)*F(j,x))
+#=(Sum_j:B'(n-1,j)*F(j+1,x))⊕(Sum_j:B'(n-1,j)*F(j,x))⊕(Sum_j:B'(n-1,j)*F(j-1,x))⊕(Sum_j:B'(n-2,j)*F(j,x))
+#=(Sum_j:B'(n-1,j)*(F(j,x-1)⊕F(j-1,x)))⊕(Sum_j:B'(n-1,j)*F(j,x))⊕(Sum_j:B'(n-1,j)*(F(j-1,x-1)⊕F(j-2,x)))⊕(Sum_j:B'(n-2,j)*F(j,x))
+#=(Sum_j:B'(n-1,j)*F(j,x-1))⊕(Sum_j:B'(n-1,j)*F(j,x))⊕(Sum_j:B'(n-2,j)*F(j,x))⊕(Sum_j:B'(n-1,j)*(F(j-1,x)⊕F(j-1,x-1)⊕F(j-2,x)))
+#=(Sum_j:B'(n-1,j)*F(j,x-1))⊕(Sum_j:B'(n-1,j)*F(j,x))⊕(Sum_j:B'(n-2,j)*F(j,x))
 #=C'(n-1,x-1)⊕C'(n-1,x)⊕C'(n-2,x)
 
-#这里的递推公式和C是相同的，因此这里的C'就是C，C'=C=B*F。
+#这里的递推公式和C是相同的，因此这里的C'就是C，C'=C=B'*F。
 
-#由于C=B'*F，因此P=B*F=F*(B'⊕I)=B'*F+I*F=C+F。我们可以用递推公式计算出C，和F叠加直接求得P，无需使用矩阵乘法。
+#由于C=B'*F，因此P=B''*F=(B'⊕I)*F=B'*F⊕I*F=C⊕F。我们可以用递推公式计算出C，和F叠加直接求得P，无需使用矩阵乘法。
 
-#同时，由于P=C+F，因此P也可以写成以下递推公式，从而无需B，C或F，直接由P自己推得。
+#同时，由于P=C⊕F，因此P也可以写成以下递推公式，从而无需B，C或F，直接由P自己推得。
 
 #....
 
