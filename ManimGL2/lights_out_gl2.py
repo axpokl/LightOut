@@ -1716,7 +1716,7 @@ def show_latex(scene, text, x=0.0, y=0.0, run_in=0.3, run_out=0.3, font=DEFAULT_
             raw_text = "" if text is None else str(text)
         raw_text = raw_text.replace("<br/>", "")
         raw_text = raw_text.replace("<br />", "")
-        raw_text = raw_text.replace("<br>" "")
+        raw_text = raw_text.replace("<br>", "")
         s = raw_text
         res = []
         i = 0
