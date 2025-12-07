@@ -2766,7 +2766,7 @@ class LightsOut(Scene):
         objs = add_grid_labels(self, G5, [[f"B{c*rows + r + 1}" for c in range(cols)] for r in range(rows)], which="btn", scale=0.5)
         self.wait(2)
         show_subtitle(self, "在《叠加法》中，我们将灯表示为所有按钮的叠加。", "例如：L1=B1⊕B2⊕B6，L6=B1⊕B6⊕B7⊕B11。")
-        sz = 0.18
+        sz = 0.15
         G5_ = [[None] * cols for _ in range(rows)]
         mat_l = make_mat_l(rows)
         btn_objs = [[None] * cols for _ in range(rows)]
@@ -2776,8 +2776,8 @@ class LightsOut(Scene):
                 idx = y * cols + x
                 my = ((rows * cols) - 1) * sz / 2 - idx * sz
                 G5_[y][x] = make_grid(self, w=cols * rows, h=1, w_l=1, h_l=1, lgt_x=3, btn_x=0, lgt_y=my, btn_y=my, sz=sz, rt=0.01, mat=[mat_l[idx][:]], mat_l=[[1]], show=False)
-                rt = 0.1
-                if y==0 and x<=1 : rt = 1.5
+                rt = 0.2
+                if y==0 and x<=1 : rt = 1.0
                 press_rev(self, G5, x,y, anim=rt / 5)
                 trans_grid(self,G5,G5_[y][x], keep_from=True, rt=rt);
                 btn_objs[y][x] = add_grid_labels(self, G5_[y][x], [[f"B{j+1}" for j in range(cols*rows)]], which="btn", scale=0.2, rt=0.01)
@@ -3273,7 +3273,7 @@ class LightsOut(Scene):
         del_top_labels(self, [topy_obj_B, topy_obj_Y, topy_obj_X])
         del_grids(self, [grid_B, grid_Y, grid_X])
 
-        show_subtitle(self, "如果将n在不同情况下B的第一行写在一起，这样的矩阵长这样，我们记为B’。")
+        show_subtitle(self, "如果将n在不同情况下B的第一行写在一起，这样的矩阵长这样，我们记为B'。")
         move_grid(self, grid_B1, btn_y=-1.4, lgt_y=-1.4, btn_x=-0.2, lgt_x=-0.2)
         bd_b_row7 = hl_bd(self, grid_B1)
 
@@ -3283,14 +3283,14 @@ class LightsOut(Scene):
         hl_cells(self, [grid_B], which="btn", indices=[(1,1),(0,2),(1,2),(2,2)])
         hl_cells(self, [grid_B], which="btn", indices=[(1,3)], color=HL_COLOR_2)
         self.wait(2)
-        show_subtitle(self, "注意，这里的B’矩阵不是刚才说的当n确定时的完整的B矩阵，", "而是B(n)的第一行拼接起来。")
+        show_subtitle(self, "注意，这里的B'矩阵不是刚才说的当n确定时的完整的B矩阵，", "而是B(n)的第一行拼接起来。")
         self.wait(2)
         del_cells(self, [grid_B], which="btn", indices=[(1,1),(0,2),(1,2),(2,2)])
         del_cells(self, [grid_B], which="btn", indices=[(1,3)])
         show_subtitle(self, "另外，这里从n=0开始一共递推n次，最后一个1不包含在B矩阵的第一行内。", "例如n=7时，第一行为1011011，最后一个1省去。")
         grid_B_ = make_grid(self, 8, 8, mat_l=MAT_B, mat_g={"lgt": MAT_MK2, "btn": MAT8_0}, btn_c=B_COLOR, lgt_c=B_COLOR, sz=0.4, show=False)
         trans_grid(self,grid_B,grid_B_, keep_from=False);
-        show_subtitle(self, "改写后的矩阵记为B‘’=B‘⊕I")
+        show_subtitle(self, "改写后的矩阵记为B''=B'⊕I")
 
         self.wait(2)
         del_bd(self, bd_b_row7)
@@ -3323,7 +3323,7 @@ class LightsOut(Scene):
 
         show_subtitle(self, "为了实现这个目标，我们需要首先将B进行分解。", "这里，让我首先介绍一个非常重要的矩阵H，称为邻接矩阵。")
         LAT_H = show_latex(self, LATEX_H, 0, 2.0)
-        ctx = mul_vec_mat_begin(self, mat=MAT_H, vec=VEC_V, mat_color=H_COLOR, vec_color=V_COLOR, res_color=V_COLOR, mat_label="H", vec_label="v", res_label="v’", sz=0.4)
+        ctx = mul_vec_mat_begin(self, mat=MAT_H, vec=VEC_V, mat_color=H_COLOR, vec_color=V_COLOR, res_color=V_COLOR, mat_label="H", vec_label="v", res_label="v'", sz=0.4)
         show_subtitle(self, "对于H的每一个元素，如果x和y的差为一则为一，否则为零。")
         self.wait(2)
         show_subtitle(self, "如果将向量v乘以该矩阵，等同于将向量v的每个元素向左右扩散后叠加。")
@@ -3462,7 +3462,7 @@ class LightsOut(Scene):
         self.wait(2)
         del_grids(self, [grid_F0])
 
-        show_subtitle(self, "这里，为了和视频演示一致，由于b是竖着的，写为p=F*b，省去了转置符号。", "对于矩阵乘法运算来说，则有P=B’’*F。")
+        show_subtitle(self, "这里，为了和视频演示一致，由于b是竖着的，写为p=F*b，省去了转置符号。", "对于矩阵乘法运算来说，则有P=B''*F。")
         LAT_P = show_latex(self, LATEX_P, 0, 2.0)
         ctx = mul_vec_mat_begin(self, w=7, h=7, mat=MAT_F, vec=VEC_B7, mat_color=F_COLOR, vec_color=B_COLOR, res_color=P_COLOR, mat_label="F", vec_label="b", res_label="p", sz=0.4)
         mul_vec_mat_vec_and_rows(self, ctx)
@@ -3557,7 +3557,7 @@ class LightsOut(Scene):
         del_grids(self, [grid_F2])
         mul_vec_mat_cleanup(self, ctx, clear_res=True)
 
-        show_subtitle(self, "事实上，这里计算p的时候，我们将B’’的对角线去除了，有P=B’’*F。", "假如我们保留B’’的对角线，则有C=B'*F。")
+        show_subtitle(self, "事实上，这里计算p的时候，我们将B''的对角线去除了，有P=B''*F。", "假如我们保留B''的对角线，则有C=B'*F。")
         LAT_P = show_latex(self, "<cP>P=<cB>B''<cF>F", 0, 2.0)
         grid_B = make_grid(self, 8, 8, mat_l=MAT_B, mat_g={"lgt": MAT_MK2, "btn": MAT8_0}, btn_c=B_COLOR, lgt_c=B_COLOR, sz=0.4)
         left_obj = add_left_labels(self, grid_B, list(range(8)), which="btn", dx=0.4)
@@ -3619,7 +3619,7 @@ class LightsOut(Scene):
         self.wait(2)
 
         show_subtitle(self, "这样，我们就能立刻求出x。")
-        mul_vec_mat(self, w=7, h=7, mat=MAT_QH, vec=VEC_Y7, mat_color=Q_COLOR, vec_color=Y_COLOR, res_color=X_COLOR, mat_label="Q‘", vec_label="y", res_label="x", sz=0.4)
+        mul_vec_mat(self, w=7, h=7, mat=MAT_QH, vec=VEC_Y7, mat_color=Q_COLOR, vec_color=Y_COLOR, res_color=X_COLOR, mat_label="Q'", vec_label="y", res_label="x", sz=0.4)
 
         show_subtitle(self, "让我把这样的多项式q(x)我们称之为p(x)的逆多项式。", "那么，如何求出逆多项式q(x)呢？")
         label_q = add_left_labels(self, grid_q0, ["q"], which="btn", dx=0.4)
@@ -3656,7 +3656,7 @@ class LightsOut(Scene):
         grid_e0 = make_grid(self, w=8, h=1, lgt_x= dx, btn_x= dx, lgt_y=-dy, btn_y=-dy, sz=sz, mat_l=[VEC_Q7], btn_c=Q_COLOR, lgt_c=Q_COLOR, rt=0.01)
         euclid_clear(self, euc2)
 
-        show_subtitle(self, "将q(x)写成矩阵Q。注意，这里的矩阵不是后面提到的完整的逆矩阵Q’，", "而是多个q(x)拼接起来。")
+        show_subtitle(self, "将q(x)写成矩阵Q。注意，这里的矩阵不是后面提到的完整的逆矩阵Q'，", "而是多个q(x)拼接起来。")
         move_grid(self, grid_e0, btn_y=-1.4, lgt_y=-1.4)
         grid_Q = make_grid(self, 8, 8, mat_l=MAT_Q, mat_g={"lgt": MAT_MK2, "btn": MAT8_0}, btn_c=Q_COLOR, lgt_c=Q_COLOR, sz=0.4)
         left_obj = add_left_labels(self, grid_Q, list(range(8)), which="btn", dx=0.4)
@@ -3682,14 +3682,14 @@ class LightsOut(Scene):
         LAT_Q4 = show_latex(self, "<cX>x<cQ>=q(<cH>H<cQ>)<cY>y<cQ>=SUM:qi*<cH>H^i<cQ>*<cY>y", 0, 2.5, show=False)
         trans_latex(self, LAT_Q3,LAT_Q4)
         LAT_Y3 = show_latex(self, "<cY>Y'(n,x)=Y'(n-1,x-1)+Y'(n-1,x+1)", 0, 2.0)
-        mul_vec_mat(self, w=7, h=7, mat=MAT_YK, vec=VEC_Q7, mat_color=Y_COLOR, vec_color=Q_COLOR, res_color=X_COLOR, mat_label="Y‘", vec_label="q", res_label="x", sz=0.4)
+        mul_vec_mat(self, w=7, h=7, mat=MAT_YK, vec=VEC_Q7, mat_color=Y_COLOR, vec_color=Q_COLOR, res_color=X_COLOR, mat_label="Y'", vec_label="q", res_label="x", sz=0.4)
         del_latex(self, LAT_Y3)
 
-        show_subtitle(self, "另一方面，q(x)的系数也就是B的逆矩阵Q’的第一行，", "并且可以证明B的逆矩阵Q’也满足十字偶校验约束。")
-        ctx = mul_vec_mat_begin(self, w=7, h=7, mat=MAT_QH, vec=VEC_Y7, mat_color=Q_COLOR, vec_color=Y_COLOR, res_color=X_COLOR, mat_label="Q’", vec_label="y", res_label="x", sz=0.4)
+        show_subtitle(self, "另一方面，q(x)的系数也就是B的逆矩阵Q'的第一行，", "并且可以证明B的逆矩阵Q'也满足十字偶校验约束。")
+        ctx = mul_vec_mat_begin(self, w=7, h=7, mat=MAT_QH, vec=VEC_Y7, mat_color=Q_COLOR, vec_color=Y_COLOR, res_color=X_COLOR, mat_label="Q'", vec_label="y", res_label="x", sz=0.4)
         self.wait(2)
 
-        show_subtitle(self, "因此，也可以通过递推公式，", "利用q(x)直接求出整个逆矩阵Q’，然后再和y相乘获得x。")
+        show_subtitle(self, "因此，也可以通过递推公式，", "利用q(x)直接求出整个逆矩阵Q'，然后再和y相乘获得x。")
         mul_vec_mat_vec_and_rows(self, ctx)
         mul_vec_mat_accumulate(self, ctx)
         self.wait(1)
@@ -3701,7 +3701,7 @@ class LightsOut(Scene):
         show_subtitle(self, "如果矩阵B不可逆呢？")
         self.wait(2)
 
-        show_subtitle(self, "在上一集视频《解的数量》章节中，我们提到公式r’(n)。")
+        show_subtitle(self, "在上一集视频《解的数量》章节中，我们提到公式r'(n)。")
         LAT_R = show_latex(self, "<cR>r'(n)=deg(<cG>gcd(<cF>f(n,x)<cG>,<cC>c(n,x)<cG>)<cR>)", 0, 1.0)
         self.wait(2)
         show_subtitle(self, "这里，gcd表示最大公因子。", "不难发现，这里的gcd(f,c)就是前面扩展欧几里得算法中的g(x)。")
@@ -3710,9 +3710,9 @@ class LightsOut(Scene):
         show_subtitle(self, "同时，由于F=C+P，因此gcd(f,c)和gcd(f,p)是相等的。")
         LAT_GP = show_latex(self, "<cG>g(n,x)=gcd(<cF>f(n,x)<cG>,<cC>c(n,x)<cG>)=gcd(<cF>f(n,x)<cG>,<cP>p(n,x)<cG>)", 0, 0.0)
         self.wait(2)
-        show_subtitle(self, "deg则表示最高次幂。r’代表矩阵B丢失的秩，也就是n-r。", "r’的值决定了解的数量，即2^r’。")
+        show_subtitle(self, "deg则表示最高次幂。r'代表矩阵B丢失的秩，也就是n-r。", "r'的值决定了解的数量，即2^r'。")
         self.wait(2)
-        show_subtitle(self, "可以发现，如果B是可逆的，则g(x)=1，r’=0，n=r-r’=r。")
+        show_subtitle(self, "可以发现，如果B是可逆的，则g(x)=1，r'=0，n=r-r'=r。")
         self.wait(2)
         del_latex(self, [LAT_R, LAT_G, LAT_GP])
 
@@ -3723,7 +3723,7 @@ class LightsOut(Scene):
         hl_cells(self, [grid_G], which="btn", indices=[(0,0),(0,1),(0,2),(0,3),(4,4),(2,5),(0,6),(0,7)], color=HL_COLOR_1)
         self.wait(2)
 
-        show_subtitle(self, "不难注意到，只有当矩阵B为可逆矩阵时，g(x)=1，", "并且g(x)的最高次幂为n-r=r’。")
+        show_subtitle(self, "不难注意到，只有当矩阵B为可逆矩阵时，g(x)=1，", "并且g(x)的最高次幂为n-r=r'。")
         self.wait(2)
         del_cells(self, [grid_G], which="btn", indices=[(0,0),(0,1),(0,2),(0,3),(4,4),(2,5),(0,6),(0,7)])
         del_latex(self, [LAT_G])
@@ -3749,11 +3749,11 @@ class LightsOut(Scene):
         show_subtitle(self, "这里，我们计算q(H)*Y，发现求得的X并不是解。")
         grid_q3 = make_grid(scene, 5, 1, lgt_y=sz*2, btn_y=sz*2, mat_l=[VEC_Q5], btn_c=Q_COLOR, lgt_c=Q_COLOR, sz=sz, show=False)
         trans_grid(self, grid_q2, grid_q3)
-        mul_vec_mat(self, w=5, h=5, mat=MAT_QH5, vec=VEC_Y5, mat_color=Q_COLOR, vec_color=Y_COLOR, res_color=X_COLOR, mat_label="Q‘", vec_label="y", res_label="x", sz=sz, wait=2.0)
+        mul_vec_mat(self, w=5, h=5, mat=MAT_QH5, vec=VEC_Y5, mat_color=Q_COLOR, vec_color=Y_COLOR, res_color=X_COLOR, mat_label="Q'", vec_label="y", res_label="x", sz=sz, wait=2.0)
         del_grids(self, [grid_q3])
 
         sz = 0.4
-        show_subtitle(self, "当n=5时的时候，高斯消元后的伪逆矩阵Q’和单元矩阵E’矩阵是这样的。", "这里，E’=Q’B。")
+        show_subtitle(self, "当n=5时的时候，高斯消元后的伪逆矩阵Q'和单元矩阵E'矩阵是这样的。", "这里，E'=Q'B。")
         grid_B5 = make_grid(self, 5, 5, lgt_x=-3, btn_x=-3, mat_l=MAT_B5, btn_c=B_COLOR, lgt_c=B_COLOR, sz=sz)
         grid_Q5 = make_grid(self, 5, 5, lgt_x=-0, btn_x=-0, mat_l=MAT_Q5, btn_c=Q_COLOR, lgt_c=Q_COLOR, sz=sz)
         grid_E5 = make_grid(self, 5, 5, lgt_x=+3, btn_x=+3, mat_l=MAT_E5, btn_c=L_COLOR, lgt_c=L_COLOR, sz=sz)
@@ -3771,14 +3771,14 @@ class LightsOut(Scene):
         bd_E5_Ir = hl_bd(self, grid_E5_Ir, color=HL_COLOR_2)
         self.wait(2)
 
-        show_subtitle(self, "1. B矩阵左上角rxr的子矩阵满秩，", "并且为和Q’左上角rxr子矩阵互为逆矩阵。")
+        show_subtitle(self, "1. B矩阵左上角rxr的子矩阵满秩，", "并且为和Q'左上角rxr子矩阵互为逆矩阵。")
         self.wait(2)
         del_grids(self, [grid_B5_Br, grid_Q5_Qr, grid_E5_Ir])
         del_bd(self, bd_B5_Br)
         del_bd(self, bd_Q5_Qr)
         del_bd(self, bd_E5_Ir)
 
-        show_subtitle(self, "2. Q’右下角和E’左上角为单位矩阵，", "Q’右上角和E’下方为零。")
+        show_subtitle(self, "2. Q'右下角和E'左上角为单位矩阵，", "Q'右上角和E'下方为零。")
         grid_Q5_I22 = make_grid(self, 2, 2, lgt_x=0.6, btn_x=0.6, lgt_y=-0.6, btn_y=-0.6, mat_l=[[0]*2 for _ in range(2)], btn_c=Q_COLOR, lgt_c=Q_COLOR, sz=sz, rt=0.01)
         grid_E5_I33 = make_grid(self, 3, 3, lgt_x=2.6, btn_x=2.6, lgt_y=0.4, btn_y=0.4, mat_l=[[0]*3 for _ in range(3)], btn_c=L_COLOR, lgt_c=L_COLOR, sz=sz, rt=0.01)
         grid_Q5_Z32 = make_grid(self, 2, 3, lgt_x=0.6, btn_x=0.6, lgt_y=0.4, btn_y=0.4, mat_l=[[0]*2 for _ in range(3)], btn_c=Q_COLOR, lgt_c=Q_COLOR, sz=sz, rt=0.01)
@@ -3794,7 +3794,7 @@ class LightsOut(Scene):
         del_bd(self, bd_Q5_I22)
         del_bd(self, bd_E5_I33)
 
-        show_subtitle(self, "3. Q’左下角Wr和E’右上角的静默操作相同，", "并且其值等于Q’左上角乘B右上角，或者B左下角乘以Q'左上角。")
+        show_subtitle(self, "3. Q'左下角Wr和E'右上角的静默操作相同，", "并且其值等于Q'左上角乘B右上角，或者B左下角乘以Q'左上角。")
         grid_B5_U1 = make_grid(self, 3, 2, lgt_x=-3.4, btn_x=-3.4, lgt_y=-0.6, btn_y=-0.6, mat_l=[[0]*3 for _ in range(2)], btn_c=B_COLOR, lgt_c=B_COLOR, sz=sz, rt=0.01)
         grid_B5_U2 = make_grid(self, 2, 3, lgt_x=-2.4, btn_x=-2.4, lgt_y=0.4, btn_y=0.4, mat_l=[[0]*2 for _ in range(3)], btn_c=B_COLOR, lgt_c=B_COLOR, sz=sz, rt=0.01)
         grid_Q5_Qr = make_grid(self, 3, 3, lgt_x=-0.4, btn_x=-0.4, lgt_y=0.4, btn_y=0.4, mat_l=[[0]*3 for _ in range(3)], btn_c=Q_COLOR, lgt_c=Q_COLOR, sz=sz, rt=0.01)
@@ -3819,11 +3819,11 @@ class LightsOut(Scene):
         del_top_labels(self, [topy_obj_B5, topy_obj_Q5, topy_obj_E5])
         del_grids(self, [grid_B5, grid_Q5, grid_E5])
 
-        show_subtitle(self, "可以发现，刚才的q(x)也不是这里Q’的第一行，", "并且使用Q'第一行求得的x也不是原方程的解。")
+        show_subtitle(self, "可以发现，刚才的q(x)也不是这里Q'的第一行，", "并且使用Q'第一行求得的x也不是原方程的解。")
         self.wait(2)
         grid_q5 = make_grid(scene, 5, 1, lgt_y=sz*2, btn_y=sz*2, mat_l=[VEC_Q5_2], btn_c=Q_COLOR, lgt_c=Q_COLOR, sz=sz, show=False)
         trans_grid(self, grid_q4, grid_q5)
-        mul_vec_mat(self, w=5, h=5, mat=MAT_QH5_2, vec=VEC_Y5, mat_color=Q_COLOR, vec_color=Y_COLOR, res_color=X_COLOR, mat_label="Q‘", vec_label="y", res_label="x", sz=sz, wait=2.0)
+        mul_vec_mat(self, w=5, h=5, mat=MAT_QH5_2, vec=VEC_Y5, mat_color=Q_COLOR, vec_color=Y_COLOR, res_color=X_COLOR, mat_label="Q'", vec_label="y", res_label="x", sz=sz, wait=2.0)
         del_grids(self, [grid_q5])
         del_grids(self, [grid_B5, grid_Q5, grid_E5])
 
@@ -3836,7 +3836,7 @@ class LightsOut(Scene):
         self.wait(2)
 #展示多项式乘法
 
-        show_subtitle(self, "同样，Q’的第一行也不满足Q’(0,x)p(x)=1 mod f(x)。", "并且，Q'也不满足十字偶校验约束，无法通过公式递推求得。")
+        show_subtitle(self, "同样，Q'的第一行也不满足Q'(0,x)p(x)=1 mod f(x)。", "并且，Q'也不满足十字偶校验约束，无法通过公式递推求得。")
         self.wait(2)
 #展示多项式乘法，以及g(x)
 #展示Q矩阵
