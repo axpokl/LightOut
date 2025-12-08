@@ -2728,7 +2728,7 @@ LATEX_MAT = [
 class LightsOut(Scene):
     def construct(self):
         self.camera.background_color = BLACK
-
+        """
         show_title(self, "点灯游戏的$O(n^2)$解法")
 #演示n=5,7,11
         show_title(self, "首行叠加法（续上集）")
@@ -3978,4 +3978,3 @@ class LightsOut(Scene):
         show_subtitle(self, "如果对视频中的内容有疑问，觉得视频内容表述不清，", "或者发现视频中的任何错误，也请大家多多留言和指证。谢谢大家观看！")
         self.wait(2)
         show_subtitle(self, "")
-        """

@@ -3,6 +3,11 @@ import numpy as np
 
 REF_TEX = "N\\times N"
 
+FONT_COLOR_BLACK = "#333333"
+FONT_SIZE_DEFAULT = 32
+FONT_SIZE_LARGE = 48
+FONT_SIZE_SMALL = 24
+
 HL_COLOR_1 = RED
 HL_COLOR_2 = YELLOW
 
@@ -22,7 +27,7 @@ G_COLOR  = "#ffaaff"
 R_COLOR  = "#ffffaa"
 Z_COLOR  = "#ffdd55"
 D_COLOR  = "#aaffff"
-ID_COLOR = "#ffffff"
+M_COLOR = "#ffffff"
 X_COLOR  = "#ffaa55"
 T_COLOR  = "#ffffaa"
 
@@ -45,9 +50,10 @@ COLOR_MAP = {
     "cR":  R_COLOR,
     "cZ":  Z_COLOR,
     "cD":  D_COLOR,
-    "cID": ID_COLOR,
+    "cM":  M_COLOR,
     "cX":  X_COLOR,
     "cT":  T_COLOR,
+    "c0":  FONT_COLOR_BLACK,
 }
 
 BD_W = 2
@@ -1480,7 +1486,7 @@ def _parse_color_segments(line, color_map, default_color):
         return [(line, default_color)]
     return segs
 
-def normalize_by_ref(objs, factor, ref_tex=REF_TEX):
+def normalize_by_ref(objs, factor, ref_tex=REF_TEX, scene=None, text_desc=None):
     try:
         ref = Tex(ref_tex)
         ref.scale(1)
@@ -1496,16 +1502,30 @@ def normalize_by_ref(objs, factor, ref_tex=REF_TEX):
         except Exception:
             h = 0.0
         if h > 1e-6:
+            before = h
             s = target / h
             if abs(s - 1.0) > 1e-3:
                 o.scale(s)
+                try:
+                    after = float(o.get_height())
+                except Exception:
+                    after = before * s
+            else:
+                after = before
+            try:
+                ts = _fmt_scene_time_ms(scene) if scene is not None else "00:00:00.000"
+                txt = "" if text_desc is None else str(text_desc).replace("\n", " ")
+                with open("normal.txt", "a", encoding="utf-8") as f:
+                    f.write(f"{ts} {before:.6f} {after:.6f} {txt}\n")
+            except Exception:
+                pass
 
 def _mk_line_group_color(line, font, size, default_color, baseline, auto_k, ref_tex, color_map):
     segs = _parse_color_segments(line, color_map, default_color)
     if len(segs) == 1 and segs[0][1] == default_color and "<" not in line:
         return _mk_line_group(line, font, size, default_color, baseline, auto_k, ref_tex)
     if "$" not in line:
-        scale = size / 38
+        scale = size / FONT_SIZE_DEFAULT
         text = "".join(t for t, c in segs)
         m = Text(text, font=font)
         m.scale(scale)
@@ -1538,7 +1558,7 @@ def _mk_line_group_color(line, font, size, default_color, baseline, auto_k, ref_
 
 def _mk_line_group(s, font, size, color, baseline=0.0, auto_k=0.5, ref_tex=REF_TEX):
     segs = _split_inline_math(s)
-    scale = size / 38
+    scale = size / FONT_SIZE_DEFAULT
     if not segs:
         m = Text("", font=font)
         m.set_color(color)
@@ -1591,7 +1611,7 @@ def _fmt_scene_time_ms(scene):
     s = s % 60
     return f"{h:02d}:{m:02d}:{s:02d}.{ms:03d}"
 
-def show_subtitle(scene, text, text2=None, run_in=0.3, run_out=0.3, font=DEFAULT_FONT, font_size=32, line_gap=0.2, buff=0.5, baseline=0.05, auto_k=0.5, ref_tex=REF_TEX):
+def show_subtitle(scene, text, text2=None, run_in=0.3, run_out=0.3, font=DEFAULT_FONT, font_size=FONT_SIZE_DEFAULT, line_gap=0.2, buff=0.5, baseline=0.05, auto_k=0.5, ref_tex=REF_TEX):
     old=getattr(scene,"_subtitle_mobj", getattr(scene,"_subtitle_", None))
     if old is not None:
         scene.play(FadeOut(old, run_time=run_out))
@@ -1618,7 +1638,7 @@ def show_subtitle(scene, text, text2=None, run_in=0.3, run_out=0.3, font=DEFAULT
     except Exception:
         pass
     lines = VGroup(*[_mk_line_group(p, font, font_size, WHITE, baseline, auto_k, ref_tex) for p in parts])
-    normalize_by_ref(lines.submobjects, SCALE_SUBTITLE * font_size / 32, ref_tex)
+    normalize_by_ref(lines.submobjects, SCALE_SUBTITLE * font_size / FONT_SIZE_DEFAULT, ref_tex, scene=scene, text_desc=out_text)
     lines.arrange(DOWN, buff=line_gap).to_edge(DOWN, buff=buff)
     scene.add(lines)
     scene.play(FadeIn(lines, run_time=run_in))
@@ -1626,7 +1646,7 @@ def show_subtitle(scene, text, text2=None, run_in=0.3, run_out=0.3, font=DEFAULT
     scene._subtitle_ = lines
     return lines
 
-def show_title(scene, line1=None, line2=None, run_in=0.3, run_out=0.3, font=DEFAULT_FONT, size1=48, size2=32, line_gap=0.15, buff=0.5, pause=0.8, rt=0.3, ref_tex=REF_TEX):
+def show_title(scene, line1=None, line2=None, run_in=0.3, run_out=0.3, font=DEFAULT_FONT, size1=FONT_SIZE_LARGE, size2=FONT_SIZE_DEFAULT, line_gap=0.15, buff=0.5, pause=0.8, rt=0.3, ref_tex=REF_TEX):
     show_subtitle(scene, "")
     old = getattr(scene, "_title_mobj", None)
     if old is not None:
@@ -1656,11 +1676,11 @@ def show_title(scene, line1=None, line2=None, run_in=0.3, run_out=0.3, font=DEFA
     objs = []
     if len(parts) >= 1 and parts[0] != "":
         t1 = _mk_line_group(parts[0], font, size1, WHITE)
-        normalize_by_ref([t1], SCALE_TITLE * size1 / 48, ref_tex)
+        normalize_by_ref([t1], SCALE_TITLE * size1 / FONT_SIZE_LARGE, ref_tex, scene=scene, text_desc=parts[0])
         objs.append(t1)
     if len(parts) >= 2 and parts[1] != "":
         t2 = _mk_line_group(parts[1], font, size2, WHITE)
-        normalize_by_ref([t2], SCALE_TITLE * size2 / 32, ref_tex)
+        normalize_by_ref([t2], SCALE_TITLE * size2 / FONT_SIZE_DEFAULT, ref_tex, scene=scene, text_desc=parts[1])
         objs.append(t2)
     if not objs:
         return None
@@ -1690,6 +1710,14 @@ def show_latex(scene, text, x=0.0, y=0.0, run_in=0.3, run_out=0.3, font=DEFAULT_
     parts = [p for p in parts if p is not None]
     if len(parts) == 0 or all(p == "" for p in parts):
         return None
+    if isinstance(text, (list, tuple)):
+        text_desc = "".join(str(p) for p in text if p is not None)
+    else:
+        text_desc = "" if text is None else str(text)
+    wrapped_parts = []
+    for p in parts:
+        wrapped_parts.append(f"<c0>Q{p}<c0>Q")
+    parts = wrapped_parts
     lines = VGroup(*[_mk_line_group_color(p, font, font_size, default_color, baseline, auto_k, ref_tex, color_map) for p in parts])
     h0 = 0.0
     for line in lines.submobjects:
@@ -1699,7 +1727,7 @@ def show_latex(scene, text, x=0.0, y=0.0, run_in=0.3, run_out=0.3, font=DEFAULT_
             h_line = 0.0
         if h_line > h0:
             h0 = h_line
-    normalize_by_ref(lines.submobjects, SCALE_LATEX * font_size / 32, ref_tex)
+    normalize_by_ref(lines.submobjects, SCALE_LATEX * font_size / 32, ref_tex, scene=scene, text_desc=text_desc)
     h1 = 0.0
     for line in lines.submobjects:
         try:
@@ -1805,7 +1833,7 @@ def del_latex(scene, *objs, run_out=0.3):
         if getattr(scene, "_latex_mobj", None) is m:
             setattr(scene, "_latex_mobj", stack[-1] if stack else None)
 
-def add_grid_labels(scene, G, labels2d, which="lgt", font=DEFAULT_FONT, scale=0.5, rt=0.3, ref_tex=REF_TEX):
+def add_grid_labels(scene, G, labels2d, which="lgt", font=DEFAULT_FONT, scale=0.6, rt=0.3, ref_tex=REF_TEX):
     grp = "lgt_bd_base" if which == "lgt" else "btn_bd_base"
     cells = G.get(grp, None)
     if not cells:
@@ -1832,7 +1860,7 @@ def add_grid_labels(scene, G, labels2d, which="lgt", font=DEFAULT_FONT, scale=0.
             scene.play(*[FadeIn(o) for o in created], run_time=rt)
     return objs2d
 
-def add_top_labels(scene, G, labels, which="lgt", font=DEFAULT_FONT, scale=0.5, dy=None, rt=0.3, ref_tex=REF_TEX):
+def add_top_labels(scene, G, labels, which="lgt", font=DEFAULT_FONT, scale=0.6, dy=None, rt=0.3, ref_tex=REF_TEX):
     grp = "lgt_bd_base" if which == "lgt" else "btn_bd_base"
     cells = G[grp]
     if not cells:
@@ -1848,14 +1876,15 @@ def add_top_labels(scene, G, labels, which="lgt", font=DEFAULT_FONT, scale=0.5, 
         pos = cells[0][i].get_center() + UP * shift
         m.move_to(pos)
         objs.append(m)
-    normalize_by_ref(objs, scale, ref_tex)
+    text_desc = " ".join(str(labels[i]) for i in range(n))
+    normalize_by_ref(objs, scale, ref_tex, scene=scene, text_desc=text_desc)
     if objs:
         scene.add(*objs)
         if rt and rt > 0:
             scene.play(*[FadeIn(o) for o in objs], run_time=rt)
     return objs
 
-def add_left_labels(scene, G, labels, which="lgt", font=DEFAULT_FONT, scale=0.5, dx=None, rt=0.3, ref_tex=REF_TEX):
+def add_left_labels(scene, G, labels, which="lgt", font=DEFAULT_FONT, scale=0.6, dx=None, rt=0.3, ref_tex=REF_TEX):
     grp = "lgt_bd_base" if which == "lgt" else "btn_bd_base"
     cells = G[grp]
     if not cells:
@@ -1871,14 +1900,15 @@ def add_left_labels(scene, G, labels, which="lgt", font=DEFAULT_FONT, scale=0.5,
         pos = cells[j][0].get_center() + LEFT * shift
         m.move_to(pos)
         objs.append(m)
-    normalize_by_ref(objs, scale, ref_tex)
+    text_desc = " ".join(str(labels[j]) for j in range(n))
+    normalize_by_ref(objs, scale, ref_tex, scene=scene, text_desc=text_desc)
     if objs:
         scene.add(*objs)
         if rt and rt > 0:
             scene.play(*[FadeIn(o) for o in objs], run_time=rt)
     return objs
 
-def add_bottom_label(scene, G, label, which="lgt", font=DEFAULT_FONT, scale=0.7, dy=None, rt=0.3, ref_tex=REF_TEX, color=WHITE):
+def add_bottom_label(scene, G, label, which="lgt", font=DEFAULT_FONT, scale=0.6, dy=None, rt=0.3, ref_tex=REF_TEX, color=WHITE):
     grp = "lgt_bd_base" if which == "lgt" else "btn_bd_base"
     cells = G[grp]
     if not cells:
@@ -1893,7 +1923,7 @@ def add_bottom_label(scene, G, label, which="lgt", font=DEFAULT_FONT, scale=0.7,
     pos = cells[-1][idx].get_center() + DOWN * shift + LEFT * (sz / 2.0)
     m.move_to(pos)
     objs = [m]
-    normalize_by_ref(objs, scale, ref_tex)
+    normalize_by_ref(objs, scale, ref_tex, scene=scene, text_desc=s)
     scene.add(*objs)
     if rt and rt > 0:
         scene.play(*[FadeIn(o) for o in objs], run_time=rt)
@@ -2116,7 +2146,7 @@ def show_algo_table(
     run_in=0.3,
     run_out=0.3,
     font=DEFAULT_FONT,
-    font_size=32,
+    font_size=FONT_SIZE_DEFAULT,
     row_gap=0.4,
     col_gap=0.6,
     baseline=0.0,
@@ -2128,9 +2158,11 @@ def show_algo_table(
     header_color=WHITE,
 ):
     headers = ("输出", "输入", "说明", "算法", "公式")
-    def make_cell(text, color, is_header=False):
+    def make_cell(text, color, tag, is_header=False):
         if isinstance(text, str) and text.strip() == "-":
             text = ""
+        if not is_header and isinstance(text, str) and text:
+            text = f"{tag}{text}"
         c = header_color if is_header else color
         m = show_latex(
             scene,
@@ -2156,15 +2188,15 @@ def show_algo_table(
             m = m.submobjects[0]
         m.move_to(ORIGIN)
         return m
-    header_row = [make_cell(h, default_color, True) for h in headers]
+    header_row = [make_cell(h, default_color, "", True) for h in headers]
     data_rows = []
-    for color, out_sym, in_sym, desc, algo, formula in LATEX_MAT:
+    for color, color_tag, out_sym, in_sym, desc, algo, formula in LATEX_MAT:
         row = [
-            make_cell(out_sym, color),
-            make_cell(in_sym, color),
-            make_cell(desc, color),
-            make_cell(algo, color),
-            make_cell(formula, color),
+            make_cell(out_sym,   color, color_tag),
+            make_cell(in_sym,    color, color_tag),
+            make_cell(desc,      color, color_tag),
+            make_cell(algo,      color, color_tag),
+            make_cell(formula,   color, color_tag),
         ]
         data_rows.append(row)
     all_rows = [header_row] + data_rows
@@ -2687,21 +2719,21 @@ LATEX_RIGHT = [
 ]
 
 LATEX_MAT = [
-    (L_COLOR,  "L",   "-",   "灯矩阵第一行",                 "公式递推",     "<cL>L(n,x)=L(n-1,x-1)⊕L(n-1,x)⊕L(n-1,x+1)⊕L(n-2,x)"),
-    (B_COLOR,  "B",   "-",   "按钮矩阵第一行",               "公式递推",     "<cB>B(n,x)=B(n-1,x-1)⊕B(n-1,x)⊕B(n-1,x+1)⊕B(n-2,x)"),
-    (Y_COLOR,  "Y",   "-",   "灯矩阵最后一行",               "公式递推",     "<cY>Y(n,y)=~(Y(n-1,y-1)⊕Y(n-1,y)⊕Y(n-1,y+1)⊕Y(n-2,y))"),
-    (H_COLOR,  "H",   "-",   "H^n第一行（Krylov扩散基矩阵）", "公式递推", "<cH>H(y,x)=(∣x-y∣=1)"),
-    (K_COLOR,  "K",   "-",   "H^n第一行（Krylov扩散基矩阵）", "公式递推", "<cK>K(n,x)=K(n-1,x-1)⊕K(n-1,x+1)"),
-    (F_COLOR,  "F",   "-",   "K的逆矩阵（Krylov解耦矩阵）",       "公式递推", "<cF>F(n,x)=F(n-1,x-1)⊕F(n-2,x)"),
-    (C_COLOR,  "C",   "-",   "B关于H的系数矩阵",             "公式递推",     "<cC>C(n,x)=C(n-1,x-1)⊕C(n-1,x)⊕C(n-2,x)"),
-    (P_COLOR,  "P",   "F,b", "多项式p(H)的系数",            "矩阵向量乘法", "<cP>p=<cF>F<cB>b"),
-    (Q_COLOR,  "Q",   "F,p", "多项式p(x)的在f(x)下的逆",    "扩展欧几里得", "<cQ>q=<cP>p^-1<cQ> mod <cF>F"),
-    (G_COLOR,  "G",   "F,F", "多项式p(x)和q(x)最大共因子", "扩展欧几里得", "<cG>g=gcd(<cF>f<cG>,<cC>c<cG>)=gcd(<cF>f<cG>,<cP>p<cG>)"),
-    (Z_COLOR,  "Z",   "Q,y", "部分逆按钮解",               "矩阵向量乘法", "<cZ>z=<cQ>Q<cY>y"),
-    (D_COLOR,  "D",   "K,g",   "多项式g(x)的矩阵",           "矩阵向量乘法", "<cD>d=<cK>K<cG>g"),
-    (ID_COLOR, "ID",  "D",   "H每一行的主元索引",          "求最大值",     "<cID>ID=max(<cD>D(n)<cID>)"),
-    (X_COLOR,  "X",   "D,z", "最终首行按钮解",             "前向异或消元", "<cZ>z=<cG>G<cX>x"),
-    (T_COLOR,  "T",   "x",   "最终按钮解矩阵",             "公式递推",     "<cT>T(n,x)=T(n-1,x-1)⊕T(n-1,x)⊕T(n-1,x+1)⊕T(n-2,x)"),
+    (L_COLOR,  "<cL>",  "L",   "-",   "灯矩阵第一行",                 "公式递推",     "<cL>L(n,x)=L(n-1,x-1)⊕L(n-1,x)⊕L(n-1,x+1)⊕L(n-2,x)"),
+    (B_COLOR,  "<cB>",  "B",   "-",   "按钮矩阵第一行",               "公式递推",     "<cB>B(n,x)=B(n-1,x-1)⊕B(n-1,x)⊕B(n-1,x+1)⊕B(n-2,x)"),
+    (Y_COLOR,  "<cY>",  "Y",   "-",   "灯矩阵最后一行",               "公式递推...", "<cY>Y(n,y)=~(Y(n-1,y-1)⊕Y(n-1,y)⊕Y(n-1,y+1)⊕Y(n-2,y))"),
+    (H_COLOR,  "<cH>",  "H",   "-",   "邻接矩阵",                     "公式递推",     "<cH>H(y,x)=(∣x-y∣=1)"),
+    (K_COLOR,  "<cK>",  "K",   "<cH>H",   "H^n第一行（Krylov扩散基矩阵）", "公式递推",     "<cK>K(n,x)=K(n-1,x-1)⊕K(n-1,x+1)"),
+    (F_COLOR,  "<cF>",  "F",   "<cK>K",   "K的逆矩阵（Krylov解耦矩阵）",   "公式递推",     "<cF>F(n,x)=F(n-1,x-1)⊕F(n-2,x)"),
+    (C_COLOR,  "<cC>",  "C",   "<cB>B",   "B关于H的系数矩阵",             "公式递推",     "<cC>C(n,x)=C(n-1,x-1)⊕C(n-1,x)⊕C(n-2,x)"),
+    (P_COLOR,  "<cP>",  "P",   "<cF>F<cP>,<cB>b", "多项式p(H)的系数",             "矩阵向量乘法", "<cP>p=<cF>F<cB>b"),
+    (Q_COLOR,  "<cQ>",  "Q",   "<cF>F<cQ>,<cP>p", "多项式p(x)的在f(x)下的逆",     "扩展欧几里得", "<cQ>q=<cP>p^-1<cQ> mod <cF>F"),
+    (G_COLOR,  "<cG>",  "G",   "<cF>F<cG>,<cP>P", "多项式p(x)和q(x)最大共因子",   "扩展欧几里得", "<cG>g=gcd(<cF>f<cG>,<cC>c<cG>)=gcd(<cF>f<cG>,<cP>p<cG>)"),
+    (Z_COLOR,  "<cZ>",  "Z",   "<cQ>Q<cZ>,<cY>y", "部分逆按钮解",                 "矩阵向量乘法", "<cZ>z=<cQ>Q<cY>y"),
+    (D_COLOR,  "<cD>",  "D",   "<cK>K<cD>,<cG>g", "多项式g(x)的矩阵",             "矩阵向量乘法", "<cD>d=<cK>K<cG>g"),
+    (M_COLOR,  "<cM>",  "M",   "<cD>D",   "H每一行的主元索引",            "求最大值",     "<cM>M=max(<cD>D(n)<cM>)"),
+    (X_COLOR,  "<cX>",  "X",   "<cD>D<cX>,<cZ>z", "最终首行按钮解",               "前向异或消元", "<cZ>z=<cG>G<cX>x"),
+    (T_COLOR,  "<cT>",  "T",   "<cX>x",   "最终按钮解矩阵",               "公式递推",     "<cT>T(n,x)=T(n-1,x-1)⊕T(n-1,x)⊕T(n-1,x+1)⊕T(n-2,x)"),
 ]
 
 (
@@ -2717,11 +2749,11 @@ LATEX_MAT = [
  LATEX_G,
  LATEX_Z,
  LATEX_D,
- LATEX_ID,
+ LATEX_M,
  LATEX_X,
  LATEX_T
 ) = [
-    f"{row[5]}"
+    f"{row[6]}"
     for row in LATEX_MAT
 ]
 
@@ -3155,7 +3187,7 @@ class LightsOut(Scene):
         self.wait(2)
 
         show_subtitle(self, "对于B(n)，我们将式子竖着写成四项，", "然后将递推关系代入这个式子。")
-        LAT1_3 = show_latex(self, "<cH2>B(n,x-1,y)⊕<br><cH2>B(n,x+1,y)⊕<br><cH2>B(n,x,y-1)⊕<br><cH2>B(n,x,y+1)", 0, 2.0, show=False, font_size=24)
+        LAT1_3 = show_latex(self, "<cH2>B(n,x-1,y)⊕<br><cH2>B(n,x+1,y)⊕<br><cH2>B(n,x,y-1)⊕<br><cH2>B(n,x,y+1)", 0, 2.0, show=False, font_size=FONT_SIZE_SMALL)
         trans_latex(self, LAT1_2, LAT1_3)
         self.wait(2)
 
@@ -3164,7 +3196,7 @@ class LightsOut(Scene):
             "<cH2>(B(n-1,x-1,y)⊕B(n-1,x+1,y)⊕B(n-1,x,y-1)⊕B(n-1,x,y+1))⊕<br>"
             "<cH2>(B(n-1,x+1-1,y)⊕B(n-1,x+1+1,y)⊕B(n-1,x+1,y-1)⊕B(n-1,x+1,y+1))⊕<br>"
             "<cH2>(B(n-2,x-1,y)⊕B(n-2,x+1,y)⊕B(n-2,x,y-1)⊕B(n-2,x,y+1))",
-            0, 2.0, show=False, font_size=24)
+            0, 2.0, show=False, font_size=FONT_SIZE_SMALL)
         trans_latex(self, LAT1_3, LAT1_4)
         self.wait(2)
 
@@ -3174,7 +3206,7 @@ class LightsOut(Scene):
             "<cH2>(B(n-1,x-1+1,y)⊕B(n-1,x+1,y)⊕B(n-1,x+1+1,y)⊕B(n-2,x+1,y))⊕<br>"
             "<cH2>(B(n-1,x-1,y-1)⊕B(n-1,x,y-1)⊕B(n-1,x+1,y-1)⊕B(n-2,x,y-1))⊕<br>"
             "<cH2>(B(n-1,x-1,y+1)⊕B(n-1,x,y+1)⊕B(n-1,x+1,y+1)⊕B(n-2,x,y+1))",
-            0, 2.0, show=False, font_size=24)
+            0, 2.0, show=False, font_size=FONT_SIZE_SMALL)
         trans_latex(self, LAT1_4, LAT1_5)
 
         hl_cells(self, [G5_[0][0]], which="btn", indices=[(1, 0)], color=HL_COLOR_2)
@@ -3213,7 +3245,7 @@ class LightsOut(Scene):
         hl_cells(self, [G5_[1][2]], which="btn", indices=[(2, 0)], color=HL_COLOR_2)
 
         show_subtitle(self, "不难发现，这四项属于B(n-1)或B(n-2)，", "并且元素之间的关系满足十字偶校验约束，因此整个式子化为了零。")
-        LAT1_6 = show_latex(self, "<cH2>0⊕<br><cH2>0⊕<br><cH2>0⊕<br><cH2>0", 0, 2.0, show=False, font_size=24)
+        LAT1_6 = show_latex(self, "<cH2>0⊕<br><cH2>0⊕<br><cH2>0⊕<br><cH2>0", 0, 2.0, show=False, font_size=FONT_SIZE_SMALL)
         trans_latex(self, LAT1_5, LAT1_6)
         self.wait(1)
         LAT1_7 = show_latex(self, "<cH2>0⊕0⊕0⊕0", 0, 1.5, show=False)
@@ -3297,12 +3329,12 @@ class LightsOut(Scene):
 
         show_subtitle(self, "对于O(n^2)的算法，我们也是使用类似的方法，", "尽可能的不去对完整矩阵进行操作，而是通过第一行来求逆或求解。")
         grid_B1 = make_grid(self, 7, 1, mat_l=[MAT7K[7][0]], btn_c=B_COLOR, lgt_c=B_COLOR, sz=0.4, btn_y=1.2, lgt_y=1.2)
-        topy_obj_B = add_top_labels(self, grid_B1, ["", "", "", "B", "", "", ""], which="btn", scale=0.7)
+        topy_obj_B = add_top_labels(self, grid_B1, ["", "", "", "B", "", "", ""], which="btn")
         self.wait(2)
         show_subtitle(self, "这里，让我以我们以n=7为例。", "这里的B就是前面提到的按钮矩阵B，而y就是翻转矩阵Y的最后一行。")
         grid_B = make_grid(self, 7, 7, mat_l=MAT7K[7], btn_c=B_COLOR, lgt_c=B_COLOR, sz=0.4)
         grid_Y = make_grid(self, 1, 7, mat_l=[[v] for v in MAT7KY[7]], btn_c=Y_COLOR, lgt_c=Y_COLOR, btn_x=2, lgt_x=2, sz=0.4)
-        topy_obj_Y = add_top_labels(self, grid_Y, ["y"], which="btn", scale=0.7)
+        topy_obj_Y = add_top_labels(self, grid_Y, ["y"], which="btn")
         self.wait(2)
 
         show_subtitle(self, "我们的目标是，对于Bx=y，在已知B的第一行和y的情况下求x。")
@@ -3318,7 +3350,7 @@ class LightsOut(Scene):
         grid_B_row = make_grid(self, 7, 1, lgt_x=lgt_x, btn_x=btn_x, lgt_y=row0_y, btn_y=row0_y, sz=sz, show=False)
         bd_B_row = hl_bd(self, grid_B_row)
         grid_X = make_grid(self, 1, 7, mat_l=[[1],[1],[0],[1],[0],[1],[1]], btn_c=X_COLOR, lgt_c=X_COLOR, btn_x=2.8, lgt_x=2.8, sz=0.4)
-        topy_obj_X = add_top_labels(self, grid_X, ["x"], which="btn", scale=0.7)
+        topy_obj_X = add_top_labels(self, grid_X, ["x"], which="btn")
 
         mul_vec_mat(self, w=7, h=7, mat=MAT7K[7], vec=VEC_X7, mat_color=B_COLOR, vec_color=X_COLOR, res_color=Y_COLOR, mat_label="", vec_label="x", res_label="y", sz=0.4)
         del_latex(self, [LAT_B])
@@ -3370,12 +3402,12 @@ class LightsOut(Scene):
             "<cY>Y1(n,y)=Y'(n-1,y-1)⊕Y0(n-1,y)<br>"
             "<cY>Y2(n,y)=Y1(n-1,y-1)⊕Y0(n-2,y)<br>"
             "<cY>Y'(n,y)=~(Y1(n,y-1)⊕Y1(n,y)⊕Y1(n,y+1)⊕Y2(n,y)),y<=n;0,y>n",
-            0, 0.5, font_size=24)
+            0, 0.5, font_size=FONT_SIZE_SMALL)
         LAT_Y2 = show_latex(self,
             "<cY>Y0(n,y)=Y0(n-1,y-1)⊕Y0(n-1,y)⊕Y0(n-1,y+1)⊕Y0(n-2,y),y>1;Y'(n,y),y=1<br>"
             "<cY>Y'(n,y)=~(Y'(n-1,y-2)⊕Y'(n-1,y-1)⊕Y'(n-1,y)⊕Y'(n-2,y-2)<br>"
             "<cY>⊕Y0(n-1,y-1)⊕Y0(n-1,y)⊕Y0(n-1,y+1)⊕Y0(n-2,y-1)⊕Y0(n-2,y)),y<=n;0,y>n",
-            0, -1.25, font_size=24)
+            0, -1.25, font_size=FONT_SIZE_SMALL)
         self.wait(2)
         del_latex(self, [LAT_Y, LAT_Y1, LAT_Y2])
 
@@ -3665,7 +3697,7 @@ class LightsOut(Scene):
             "<cC>=Sum_j:[<cB>B'(n-1,j)<cC>*<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cC>*(<cF>F(j-1,x-1)<cC>⊕<cF>F(j-2,x))<cC>⊕<cB>B'(n-2,j)<cC>*<cF>F(j,x)<cC>]<br>"
             "<cC>=Sum_j:[<cB>B'(n-1,j)<cC>*<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cC>*<cF>F(j,x)<cC>⊕<cB>B'(n-2,j)<cC>*<cF>F(j,x)<cC>]<br>"
             "<cC>=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)",
-             0, 1.0, font_size=24)
+             0, 1.0, font_size=FONT_SIZE_SMALL)
         self.wait(2)
         LAT_C = show_latex(self, "<cC>C'(n,x)=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)", 0, 1.0, show=False)
         trans_latex(self, LAT_C0, LAT_C)
@@ -3683,7 +3715,7 @@ class LightsOut(Scene):
         del_latex(self, [LAT_C, LAT_CF, LAT_P])
 
         show_subtitle(self, "现在，我们已求得了p，并将原始问题转换为了p(H)x=y。", "那这又有什么用呢？")
-        LAT_Y = show_latex(self, "<cB>B<cX>x<cP>=p(<cH>H<cP>)<cX>x<cP>=<cY>y", 0, 0.0, font_size=48)
+        LAT_Y = show_latex(self, "<cB>B<cX>x<cP>=p(<cH>H<cP>)<cX>x<cP>=<cY>y", 0, 0.0, font_size=FONT_SIZE_LARGE)
         self.wait(2)
         del_latex(self, [LAT_Y])
 
@@ -3827,9 +3859,9 @@ class LightsOut(Scene):
         grid_B5 = make_grid(self, 5, 5, lgt_x=-3, btn_x=-3, mat_l=MAT_B5, btn_c=B_COLOR, lgt_c=B_COLOR, sz=sz)
         grid_Q5 = make_grid(self, 5, 5, lgt_x=-0, btn_x=-0, mat_l=MAT_Q5, btn_c=Q_COLOR, lgt_c=Q_COLOR, sz=sz)
         grid_E5 = make_grid(self, 5, 5, lgt_x=+3, btn_x=+3, mat_l=MAT_E5, btn_c=E_COLOR, lgt_c=E_COLOR, sz=sz)
-        topy_obj_B5 = add_top_labels(self, grid_B5, ["", "", "B", "", ""], which="btn", scale=0.7)
-        topy_obj_Q5 = add_top_labels(self, grid_Q5, ["", "", "Q'", "", ""], which="btn", scale=0.7)
-        topy_obj_E5 = add_top_labels(self, grid_E5, ["", "", "E'", "", ""], which="btn", scale=0.7)
+        topy_obj_B5 = add_top_labels(self, grid_B5, ["", "", "B", "", ""], which="btn")
+        topy_obj_Q5 = add_top_labels(self, grid_Q5, ["", "", "Q'", "", ""], which="btn")
+        topy_obj_E5 = add_top_labels(self, grid_E5, ["", "", "E'", "", ""], which="btn")
         self.wait(2)
 
         show_subtitle(self, "这里，矩阵B不可逆，其秩为r=3。", "我们以rxr为界将矩阵分为四块，则有这些结论。")
@@ -3949,14 +3981,14 @@ class LightsOut(Scene):
         grid_B5 = make_grid(self, 5, 5, lgt_x=-3, btn_x=-3, mat_l=MAT_B5, btn_c=B_COLOR, lgt_c=B_COLOR, sz=sz)
         grid_Q5 = make_grid(self, 5, 5, lgt_x=-0, btn_x=-0, mat_l=MAT_Q5, btn_c=Q_COLOR, lgt_c=Q_COLOR, sz=sz)
         grid_E5 = make_grid(self, 5, 5, lgt_x=+3, btn_x=+3, mat_l=MAT_E5, btn_c=E_COLOR, lgt_c=E_COLOR, sz=sz)
-        topy_obj_B5 = add_top_labels(self, grid_B5, ["", "", "B", "", ""], which="btn", scale=0.7)
-        topy_obj_Q5 = add_top_labels(self, grid_Q5, ["", "", "Q'", "", ""], which="btn", scale=0.7)
-        topy_obj_E5 = add_top_labels(self, grid_E5, ["", "", "E'", "", ""], which="btn", scale=0.7)
+        topy_obj_B5 = add_top_labels(self, grid_B5, ["", "", "B", "", ""], which="btn")
+        topy_obj_Q5 = add_top_labels(self, grid_Q5, ["", "", "Q'", "", ""], which="btn")
+        topy_obj_E5 = add_top_labels(self, grid_E5, ["", "", "E'", "", ""], which="btn")
         self.wait(2)
         del_latex(self, LAT_G)
         del_top_labels(self, [topy_obj_B5, topy_obj_Q5, topy_obj_E5])
         del_grids(self, [grid_B5, grid_Q5, grid_E5])
-        """
+
 #——————————————————————
 
         show_title(self, "首行方程法")
@@ -3978,4 +4010,3 @@ class LightsOut(Scene):
         show_subtitle(self, "如果对视频中的内容有疑问，觉得视频内容表述不清，", "或者发现视频中的任何错误，也请大家多多留言和指证。谢谢大家观看！")
         self.wait(2)
         show_subtitle(self, "")
-        """
