@@ -1,0 +1,30 @@
+替换表：
+
+⊕	\oplus		注意加号和异或区分
+*	\cdot		多项式系数、抽象算子乘法，写点乘号。
+Sum	\Sum	\bigoplus
+...	\cdots
+~	\neg
+gcd	\gcd\bigl(
+deg	\deg\bigl(
+mod	\bmod
+|	\lvert	\rvert
+p0	p_0		系数下标
+p^-1	p^{-1}		逆
+
+矩阵·向量、矩阵·矩阵：不写乘号，直接拼在一起。单引号同理。
+Bx=y → $Bx = y$
+P=B''F → $P = B''F$
+
+空格无所谓，只是/xxx后面需要空格
+
+
+所有latex写在$里面（颜色也是，这个工作量大），text和tex融合（尤其是加了<c0>Q，可转为<c0)$Q$）还需测试。
+
+或者改成：
+\usepackage{xcolor}
+\newcommand{\cB}[1]{\textcolor{blue}{#1}}
+\newcommand{\cX}[1]{\textcolor{red}{#1}}
+\newcommand{\cY}[1]{\textcolor{green}{#1}}
+
+$\cB{B}\cX{x} = \cY{y}$
