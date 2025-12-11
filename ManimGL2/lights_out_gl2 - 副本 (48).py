@@ -1,5 +1,16 @@
 from manimlib import *
+#from manimlib.config import manim_config
+#manim_config.tex.template = "basic_ctex"
 import numpy as np
+
+BD_W = 2
+BD_W_SEL = 8
+
+DEFAULT_FONT = "SimHei"
+
+SCALE_LATEX = 1.0
+SCALE_SUBTITLE = 1.25
+SCALE_TITLE = 1.65
 
 REF_TEX = "N\\times N"
 ADD_TEX = "<c0>Q"
@@ -56,15 +67,6 @@ COLOR_MAP = {
     "cT":  T_COLOR,
     "c0":  FONT_COLOR_BLACK,
 }
-
-BD_W = 2
-BD_W_SEL = 8
-
-DEFAULT_FONT = "SimHei"
-
-SCALE_LATEX = 1.0
-SCALE_SUBTITLE = 1.25
-SCALE_TITLE = 1.65
 
 def make_grid(scene, w, h, lgt_x=0.0, btn_x=0.0, lgt_y=0.0, btn_y=0.0, btn_c=B_COLOR, lgt_c=L_COLOR, sz=1.0, rt=0.3, mat=None, mat_l=None, w_l=None, h_l=None, show=True, mat_g=None):
     w_l = w if w_l is None else int(w_l)
@@ -2733,8 +2735,7 @@ LATEX_MAT = [
     (G_COLOR,  "<cG>",  "G",   "<cF>F<cG>,<cP>P", "多项式p(x)和q(x)最大共因子",   "扩展欧几里得", "<cG>g=gcd(<cF>f<cG>,<cC>c<cG>)=gcd(<cF>f<cG>,<cP>p<cG>)"),
     (Z_COLOR,  "<cZ>",  "Z",   "<cQ>Q<cZ>,<cY>y", "部分逆按钮解",                 "矩阵向量乘法", "<cZ>z=<cQ>Q<cY>y"),
     (D_COLOR,  "<cD>",  "D",   "<cK>K<cD>,<cG>g", "多项式g(x)的矩阵",             "矩阵向量乘法", "<cD>d=<cK>K<cG>g"),
-    (M_COLOR,  "<cM>",  "M",   "<cD>D",   "H每一行的主元索引",            "求最大值",     "<cM>M=max(<cD>D(n)<cM>)"),
-    (X_COLOR,  "<cX>",  "X",   "<cD>D<cX>,<cZ>z", "最终首行按钮解",               "前向异或消元", "<cZ>z=<cG>G<cX>x"),
+    (X_COLOR,  "<cX>",  "X",   "<cD>D<cX>,<cZ>z", "最终首行按钮解",               "前向异或消元", "<cZ>z=<cD>D<cX>x"),
     (T_COLOR,  "<cT>",  "T",   "<cX>x",   "最终按钮解矩阵",               "公式递推",     "<cT>T(n,x)=T(n-1,x-1)⊕T(n-1,x)⊕T(n-1,x+1)⊕T(n-2,x)"),
 ]
 
@@ -2768,10 +2769,10 @@ class LightsOut(Scene):
         show_title(self, "首行叠加法（续上集）")
 
         show_subtitle(self, "在上集视频的《首行叠加法》中，有观众对按钮和灯的递推仍有疑问。", "这次我们来讲清楚，这个递推公式是怎么来的。")
-        LAT1 = show_latex(self, "<cB>B(n,x)=B(n-1,x-1)⊕B(n-1,x)⊕$B(n-1,x+1)\oplus B(n-2,x)$", 0, 2.0)
-        LAT2 = show_latex(self, "<cB>B按钮    <cL>L灯    <cH1>⊕叠加    <cH2> 翻转 $\\neg $", 0, 1.5)
+        LAT1 = show_latex(self, "<cB>B(n,x)=B(n-1,x-1)⊕B(n-1,x)⊕B(n-1,x+1)⊕B(n-2,x)", 0, 2.0)
+        LAT2 = show_latex(self, "<cB>B按钮    <cL>L灯    <cH1>⊕叠加    <cH2>~翻转", 0, 1.5)
         self.wait(4)
-        """
+
         show_subtitle(self, "我们用B代表按钮，L代表灯，⊕（加）代表叠加，~（非）代表翻转。")
         cols, rows = 5, 5
         sz = 0.25
@@ -3588,7 +3589,7 @@ class LightsOut(Scene):
         del_bottom_label(self, bottom_obj)
         del_grids(self, [grid_P])
 
-        show_subtitle(self, "有了b*F=p之后，后续的计算我们都不需要用到完整的B，", "而只需要这个第一行b。")
+        show_subtitle(self, "有了F*b=p之后，后续的计算我们都不需要用到完整的B，", "而只需要这个第一行b。")
         mul_vec_mat(self, w=7, h=7, mat=MAT_F, vec=VEC_B7, mat_color=F_COLOR, vec_color=B_COLOR, res_color=P_COLOR, mat_label="F", vec_label="b", res_label="p", sz=0.4)
         del_latex(self, [LAT_P])
         show_subtitle(self, "这是因为我们已经将问题从Bx=y转为了p(H)=y。", "由此，在前面说到的生成矩阵也只需要计算第一行b。")
@@ -4012,4 +4013,3 @@ class LightsOut(Scene):
         show_subtitle(self, "如果对视频中的内容有疑问，觉得视频内容表述不清，", "或者发现视频中的任何错误，也请大家多多留言和指证。谢谢大家观看！")
         self.wait(2)
         show_subtitle(self, "")
-        """
