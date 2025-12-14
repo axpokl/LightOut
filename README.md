@@ -1,6 +1,6 @@
 # 点灯游戏（Lights Out）求解器 · 算法说明
 
-> 语言 / Language: [中文](#中文版本) | [English](#english-version)
+> Language: [English](#english-version)
 
 ---
 
@@ -352,7 +352,7 @@ https://oeis.org/A159257
 
 # Lights Out Solver · Algorithm Notes
 
-> Language: [Chinese](#chinese-version) | [English](#english-version)
+> Language: [中文](#中文版本)
 
 ---
 
