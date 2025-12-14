@@ -6,9 +6,6 @@
 
 ## 中文版本
 
-> 本文**完全依据你提供的视频文稿**重写：从“穷举 → 首行穷举 → 全局叠加消元（高斯消元）→ 首行叠加 O(n³) → 首行求逆/反向消元 O(n²)”逐步搭起完整算法体系。  
-> 核心关键词：**GF(2)（异或）**、**叠加性**、**首行递推**、**静默操作（零翻转）**、**多项式 + 扩散矩阵 H/K/F**、**反向消元**。
-
 ### 目录
 - 问题与规则
 - 关键观察（按两次抵消、顺序无关）
@@ -357,10 +354,6 @@ https://oeis.org/A159257
 ---
 
 ## English version
-
-> This document is rewritten **strictly from the provided video transcript**.  
-> It builds a full path from “brute force → first-row brute force → global superposition/Gaussian elimination → first-row superposition O(n³) → first-row inversion + reverse elimination O(n²)”.  
-> Keywords: **GF(2) / XOR**, **superposition (linearity)**, **first-row recursion**, **silent patterns (zero flips)**, **polynomials + diffusion matrices H/K/F**, **reverse elimination**.
 
 ### Table of contents
 - Problem and rules
