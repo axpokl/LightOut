@@ -151,14 +151,14 @@ end;
 
 procedure PrintMat(const mat:TMat);
 begin
-writeln();
+//writeln();
 for j:=0 to n-1 do
   begin
   for i:=0 to n-1 do
-    if GetBit(mat[j],i)<>0 then write('#') else write('.');
-  writeln();
+    if GetBit(mat[j],i)<>0 then //write('#') else //write('.');
+  //writeln();
   end;
-writeln();
+//writeln();
 end;
 
 {$ifdef disp}
@@ -225,7 +225,7 @@ for j:=0 to n do if GetBit(b[j],j)=0 then
     VecXorEq(b[j],b[j-2]);
     MaskDeg(b[j],j);
     end;
-write('b ');for i:=0 to n-1 do if GetBit(b[n],i)<>0 then write(1) else write(0);writeln;
+//write('b ');for i:=0 to n-1 do if GetBit(b[n],i)<>0 then write(1) else write(0);writeln;
 for j:=0 to n do if GetBit(f[j],j)=0 then
   if GetBit(f[0],0)=0 then SetBit(f[0],0,1)
   else
@@ -235,7 +235,7 @@ for j:=0 to n do if GetBit(f[j],j)=0 then
     VecXorEq(f[j],f[j-2]);
     MaskDeg(f[j],j);
     end;
-write('f ');for i:=0 to n do if GetBit(f[n],i)<>0 then write(1) else write(0);writeln;
+//write('f ');for i:=0 to n do if GetBit(f[n],i)<>0 then write(1) else write(0);writeln;
 for j:=0 to n do if GetBit(k[j],j)=0 then
   if GetBit(k[0],0)=0 then SetBit(k[0],0,1)
   else
@@ -246,7 +246,7 @@ for j:=0 to n do if GetBit(k[j],j)=0 then
     VecXorEq(k[j],v2);
     MaskDeg(k[j],j);
     end;
-write('k ');for i:=0 to n-1 do if GetBit(k[n],i)<>0 then write(1) else write(0);writeln;
+//write('k ');for i:=0 to n-1 do if GetBit(k[n],i)<>0 then write(1) else write(0);writeln;
 for j:=0 to n do if GetBit(c[j],j)=0 then
   if GetBit(c[0],0)=0 then SetBit(c[0],0,1)
   else
@@ -257,7 +257,7 @@ for j:=0 to n do if GetBit(c[j],j)=0 then
     VecXorEq(c[j],c[j-1]);
     MaskDeg(c[j],j);
     end;
-write('c ');for i:=0 to n-1 do if GetBit(c[n],i)<>0 then write(1) else write(0);writeln;
+//write('c ');for i:=0 to n-1 do if GetBit(c[n],i)<>0 then write(1) else write(0);writeln;
 end;
 
 function HighBit32(x:LongWord):longint;
@@ -332,13 +332,13 @@ var i0,r0,kk:longint;
 begin
 
 VecCopy(p,f[n]); VecXorEq(p,c[n]); MaskDeg(p,n);
-write('p ');for i:=0 to n-1 do if GetBit(p,i)<>0 then write(1) else write(0);writeln;
+//write('p ');for i:=0 to n-1 do if GetBit(p,i)<>0 then write(1) else write(0);writeln;
 r0:=gcd(f[n],p,g,q);
-writeln('gcd',#9,r0,#9);
-write('q ');for i:=0 to n-1 do if GetBit(q,i)<>0 then write(1) else write(0);writeln;
-write('g ');for i:=0 to n do if GetBit(g,i)<>0 then write(1) else write(0);writeln;
+//writeln('gcd',#9,r0,#9);
+//write('q ');for i:=0 to n-1 do if GetBit(q,i)<>0 then write(1) else write(0);writeln;
+//write('g ');for i:=0 to n do if GetBit(g,i)<>0 then write(1) else write(0);writeln;
 VecCopy(y,l[n]); MaskDeg(y,n-1);
-write('y ');for i:=0 to n-1 do if GetBit(y,i)<>0 then write(1) else write(0);writeln;
+//write('y ');for i:=0 to n-1 do if GetBit(y,i)<>0 then write(1) else write(0);writeln;
 VecZero(z); VecNorm(z);
 for j:=0 to n-1 do 
   begin
@@ -356,7 +356,7 @@ if r0=0 then
   end
 else
 begin
-write('z ');for i:=0 to n-1 do if GetBit(z,i)<>0 then write(1) else write(0);writeln;
+//write('z ');for i:=0 to n-1 do if GetBit(z,i)<>0 then write(1) else write(0);writeln;
 VecZero(d[0]); VecNorm(d[0]);
 for j:=0 to r0 do if GetBit(g,j)<>0 then VecXorEq(d[0],k[j]);
 MaskDeg(d[0],n-1);
@@ -369,24 +369,24 @@ for j:=1 to n-r0-1 do
   VecXorEq(d[j],d[j-2]);
   MaskDeg(d[j],n-1);
   end;
-writeln('d');for j:=0 to n-1 do begin write(j,#9);for i:=0 to n-1 do if GetBit(d[j],i)<>0 then write(1) else write(0);writeln;end;
+//writeln('d');for j:=0 to n-1 do begin write(j,#9);for i:=0 to n-1 do if GetBit(d[j],i)<>0 then write(1) else write(0);writeln;end;
 VecZero(x); VecNorm(x);
 for i:=n-1 downto r0 do
   if GetBit(z,i)<>0 then
   begin
     i0:=i-r0;
-write(i,#9,i0,#9);
-for kk:=0 to n-1 do if GetBit(z,kk)<>0 then write(1) else write(0);write(#9);
+//write(i,#9,i0,#9);
+//for kk:=0 to n-1 do if GetBit(z,kk)<>0 then write(1) else write(0);write(#9);
     VecXorEq(z,d[i0]);
     SetBit(x,i0,1);
-for kk:=0 to n-1 do if GetBit(d[kk],i0)<>0 then write(1) else write(0);write(#9);
-for kk:=0 to n-1 do if GetBit(z,kk)<>0 then write(1) else write(0);write(#9);
-for kk:=0 to n-1 do if GetBit(x,kk)<>0 then write(1) else write(0);write(#9);
-writeln();
+//for kk:=0 to n-1 do if GetBit(d[kk],i0)<>0 then write(1) else write(0);write(#9);
+//for kk:=0 to n-1 do if GetBit(z,kk)<>0 then write(1) else write(0);write(#9);
+//for kk:=0 to n-1 do if GetBit(x,kk)<>0 then write(1) else write(0);write(#9);
+//writeln();
   end;
 end;
 
-write('x ');for i:=0 to n-1 do if GetBit(x,i)<>0 then write(1) else write(0);writeln;
+//write('x ');for i:=0 to n-1 do if GetBit(x,i)<>0 then write(1) else write(0);writeln;
 VecCopy(t[0],x); MaskDeg(t[0],n-1);
 end;
 
@@ -427,14 +427,14 @@ CreateWin(m,m);
 bb:=CreateBB(GetWin());
 bp:=CreateBMP(m,m);
 {$endif}
-for n:=1 to 20 do
+for n:=1 to 1000 do
   begin
   PrepN;
-  writeln('#',n);
+  write('#',n,#9);
   MakeMat();
   CalcMat2();
-  GeneMat();{$ifdef disp}PrintMat('_T2',t);{$endif}
+  GeneMat();{$ifdef disp}PrintMat('_T3',t);{$endif}
   {$ifdef disp}if not(iswin()) then halt;{$endif}
-  writeln();
+  //writeln();
   end;
 end.
