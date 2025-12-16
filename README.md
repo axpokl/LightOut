@@ -79,7 +79,7 @@
 | 首行穷举 | 只穷举第 1 行，后续行按“压灯”唯一递推 | `2^n` | `O(2^n·n^2)` | `O(n^2)` | 从第 2 行起按法由上一行灯状态决定 |
 | 叠加法（全局消元） | 对 `[E / A]` 做 GF(2) 高斯消元，求逆/伪逆/零空间 | `n^2×n^2` | `O(n^6)` | `O(n^4)` | 解释“静默操作=多解”最直观 |
 | **首行叠加法** | 把末行灯表示成首行按钮线性组合 + 翻转向量，只解 `n×n` | `n×n` | **`O(n^3)`** | **`O(n^2)`** | 规模从 `n^2` 降为 `n` |
-| **首行求逆+反向消元** | 多项式/扩散基/欧几里得 + 结构化回代 | 只用首行级对象 | **`O(n^2)`** | `O(n)` | 可逆直接求逆，不可逆用 `g` 与 `D` 反向消元 |
+| **首行求逆+反向消元** | 多项式/扩散基/欧几里得 + 结构化回代 | n | **`O(n^2)`** | **`O(n)`** | 可逆直接求逆，不可逆用 `g` 与 `D` 反向消元 |
 
 ---
 
@@ -429,7 +429,7 @@ https://oeis.org/A159257
 | First-row brute force | Enumerate only row 1; later rows are forced by “press-down” recursion | `2^n` | `O(2^n·n^2)` | `O(n^2)` | from row 2 onward the presses are uniquely determined |
 | Superposition (global elimination) | Do GF(2) Gaussian elimination on `[E / A]`, get inverse / pseudoinverse / nullspace | `n^2×n^2` | `O(n^6)` | `O(n^4)` | makes “silent patterns = multiple solutions” very visible |
 | **First-row superposition** | Express last-row lights as linear combo of first-row presses + flip vector; solve `n×n` | `n×n` | **`O(n^3)`** | **`O(n^2)`** | reduces size from `n^2` to `n` |
-| **First-row inversion + reverse elimination** | Use polynomials/diffusion basis/Euclid + structured back-substitution | first-row-level objects | **`O(n)`** | `O(n^2)` | invertible: direct; non-invertible: use `g` and `D` |
+| **First-row inversion + reverse elimination** | Use polynomials/diffusion basis/Euclid + structured back-substitution | n | **`O(n^2)`** | **`O(n)`** | invertible: direct; non-invertible: use `g` and `D` |
 
 ---
 
