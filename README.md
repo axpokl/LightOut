@@ -1,3 +1,7 @@
+## 【Manim】《点灯游戏的数学解法》：www.bilibili.com/video/BV1XcxNz7EjF/
+
+---
+
 # 点灯游戏（Lights Out）求解器 · 算法说明
 
 > Language: [English](#english-version)
