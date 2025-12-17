@@ -718,7 +718,7 @@ def move_grid(scene, G, lgt_x=0.0, btn_x=0.0, lgt_y=0.0, btn_y=0.0, rt=0.8, sz=N
     G["params"]["btn_y"] = btn_y
     if sz is not None: G["params"]["size"]=sz
 
-def toggle_grid(scene, G, i, j, which="both", to=None, anim=0.3):
+def toggle_grid(scene, G, i, j, which="both", to=None, rt=0.3):
     anims=[]
     def _apply_one(kind, i, j, vis_to):
         if kind=="lgt":
@@ -736,7 +736,7 @@ def toggle_grid(scene, G, i, j, which="both", to=None, anim=0.3):
                 t_bd = 1.0
                 t_hl = 1.0 if G["lgt_sel"][j][i] else 0.0
                 if G["lgt"][j][i]:
-                    if anim > 0 and scene is not None:
+                    if rt > 0 and scene is not None:
                         anims.append(sp.animate.set_opacity(1.0))
                     else:
                         sp.set_opacity(1.0)
@@ -746,7 +746,7 @@ def toggle_grid(scene, G, i, j, which="both", to=None, anim=0.3):
                 t_bd = 0.0
                 t_hl = 0.0
                 sp.set_opacity(0.0)
-            if anim > 0 and scene is not None:
+            if rt > 0 and scene is not None:
                 anims.append(bd.animate.set_stroke(opacity=t_bd))
                 anims.append(hl.animate.set_stroke(opacity=t_hl))
             else:
@@ -767,7 +767,7 @@ def toggle_grid(scene, G, i, j, which="both", to=None, anim=0.3):
                 t_bd = 1.0
                 t_hl = 1.0 if G["btn_sel"][j][i] else 0.0
                 if G["btn"][j][i]:
-                    if anim > 0 and scene is not None:
+                    if rt > 0 and scene is not None:
                         anims.append(sp.animate.set_opacity(1.0))
                     else:
                         sp.set_opacity(1.0)
@@ -777,7 +777,7 @@ def toggle_grid(scene, G, i, j, which="both", to=None, anim=0.3):
                 t_bd = 0.0
                 t_hl = 0.0
                 sp.set_opacity(0.0)
-            if anim > 0 and scene is not None:
+            if rt > 0 and scene is not None:
                 anims.append(bd.animate.set_stroke(opacity=t_bd))
                 anims.append(hl.animate.set_stroke(opacity=t_hl))
             else:
@@ -785,9 +785,9 @@ def toggle_grid(scene, G, i, j, which="both", to=None, anim=0.3):
                 hl.set_stroke(opacity=t_hl)
     if which in ("lgt","both"): _apply_one("lgt",i,j,to)
     if which in ("btn","both"): _apply_one("btn",i,j,to)
-    if anim>0 and anims: scene.play(*anims, run_time=anim)
+    if rt>0 and anims: scene.play(*anims, run_time=rt)
 
-def toggle_lgt(scene, G, i, j, anim=0.3):
+def toggle_lgt(scene, G, i, j, rt=0.3):
     G["lgt"][j][i] = not G["lgt"][j][i]
     m = G["lgt_sp"][j][i]
     m.set_stroke(width=0, opacity=0)
@@ -795,12 +795,12 @@ def toggle_lgt(scene, G, i, j, anim=0.3):
     if "grid_vis_lgt" in G and 0<=j<len(G["grid_vis_lgt"]) and 0<=i<len(G["grid_vis_lgt"][0]):
         vis = G["grid_vis_lgt"][j][i]
     target = 1 if (G["lgt"][j][i] and vis) else 0
-    if scene is not None and anim>0:
-        scene.play(m.animate.set_opacity(target), run_time=anim)
+    if scene is not None and rt>0:
+        scene.play(m.animate.set_opacity(target), run_time=rt)
     else:
         m.set_opacity(target)
 
-def toggle_btn(scene, G, i, j, anim=0.3):
+def toggle_btn(scene, G, i, j, rt=0.3):
     G["btn"][j][i] = not G["btn"][j][i]
     m = G["btn_sp"][j][i]
     m.set_stroke(width=0, opacity=0)
@@ -808,8 +808,8 @@ def toggle_btn(scene, G, i, j, anim=0.3):
     if "grid_vis_btn" in G and 0<=j<len(G["grid_vis_btn"]) and 0<=i<len(G["grid_vis_btn"][0]):
         vis = G["grid_vis_btn"][j][i]
     target = 1 if (G["btn"][j][i] and vis) else 0
-    if scene is not None and anim>0:
-        scene.play(m.animate.set_opacity(target), run_time=anim)
+    if scene is not None and rt>0:
+        scene.play(m.animate.set_opacity(target), run_time=rt)
     else:
         m.set_opacity(target)
 
@@ -1066,7 +1066,7 @@ def _queue_opacity_anim(mobj, target, anims):
     if abs(cur - target) > 1e-6:
         anims.append(ApplyMethod(mobj.set_opacity, float(target)))
 
-def press(scene, G, i, j, wait=0.0, anim=0.3, include_center=True):
+def press(scene, G, i, j, wait=0.0, rt=0.3, include_center=True):
     clear_all_bd(G)
     anims = []
     G["btn"][j][i] = not G["btn"][j][i]
@@ -1074,7 +1074,7 @@ def press(scene, G, i, j, wait=0.0, anim=0.3, include_center=True):
     if "grid_vis_btn" in G and 0<=j<len(G["grid_vis_btn"]) and 0<=i<len(G["grid_vis_btn"][0]):
         vis_btn=G["grid_vis_btn"][j][i]
     set_bd(G, "btn", i, j, True if vis_btn else False)
-    if anim == 0:
+    if rt == 0:
         if vis_btn: G["btn_sp"][j][i].set_opacity(1.0 if G["btn"][j][i] else 0.0)
     else:
         if vis_btn: _queue_opacity_anim(G["btn_sp"][j][i], 1.0 if G["btn"][j][i] else 0.0, anims)
@@ -1090,16 +1090,16 @@ def press(scene, G, i, j, wait=0.0, anim=0.3, include_center=True):
             if "grid_vis_lgt" in G and 0<=y<len(G["grid_vis_lgt"]) and 0<=x<len(G["grid_vis_lgt"][0]):
                 vis_lgt=G["grid_vis_lgt"][y][x]
             set_bd(G, "lgt", x, y, True if vis_lgt else False)
-            if anim == 0:
+            if rt == 0:
                 if vis_lgt: G["lgt_sp"][y][x].set_opacity(1.0 if G["lgt"][y][x] else 0.0)
             else:
                 if vis_lgt: _queue_opacity_anim(G["lgt_sp"][y][x], 1.0 if G["lgt"][y][x] else 0.0, anims)
-    if anim != 0 and anims:
-        scene.play(*anims, run_time=anim)
+    if rt != 0 and anims:
+        scene.play(*anims, run_time=rt)
     if wait > 0:
         scene.wait(wait)
 
-def press_rev(scene, G, i, j, wait=0.0, anim=0.3, include_center=True):
+def press_rev(scene, G, i, j, wait=0.0, rt=0.3, include_center=True):
     clear_all_bd(G)
     anims=[]
     G["lgt"][j][i]=not G["lgt"][j][i]
@@ -1107,7 +1107,7 @@ def press_rev(scene, G, i, j, wait=0.0, anim=0.3, include_center=True):
     if "grid_vis_lgt" in G and 0<=j<len(G["grid_vis_lgt"]) and 0<=i<len(G["grid_vis_lgt"][0]):
         vis_lgt=G["grid_vis_lgt"][j][i]
     set_bd(G,"lgt",i,j,True if vis_lgt else False)
-    if anim==0:
+    if rt==0:
         if vis_lgt: G["lgt_sp"][j][i].set_opacity(1.0 if G["lgt"][j][i] else 0.0)
     else:
         if vis_lgt: _queue_opacity_anim(G["lgt_sp"][j][i],1.0 if G["lgt"][j][i] else 0.0,anims)
@@ -1123,31 +1123,56 @@ def press_rev(scene, G, i, j, wait=0.0, anim=0.3, include_center=True):
             if "grid_vis_btn" in G and 0<=y<len(G["grid_vis_btn"]) and 0<=x<len(G["grid_vis_btn"][0]):
                 vis_btn=G["grid_vis_btn"][y][x]
             set_bd(G,"btn",x,y,True if vis_btn else False)
-            if anim==0:
+            if rt==0:
                 if vis_btn: G["btn_sp"][y][x].set_opacity(1.0 if G["btn"][y][x] else 0.0)
             else:
                 if vis_btn: _queue_opacity_anim(G["btn_sp"][y][x],1.0 if G["btn"][y][x] else 0.0,anims)
-    if anim!=0 and anims:
-        scene.play(*anims,run_time=anim)
+    if rt!=0 and anims:
+        scene.play(*anims,run_time=rt)
     if wait>0:
         scene.wait(wait)
 
-def press_lgt(lgt, x, y):
+def press_lgt(obj, x, y, scene=None, rt=0.0, only_center=False, bd=True):
+    if isinstance(obj, dict):
+        G = obj
+        lgt = G["lgt"]
+        H = len(lgt)
+        W = len(lgt[0])
+        cells = [(x, y)] if only_center else [(x, y), (x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
+        anims = []
+        for (xx, yy) in cells:
+            if 0 <= xx < W and 0 <= yy < H:
+                lgt[yy][xx] = 0 if lgt[yy][xx] else 1
+                vis = True
+                if "grid_vis_lgt" in G and 0 <= yy < len(G["grid_vis_lgt"]) and 0 <= xx < len(G["grid_vis_lgt"][0]):
+                    vis = G["grid_vis_lgt"][yy][xx]
+                if bd: set_bd(G, "lgt", xx, yy, True if vis else False)
+                if vis:
+                    if rt == 0 or scene is None:
+                        G["lgt_sp"][yy][xx].set_opacity(1.0 if lgt[yy][xx] else 0.0)
+                    else:
+                        _queue_opacity_anim(G["lgt_sp"][yy][xx], 1.0 if lgt[yy][xx] else 0.0, anims)
+        if scene is not None and rt != 0 and anims:
+            scene.play(*anims, run_time=rt)
+        return
+    lgt = obj
     H = len(lgt)
     W = len(lgt[0])
-    for (xx, yy) in [(x, y), (x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]:
+    for (xx, yy) in ([(x, y)] if only_center else [(x, y), (x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]):
         if 0 <= xx < W and 0 <= yy < H:
             lgt[yy][xx] ^= 1
 
-def apply_mat(scene, G, MAT, anim=0.1, clear_end=True):
+def apply_mat(scene, G, MAT, wait=0.0, rt=0.3, clear_end=True, x0=0, y0=0):
     h = len(MAT)
     w = len(MAT[0]) if h > 0 else 0
     for j in range(h):
         for i in range(w):
             if MAT[j][i] == 1:
-                press(scene, G, i, j, wait=0, anim=anim)
+                press(scene, G, i + x0, j + y0, wait=0.0, rt=rt)
     if clear_end:
         clear_all_bd(G)
+    if wait > 0:
+        scene.wait(wait)
 
 def set_grid_mats(scene, grids, mat=None, mat_l=None, rt=0.3, clear_first=True, keep_border=True, reset_state=True):
     if isinstance(grids, dict):
@@ -2868,6 +2893,9 @@ class LightsOut(Scene):
 
         show_title(self, "点灯游戏的$O(n^2)$解法")
 #演示n=5,7,11
+
+#——————————————————————
+
         show_title(self, "首行叠加法（续上集）")
 
         show_subtitle(self, "在上集视频的《首行叠加法》中，有观众对按钮和灯的递推仍有疑问。", "这次我们来讲清楚，这个递推公式是怎么来的。")
@@ -2964,7 +2992,7 @@ class LightsOut(Scene):
                 G5_[y][x] = make_grid(self, w=cols * rows, h=1, w_l=1, h_l=1, lgt_x=3, btn_x=0, lgt_y=my, btn_y=my, sz=sz, rt=0.01, mat=[mat_l[idx][:]], mat_l=[[1]], show=False)
                 rt = 0.2
                 if y==0 and x<=1 : rt = 1.0
-                press_rev(self, G5, x,y, anim=rt / 5)
+                press_rev(self, G5, x,y, rt=rt / 5)
                 trans_grid(self,G5,G5_[y][x], keep_from=True, rt=rt);
                 btn_objs[y][x] = add_grid_labels(self, G5_[y][x], [[f"B{j+1}" for j in range(cols*rows)]], scale=0.2, rt=0.01)
                 lgt_objs[y][x] = add_grid_labels(self, G5_[y][x], [[f"L{idx+1}"]], scale=0.2, rt=0.01)
@@ -3076,16 +3104,16 @@ class LightsOut(Scene):
                 w = min(cols, len(row_l), len(grid["lgt"][0]))
                 for x in range(w):
                     if row_l[x] and not grid["lgt"][0][x]:
-                        toggle_lgt(self, grid, x, 0, anim=0.01)
+                        toggle_lgt(self, grid, x, 0, rt=0.01)
                     if x < len(row_b) and row_b[x] and not grid["btn"][0][x]:
-                        toggle_btn(self, grid, x, 0, anim=0.01)
+                        toggle_btn(self, grid, x, 0, rt=0.01)
                 gridY = G5Y_[k][y]
                 val_btn = MAT5Y[k][y] if k < len(MAT5Y) else 0
                 val_lgt = MAT5Y[k+1][y] if k+1 < len(MAT5Y) else 0
                 if bool(val_btn) != gridY["btn"][0][0]:
-                    toggle_btn(self, gridY, 0, 0, anim=0.01)
+                    toggle_btn(self, gridY, 0, 0, rt=0.01)
                 if bool(val_lgt) != gridY["lgt"][0][0]:
-                    toggle_lgt(self, gridY, 0, 0, anim=0.01)
+                    toggle_lgt(self, gridY, 0, 0, rt=0.01)
         self.wait(4)
         del_top_labels(self, top_objs)
         del_top_labels(self, topy_objs)
@@ -3221,11 +3249,79 @@ class LightsOut(Scene):
         del_cells(self, [G5Y_[1][0]], indices=[(0, 0)])
         del_cells(self, [G5Y_[1][1]], indices=[(0, 0)])
         del_cells(self, [G5Y_[1][2]], indices=[(0, 0)])
+        del_grids(self, [G5_, G5Y_], kp_bd=True) 
+
+        cols, rows = 5, 5
+        sz = 0.25
+        G5__ = [None] * cols
+        G5Y__ = [None] * cols
+        my = -((rows - 1) / 2) * sz
+        for y in range(cols):
+            mx = (y * 2 - cols) * (1 + sz) + 1
+            G5__[y] = make_grid(self, w=cols, h=rows, lgt_x=mx, btn_x=mx, lgt_y=my, btn_y=my, sz=sz, mat=[[0] * cols for _ in range(rows)], mat_l=[[0] * cols for _ in range(rows)], show=True, rt=0.01)
+            mx = (y * 2 - cols) * (1 + sz) + 1 + sz * (cols + 3) / 2
+            G5Y__[y] = make_grid(self, w=1, h=rows, lgt_x=mx, btn_x=mx, lgt_y=my, btn_y=my, sz=sz, mat=[[0] for _ in range(rows)], mat_l=[[0] for _ in range(rows)], show=True, rt=0.01)
+
+        show_subtitle(self, "事实上，按钮矩阵也可以用另一种更直观的方法推得。")
+        self.wait(2)
+        show_subtitle(self, "首先，我们点击第一行的第一个按钮。", "然后，点击第二行的按钮，尽可能消去第一行的灯。")
+        apply_mat(self, G5__[0], [MAT5K[0][0][:]], y0=0, rt=0.8)
+        self.wait(2)
+        apply_mat(self, G5__[0], [MAT5K[1][0][:]], y0=1, rt=0.8)
+        self.wait(2)
+        show_subtitle(self, "接着按第三行按钮，不断递推，直到最后一行。")
+        for k in range(2, 5):
+            apply_mat(self, G5__[0], [MAT5K[k][0][:]], y0=k, rt=0.8)
+        self.wait(2)
+        show_subtitle(self, "那么，最后一行灯的状态，就是按钮矩阵的第一行。")
+        bd = hl_bd(self, G5_[4][0])
+        self.wait(2)
+        del_bd(self, bd)
+
+        show_subtitle(self, "同理，点击第二个按钮，然后递推。", "则最后一行灯就是按钮矩阵第二行。")
+        for k in range(rows):
+            apply_mat(self, G5__[1], [MAT5K[k][1][:]], y0=k)
+        bd = hl_bd(self, G5_[4][1])
+        self.wait(2)
+        del_bd(self, bd)
+
+        show_subtitle(self, "通过这个方法，我们也得到整个按钮矩阵。")
+        for y in range(2, 5):
+            for k in range(rows):
+                apply_mat(self, G5__[y], [MAT5K[k][y][:]], y0=k, rt=0.15)
+        self.wait(2)
+
+        show_subtitle(self, "另外，灯向量也可以用相似的方法推得。")
+        self.wait(2)
+
+        show_subtitle(self, "我们把所有灯全部点亮，然后用刚才的方法尝试把所有灯消去，", "最后一行灯的状态就是灯向量。")
+        for y in range(rows):
+            set_all_lights(self, G5Y__[y])
+        self.wait(1)
+        for k in range(rows):
+            for y in range(rows):
+                if MAT5Y[k][y] == 1:
+                    press(self, G5Y__[y], 0, k, wait=0.0, include_center=True)
+                    clear_all_bd(G5Y__[y])
+                    if y - 1 >= 0:
+                        press_lgt(G5Y__[y - 1], 0, k, scene=self, rt=0.01, only_center=True)
+                        clear_all_bd(G5Y__[y - 1])
+                    if y + 1 < rows:
+                        press_lgt(G5Y__[y + 1], 0, k, scene=self, rt=0.01, only_center=True)
+                        clear_all_bd(G5Y__[y + 1])
+        self.wait(2)
+
+        show_subtitle(self, "我们把这种方法称作余数矩阵法，和首行叠加法的原理本质上是相同的，", "有兴趣的观众小伙伴可以自行证明。")
+        self.wait(2)
+
         del_latex(self, [LAT1_5, LAT3]);
         del_top_labels(self, top_objs)
         del_top_labels(self, topy_objs)
         del_left_labels(self, left_objs)
         del_grids(self, [G5_, G5Y_]) 
+        del_grids(self, [G5__, G5Y__]) 
+
+#——————————————————————
 
         show_title(self, "优化生成矩阵（续上集）")
         show_subtitle(self, "在《生成优化矩阵》章节中，我将矩阵的行重排。", "其实是调换了n和y的位置，使原来从左到右的第y个矩阵变为了第n个矩阵。")
@@ -3808,7 +3904,7 @@ class LightsOut(Scene):
             "<cC>=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)",
              0, 1.0, font_size=FONT_SIZE_SMALL)
         self.wait(2)
-        LAT_C = show_latex(self, "<cC>C'(n,x)=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)", 0, 1.0, show=False)
+        LAT_C = show_latex(self, "<cC>C'(n,x)=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)", 0, 0.5, show=False)
         trans_latex(self, LAT_C0, LAT_C)
         self.wait(2)
 
@@ -3827,6 +3923,10 @@ class LightsOut(Scene):
         LAT_Y = show_latex(self, "<cB>B<cX>x<cP>=p(<cH>H<cP>)<cX>x<cP>=<cY>y", 0, 0.0, font_size=FONT_SIZE_LARGE)
         self.wait(2)
         del_latex(self, [LAT_Y])
+
+#——————————————————————
+
+        show_title(self, "扩展欧几里得法")
 
         show_subtitle(self, "试想一下，如果有一个多项式q(x)，", "满足q(x)*p(x)=1 mod f(x)。")
         LAT_Q1 = show_latex(self, "<cQ>q(x)<cP>p(x)<cI>=1 mod <cF>f(x)", 0, 2.5)
@@ -3914,7 +4014,7 @@ class LightsOut(Scene):
         ctx = mul_vec_mat_begin(self, w=7, h=7, mat=MAT_QH, vec=VEC_Y7, mat_color=Q_COLOR, vec_color=Y_COLOR, res_color=X_COLOR, mat_label="Q'", vec_label="y", res_label="x", sz=0.4)
         self.wait(2)
 
-        show_subtitle(self, "因此，也可以通过递推公式，", "利用q(x)直接求出整个逆矩阵Q'，然后再和y相乘获得x。")
+        show_subtitle(self, "因此，也可以通过递推公式，", "利用q(x)直接求出整个逆矩阵Q'，然后再和y相乘求得x。")
         mul_vec_mat_vec_and_rows(self, ctx)
         mul_vec_mat_accumulate(self, ctx)
         self.wait(1)
@@ -3935,22 +4035,27 @@ class LightsOut(Scene):
         LAT_R = show_latex(self, "<cR>r'(n)=deg(<cG>gcd(<cF>f(n,x)<cG>,<cC>c(n,x)<cG>)<cR>)", 0, 1.0)
         self.wait(2)
         show_subtitle(self, "这里，gcd表示最大公因子。", "不难发现，这里的gcd(f,c)就是前面扩展欧几里得算法中的g(x)。")
-        LAT_G = show_latex(self, "<cG>g(n,x)=gcd(<cF>f(n,x)<cG>,<cC>c(n,x)<cG>)", 0, 0.5)
+        LAT_G = show_latex(self, "<cG>g(n,x)=gcd(<cF>f(n,x)<cG>,<cC>c(n,x)<cG>)", 0, 0.0)
+        LAT_R2 = show_latex(self, "<cR>r'(n)=deg(<cG>gcd(g(n,x))", 0, 1.0, show=False)
+        trans_latex(self, LAT_R, LAT_R2)
         self.wait(2)
         show_subtitle(self, "同时，由于F=C+P，因此gcd(f,c)和gcd(f,p)是相等的。")
-        LAT_GP = show_latex(self, "<cG>g(n,x)=gcd(<cF>f(n,x)<cG>,<cC>c(n,x)<cG>)=gcd(<cF>f(n,x)<cG>,<cP>p(n,x)<cG>)", 0, 0.0)
+        LAT_F = show_latex(self, "<cF>f(n,x)=<cC>c(n,x)<cF>+<cP>p(n,x)", 0, 0.5)
+        LAT_G2 = show_latex(self, "<cG>g(n,x)=gcd(<cF>f(n,x)<cG>,<cC>c(n,x)<cG>)=gcd(<cF>f(n,x)<cG>,<cP>p(n,x)<cG>)", 0, 0.0, show=False)
+        trans_latex(self, LAT_G, LAT_G2)
         self.wait(2)
         show_subtitle(self, "deg则表示最高次幂。r'代表矩阵B丢失的秩，也就是n-r。", "r'的值决定了解的数量，即2^r'。")
         self.wait(2)
         show_subtitle(self, "可以发现，如果B是可逆的，则g(x)=1，r'=0，n=r-r'=r。")
         self.wait(2)
-        del_latex(self, [LAT_R, LAT_G, LAT_GP])
+        del_latex(self, [LAT_R2, LAT_F])
+        LAT_G = show_latex(self, LATEX_G, 0, 2.0, show=False)
+        trans_latex(self, LAT_G2, LAT_G)
 
         show_subtitle(self, "将g(x)写成矩阵的形式，记为G。")
         grid_G = make_grid(self, 8, 8, mat_l=MAT_G, mat_g={"lgt": MAT_MK1, "btn": MAT8_0}, btn_c=G_COLOR, lgt_c=G_COLOR, sz=0.4)
         left_obj = add_left_labels(self, grid_G, list(range(8)), dx=0.4)
         bottom_obj = add_bottom_label(self, grid_G, "G", dy=0.6, color=G_COLOR)
-        LAT_G = show_latex(self, LATEX_G, 0, 2.0)
         hl_cells(self, [grid_G], indices=[(0,0),(0,1),(0,2),(0,3),(4,4),(2,5),(0,6),(0,7)], color=HL_COLOR_1)
         self.wait(2)
 
@@ -4101,8 +4206,6 @@ class LightsOut(Scene):
 #——————————————————————
 
         show_title(self, "反向消元法")
-
-#——————————————————————
 
         show_subtitle(self, "在刚才的《首行求逆法》中，我们有这些公式。")
         LAT_A1_1 = show_latex(self, "<cQ>q(x)<cP>p(x)<cI>=1 mod <cF>f(x)", 0, 2.0)
@@ -4420,7 +4523,7 @@ class LightsOut(Scene):
 #展示D
         show_subtitle(self, "而B=p'(H)D破坏了这一结构，不满足这些性质。")
 #展示B
-        show_subtitle(self, "不过，当g=1时，这个种解法是可行的。", "尽管这个办法首先需要求出完整的B矩阵。")
+        show_subtitle(self, "不过，当g=1时，这个种解法是可行的。", "尽管这个方法首先需要求出完整的B矩阵。")
         show_subtitle(self, "同时，因为B矩阵不是三角结构，还需标记每行首个i的位置来选择。", "因此，直接计算q(H)*Y会更加方便。")
 #增加展示?
 
@@ -4429,7 +4532,6 @@ class LightsOut(Scene):
         self.wait(2)
 #演示整个n=5
 
-        """
 #——————————————————————
 
         show_title(self, "算法总结")
@@ -4449,4 +4551,3 @@ class LightsOut(Scene):
         show_subtitle(self, "如果对视频中的内容有疑问，觉得视频内容表述不清，", "或者发现视频中的任何错误，也请大家多多留言和指证。谢谢大家观看！")
         self.wait(2)
         show_subtitle(self, "")
-        """

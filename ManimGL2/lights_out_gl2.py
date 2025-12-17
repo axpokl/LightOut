@@ -2893,6 +2893,9 @@ class LightsOut(Scene):
 
         show_title(self, "点灯游戏的$O(n^2)$解法")
 #演示n=5,7,11
+
+#——————————————————————
+
         show_title(self, "首行叠加法（续上集）")
 
         show_subtitle(self, "在上集视频的《首行叠加法》中，有观众对按钮和灯的递推仍有疑问。", "这次我们来讲清楚，这个递推公式是怎么来的。")
@@ -3275,7 +3278,7 @@ class LightsOut(Scene):
         self.wait(2)
         del_bd(self, bd)
 
-        show_subtitle(self, "同理，点击第二个按钮，然后递推。", "则最后一行灯就是B矩阵第二行。")
+        show_subtitle(self, "同理，点击第二个按钮，然后递推。", "则最后一行灯就是按钮矩阵第二行。")
         for k in range(rows):
             apply_mat(self, G5__[1], [MAT5K[k][1][:]], y0=k)
         bd = hl_bd(self, G5_[4][1])
@@ -3318,7 +3321,8 @@ class LightsOut(Scene):
         del_grids(self, [G5_, G5Y_]) 
         del_grids(self, [G5__, G5Y__]) 
 
-        """
+#——————————————————————
+
         show_title(self, "优化生成矩阵（续上集）")
         show_subtitle(self, "在《生成优化矩阵》章节中，我将矩阵的行重排。", "其实是调换了n和y的位置，使原来从左到右的第y个矩阵变为了第n个矩阵。")
         cols, rows = 5, 5
@@ -3674,10 +3678,10 @@ class LightsOut(Scene):
         del_grids(self, [grid_K])
 
         show_subtitle(self, "现在，定义多项式p(x)。", "我们的目标是把B拆分成H^n。")
-        LAT_P1 = show_latex(self, "<cP>p(x)=p0*x^0+p1*x^1+p2*x^2...=SUM+(pi*x^i)", 0, 2.5)
+        LAT_P1 = show_latex(self, "<cP>p(x)=p0*x^0+p1*x^1+p2*x^2...=SUM+:(pi*x^i)", 0, 2.5)
         self.wait(2)
         show_subtitle(self, "将矩阵H代入多项式p(x)，得到p(H)，并用其表示矩阵B。")
-        LAT_P2 = show_latex(self, "<cB>B<cP>=p(<cH>H<cP>)=p0*<cH>H^0<cP>⊕p1*<cH>H^1<cP>⊕p2*<cH>H^2<cP>⊕...=SUM⊕(pi*<cH>H^i<cP>)", 0, 2.0)
+        LAT_P2 = show_latex(self, "<cB>B<cP>=p(<cH>H<cP>)=p0*<cH>H^0<cP>⊕p1*<cH>H^1<cP>⊕p2*<cH>H^2<cP>⊕...=SUM⊕:(pi*<cH>H^i<cP>)", 0, 2.0)
         self.wait(2)
         show_subtitle(self, "这样，原始求x的问题就变为了p(H)x=y。")
         LAT_P3 = show_latex(self, "<cB>B<cX>x<cP>=p(<cH>H<cP>)<cX>x<cP>=<cY>y", 0, 1.5)
@@ -3890,17 +3894,17 @@ class LightsOut(Scene):
         LAT_C0 = show_latex(self, 
             "<cC>C'(n,x)<br>"
             "<cC>=(<cB>B'<cC>*<cF>F<cC>)(n,x)<br>"
-            "<cC>=Sum_j:[<cB>B'(n,j)<cC>*<cF>F(j,x)<cC>]<br>"
-            "<cC>=Sum_j:[(<cB>B'(n-1,j-1)<cC>⊕<cB>B'(n-1,j)<cC>⊕<cB>B'(n-1,j+1)<cC>⊕<cB>B'(n-2,j))<cC>*<cF>F(j,x)<cC>]<br>"
-            "<cC>=Sum_j:[<cB>B'(n-1,j-1)<cC>*<cF>F(j,x)<cC>⊕<cB>B'(n-1,j)<cC>*<cF>F(j,x)<cC>⊕<cB>B'(n-1,j+1)<cC>*<cF>F(j,x)<cC>⊕<cB>B'(n-2,j)<cC>*<cF>F(j,x)<cC>]<br>"
-            "<cC>=Sum_j:[<cB>B'(n-1,j)<cC>*<cF>F(j+1,x)<cC>⊕<cB>B'(n-1,j)<cC>*<cF>F(j,x)<cC>⊕<cB>B'(n-1,j)<cC>*<cF>F(j-1,x)<cC>⊕<cB>B'(n-2,j)<cC>*<cF>F(j,x)<cC>]<br>"
-            "<cC>=Sum_j:[<cB>B'(n-1,j)<cC>*<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cC>*<cF>F(j-1,x-1)<cC>⊕<cB>B'(n-1,j)<cC>*<cF>F(j-2,x)<cC>⊕<cB>B'(n-2,j)<cC>*<cF>F(j,x)<cC>]<br>"
-            "<cC>=Sum_j:[<cB>B'(n-1,j)<cC>*<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cC>*(<cF>F(j-1,x-1)<cC>⊕<cF>F(j-2,x))<cC>⊕<cB>B'(n-2,j)<cC>*<cF>F(j,x)<cC>]<br>"
-            "<cC>=Sum_j:[<cB>B'(n-1,j)<cC>*<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cC>*<cF>F(j,x)<cC>⊕<cB>B'(n-2,j)<cC>*<cF>F(j,x)<cC>]<br>"
+            "<cC>=SUM:[<cB>B'(n,j)<cC>*<cF>F(j,x)<cC>]<br>"
+            "<cC>=SUM:[(<cB>B'(n-1,j-1)<cC>⊕<cB>B'(n-1,j)<cC>⊕<cB>B'(n-1,j+1)<cC>⊕<cB>B'(n-2,j))<cC>*<cF>F(j,x)<cC>]<br>"
+            "<cC>=SUM:[<cB>B'(n-1,j-1)<cC>*<cF>F(j,x)<cC>⊕<cB>B'(n-1,j)<cC>*<cF>F(j,x)<cC>⊕<cB>B'(n-1,j+1)<cC>*<cF>F(j,x)<cC>⊕<cB>B'(n-2,j)<cC>*<cF>F(j,x)<cC>]<br>"
+            "<cC>=SUM:[<cB>B'(n-1,j)<cC>*<cF>F(j+1,x)<cC>⊕<cB>B'(n-1,j)<cC>*<cF>F(j,x)<cC>⊕<cB>B'(n-1,j)<cC>*<cF>F(j-1,x)<cC>⊕<cB>B'(n-2,j)<cC>*<cF>F(j,x)<cC>]<br>"
+            "<cC>=SUM:[<cB>B'(n-1,j)<cC>*<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cC>*<cF>F(j-1,x-1)<cC>⊕<cB>B'(n-1,j)<cC>*<cF>F(j-2,x)<cC>⊕<cB>B'(n-2,j)<cC>*<cF>F(j,x)<cC>]<br>"
+            "<cC>=SUM:[<cB>B'(n-1,j)<cC>*<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cC>*(<cF>F(j-1,x-1)<cC>⊕<cF>F(j-2,x))<cC>⊕<cB>B'(n-2,j)<cC>*<cF>F(j,x)<cC>]<br>"
+            "<cC>=SUM:[<cB>B'(n-1,j)<cC>*<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cC>*<cF>F(j,x)<cC>⊕<cB>B'(n-2,j)<cC>*<cF>F(j,x)<cC>]<br>"
             "<cC>=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)",
              0, 1.0, font_size=FONT_SIZE_SMALL)
         self.wait(2)
-        LAT_C = show_latex(self, "<cC>C'(n,x)=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)", 0, 1.0, show=False)
+        LAT_C = show_latex(self, "<cC>C'(n,x)=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)", 0, 0.5, show=False)
         trans_latex(self, LAT_C0, LAT_C)
         self.wait(2)
 
@@ -3919,6 +3923,10 @@ class LightsOut(Scene):
         LAT_Y = show_latex(self, "<cB>B<cX>x<cP>=p(<cH>H<cP>)<cX>x<cP>=<cY>y", 0, 0.0, font_size=FONT_SIZE_LARGE)
         self.wait(2)
         del_latex(self, [LAT_Y])
+
+#——————————————————————
+
+        show_title(self, "扩展欧几里得法")
 
         show_subtitle(self, "试想一下，如果有一个多项式q(x)，", "满足q(x)*p(x)=1 mod f(x)。")
         LAT_Q1 = show_latex(self, "<cQ>q(x)<cP>p(x)<cI>=1 mod <cF>f(x)", 0, 2.5)
@@ -4027,22 +4035,27 @@ class LightsOut(Scene):
         LAT_R = show_latex(self, "<cR>r'(n)=deg(<cG>gcd(<cF>f(n,x)<cG>,<cC>c(n,x)<cG>)<cR>)", 0, 1.0)
         self.wait(2)
         show_subtitle(self, "这里，gcd表示最大公因子。", "不难发现，这里的gcd(f,c)就是前面扩展欧几里得算法中的g(x)。")
-        LAT_G = show_latex(self, "<cG>g(n,x)=gcd(<cF>f(n,x)<cG>,<cC>c(n,x)<cG>)", 0, 0.5)
+        LAT_G = show_latex(self, "<cG>g(n,x)=gcd(<cF>f(n,x)<cG>,<cC>c(n,x)<cG>)", 0, 0.0)
+        LAT_R2 = show_latex(self, "<cR>r'(n)=deg(<cG>gcd(g(n,x))", 0, 1.0, show=False)
+        trans_latex(self, LAT_R, LAT_R2)
         self.wait(2)
         show_subtitle(self, "同时，由于F=C+P，因此gcd(f,c)和gcd(f,p)是相等的。")
-        LAT_GP = show_latex(self, "<cG>g(n,x)=gcd(<cF>f(n,x)<cG>,<cC>c(n,x)<cG>)=gcd(<cF>f(n,x)<cG>,<cP>p(n,x)<cG>)", 0, 0.0)
+        LAT_F = show_latex(self, "<cF>f(n,x)=<cC>c(n,x)<cF>+<cP>p(n,x)", 0, 0.5)
+        LAT_G2 = show_latex(self, "<cG>g(n,x)=gcd(<cF>f(n,x)<cG>,<cC>c(n,x)<cG>)=gcd(<cF>f(n,x)<cG>,<cP>p(n,x)<cG>)", 0, 0.0, show=False)
+        trans_latex(self, LAT_G, LAT_G2)
         self.wait(2)
         show_subtitle(self, "deg则表示最高次幂。r'代表矩阵B丢失的秩，也就是n-r。", "r'的值决定了解的数量，即2^r'。")
         self.wait(2)
         show_subtitle(self, "可以发现，如果B是可逆的，则g(x)=1，r'=0，n=r-r'=r。")
         self.wait(2)
-        del_latex(self, [LAT_R, LAT_G, LAT_GP])
+        del_latex(self, [LAT_R2, LAT_F])
+        LAT_G = show_latex(self, LATEX_G, 0, 2.0, show=False)
+        trans_latex(self, LAT_G2, LAT_G)
 
         show_subtitle(self, "将g(x)写成矩阵的形式，记为G。")
         grid_G = make_grid(self, 8, 8, mat_l=MAT_G, mat_g={"lgt": MAT_MK1, "btn": MAT8_0}, btn_c=G_COLOR, lgt_c=G_COLOR, sz=0.4)
         left_obj = add_left_labels(self, grid_G, list(range(8)), dx=0.4)
         bottom_obj = add_bottom_label(self, grid_G, "G", dy=0.6, color=G_COLOR)
-        LAT_G = show_latex(self, LATEX_G, 0, 2.0)
         hl_cells(self, [grid_G], indices=[(0,0),(0,1),(0,2),(0,3),(4,4),(2,5),(0,6),(0,7)], color=HL_COLOR_1)
         self.wait(2)
 
@@ -4538,4 +4551,3 @@ class LightsOut(Scene):
         show_subtitle(self, "如果对视频中的内容有疑问，觉得视频内容表述不清，", "或者发现视频中的任何错误，也请大家多多留言和指证。谢谢大家观看！")
         self.wait(2)
         show_subtitle(self, "")
-        """
