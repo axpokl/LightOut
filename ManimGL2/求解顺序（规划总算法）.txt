@@ -1,0 +1,11 @@
+b
+y
+k
+f
+c
+p=F*b	mul_vec_mat/begin...
+q,g=gcd	make_ops_euclid/euclid_grids/euclid_ops...
+z/x=Q*y	mul_vec_mat	y扩展Y乘q，Y=y*K?
+d=K*g	mul_vec_mat	先乘，再求D
+X	逆向求
+
