@@ -133,3 +133,20 @@ p
 1000101
 
 p 001010
+
+
+LATEX_MAT = [
+    (L_COLOR,  "<cL>",  "L",   "-",   "灯矩阵第一行",                 "公式递推",     "<cL>L(n,x)=L(n-1,x-1)⊕L(n-1,x)⊕L(n-1,x+1)⊕L(n-2,x)"),
+    (B_COLOR,  "<cB>",  "B",   "-",   "按钮矩阵第一行",               "公式递推",     "<cB>B(n,x)=B(n-1,x-1)⊕B(n-1,x)⊕B(n-1,x+1)⊕B(n-2,x)"),
+    (Y_COLOR,  "<cY>",  "Y",   "-",   "灯矩阵最后一行",               "公式递推...", "<cY>Y(n,y)=~(Y(n-1,y-1)⊕Y(n-1,y)⊕Y(n-1,y+1)⊕Y(n-2,y))"),
+    (H_COLOR,  "<cH>",  "H",   "-",   "邻接矩阵",                     "公式递推",     "<cH>H(y,x)=(∣x-y∣=1)"),
+    (K_COLOR,  "<cK>",  "K",   "<cH>H",   "H^n第一行（Krylov扩散基矩阵）", "公式递推",     "<cK>K(n,x)=K(n-1,x-1)⊕K(n-1,x+1)"),
+    (F_COLOR,  "<cF>",  "F",   "<cK>K",   "K的逆矩阵（Krylov解耦矩阵）",   "公式递推",     "<cF>F(n,x)=F(n-1,x-1)⊕F(n-2,x)"),
+    (C_COLOR,  "<cC>",  "C",   "<cB>B",   "B关于H的系数矩阵",             "公式递推",     "<cC>C(n,x)=C(n-1,x-1)⊕C(n-1,x)⊕C(n-2,x)"),
+    (P_COLOR,  "<cP>",  "P",   "<cF>F<cP>,<cB>b", "多项式p(H)的系数",             "矩阵向量乘法", "<cP>p=<cF>F<cB>b"),
+    (Q_COLOR,  "<cQ>",  "Q",   "<cF>F<cQ>,<cP>p", "多项式p(x)的在f(x)下的逆",     "扩展欧几里得", "<cQ>q=<cP>p^-1<cQ> mod <cF>F"),
+    (G_COLOR,  "<cG>",  "G",   "<cF>F<cG>,<cP>P", "多项式p(x)和q(x)最大共因子",   "扩展欧几里得", "<cG>g=gcd(<cF>f<cG>,<cC>c<cG>)=gcd(<cF>f<cG>,<cP>p<cG>)"),
+    (Z_COLOR,  "<cZ>",  "Z",   "<cQ>Q<cZ>,<cY>y", "部分逆按钮解",                 "矩阵向量乘法", "<cZ>z=<cQ>Q<cY>y"),
+    (D_COLOR,  "<cD>",  "D",   "<cK>K<cD>,<cG>g", "多项式g(x)的矩阵",             "矩阵向量乘法", "<cD>d=<cK>K<cG>g"),
+    (X_COLOR,  "<cX>",  "X",   "<cD>D<cX>,<cZ>z", "最终首行按钮解",               "前向异或消元", "<cZ>z=<cD>D<cX>x"),
+    (T_COLOR,  "<cT>",  "T",   "<cX>x",   "最终按钮解矩阵",               "公式递推",     "<cT>T(n,x)=T(n-1,x-1)⊕T(n-1,x)⊕T(n-1,x+1)⊕T(n-2,x)"),

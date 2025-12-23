@@ -4008,19 +4008,19 @@ class LightsOut(Scene):
             "<cQ>=SUM:qi*<cH>H^i<cQ>*<cY>y",
              0, 1.0)
         self.wait(2)
-        show_subtitle(self, "这里，我们可以从Y开始，不断将其和H相乘，", "使用左右扩散的方法计算下一个H^n*y，然后和qn叠加，得到x。")
+        show_subtitle(self, "这里，我们可以从Y开始，不断将其和H相乘，", "使用左右扩散的方法计算下一个H^n*y，然后和q(n)叠加，得到x。")
         LAT_Q4 = show_latex(self, "<cX>x<cQ>=q(<cH>H<cQ>)<cY>y<cQ>=SUM:qi*<cH>H^i<cQ>*<cY>y", 0, 2.5, show=False)
         trans_latex(self, LAT_Q3, LAT_Q4)
         LAT_Y3 = show_latex(self, "<cY>Y'(n,x)=Y'(n-1,x-1)+Y'(n-1,x+1)", 0, 2.0)
         mul_vec_mat(self, w=7, h=7, mat=MAT_YK, vec=VEC_Q7, mat_color=Y_COLOR, vec_color=Q_COLOR, res_color=X_COLOR, mat_label="Y'", vec_label="q", res_label="x")
         del_latex(self, LAT_Q4, LAT_Y3)
 
-        show_subtitle(self, "另一方面，q(x)的系数也就是B的逆矩阵Q'的第一行，", "并且可以证明B的逆矩阵Q'也满足十字偶校验约束。")
+        show_subtitle(self, "另一方面，由于q(H)就是B的逆矩阵Q'，", "并且可以证明B的逆矩阵Q'也满足十字偶校验约束。")
         LAT_Q5 = show_latex(self, "<cX>x<cQ>=Q'<cY>y<cQ>", 0, 2.5)
         ctx = mul_vec_mat_begin(self, w=7, h=7, mat=MAT_QH, vec=VEC_Y7, mat_color=Q_COLOR, vec_color=Y_COLOR, res_color=X_COLOR, mat_label="Q'", vec_label="y", res_label="x")
         self.wait(2)
 
-        show_subtitle(self, "因此，也可以通过递推公式，", "利用q(x)直接求出整个逆矩阵Q'，然后再和y相乘求得x。")
+        show_subtitle(self, "因此，可以利用K*q求出逆矩阵Q'的第一行", "再通过递推公式求得完整Q'，最后再和y相乘求得x。")
         mul_vec_mat_vec_and_rows(self, ctx)
         mul_vec_mat_accumulate(self, ctx)
         self.wait(1)
