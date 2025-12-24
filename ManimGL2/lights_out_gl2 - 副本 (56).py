@@ -4516,7 +4516,7 @@ class LightsOut(Scene):
         mul_vec_mat_cleanup(self, ctx, clear_res=True)
         del_grids(self, grid_D_)
         del_grids(self, [grid_D5, grid_DR1, grid_DR2, grid_DR3])
-        del_latex(self, LAT_D, LAT_D_)
+        del_latex(self, LAT_D_)
 
 #——————————————————————
 
@@ -4524,7 +4524,7 @@ class LightsOut(Scene):
         LAT_B = show_latex(self, "<cZ>y=<cB>B<cX>x<cZ>=<cP>p(H)<cX>x", 0, 2.0)
         self.wait(2)
 
-        show_subtitle(self, "既然我们可以在第二个式子用反向消元法求x，", "为什么不能用相同的方法在第一个式子求x呢？")
+        show_subtitle(self, "既然我们可以在第一个式子用反向消元法求x，", "为什么不能用相同的方法在第二个式子求x呢？")
         mul_vec_mat(self, w=5, h=5, mat=MAT_D5, vec=VEC_X5, mat_color=D_COLOR, vec_color=X_COLOR, res_color=Z_COLOR, mat_label="D", vec_label="x", res_label="z")
         mul_vec_mat(self, w=5, h=5, mat=MAT_B5, vec=VEC_X5, mat_color=B_COLOR, vec_color=X_COLOR, res_color=Y_COLOR, mat_label="B", vec_label="x", res_label="y")
         self.wait(2)
@@ -4566,11 +4566,8 @@ class LightsOut(Scene):
 
         table = show_algo_table(self, x=0.0, y=0.0, font_size=18, row_gap=0.075, col_gap=0.5)
         self.wait(2)
-        hide_algo_table(self, table)
 
 #可以说明一下步骤
-
-        show_title(self, "更快的算法")
 
         show_subtitle(self, "向量和矩阵的乘法，欧几里得算法，以及K矩阵的生成，", "理论上通过卷积，FFT或牛顿迭代法是有可能优化到O(n*log(n))的。")
         self.wait(2)
@@ -4578,4 +4575,15 @@ class LightsOut(Scene):
         self.wait(2)
         show_subtitle(self, "如果对视频中的内容有疑问，觉得视频内容表述不清，", "或者发现视频中的任何错误，也请大家多多留言和指证。谢谢大家观看！")
         self.wait(2)
+
+        hide_algo_table(self, table)
+
+        show_title(self, "参考文献")
+
+        show_center_latex(self, latex_blocks=LATEX_LEFT, shift_x=-3.5, shift_y=-0.25, replace_old=False)
+        show_center_latex(self, latex_blocks=LATEX_RIGHT, shift_x=3.2, shift_y=1.5, replace_old=False)
+        self.wait(2)
+        remove_center_latex(self)
+
         show_subtitle(self, "")
+
