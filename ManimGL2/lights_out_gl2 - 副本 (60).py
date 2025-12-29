@@ -2528,153 +2528,6 @@ def euclid_clear(scene, euc):
     del_left_labels(scene, [label_g, label_q], rt=rt)
     del_grids(scene, [grid_g, grid_q], rt=rt)
 
-def get_case_params(n):
-    sz = SZ_DEFAULT*(7+2)/(n+2)
-    szs = sz*0.75
-    sx = 5.5
-    latex_x, latex_y = 0.0, 2.5
-    if n == 5:
-        matY, matD = MAT_Y5, MAT_D5
-        vecB, vecY, vecF, vecK, vecC = VEC_B5, VEC_Y5, VEC_F5, VEC_K5, VEC_C5
-        vecP, vecQ, vecG, vecE, vecO = VEC_P5, VEC_Q5, VEC_G5, VEC_E5, VEC_O5
-        vecD, vecZ, vecX = VEC_D5, VEC_Z5, VEC_X5
-        ops = OPS_5
-        rt = 0.1
-    elif n == 11:
-        matY, matD = MAT_Y11, MAT_D11
-        vecB, vecY, vecF, vecK, vecC = VEC_B11, VEC_Y11, VEC_F11, VEC_K11, VEC_C11
-        vecP, vecQ, vecG, vecE, vecO = VEC_P11, VEC_Q11, VEC_G11, VEC_E11, VEC_O11
-        vecD, vecZ, vecX = VEC_D11, VEC_Z11, VEC_X11
-        ops = OPS_11
-        rt = 0.05
-    elif n == 7:
-        matY, matD = MAT_Y7, MAT_D7
-        vecB, vecY, vecF, vecK, vecC = VEC_B7, VEC_Y7, VEC_F7, VEC_K7, VEC_C7
-        vecP, vecQ, vecG, vecE, vecO = VEC_P7, VEC_Q7, VEC_G7, VEC_E7, VEC_O7
-        vecD, vecZ, vecX = VEC_D7, VEC_Z7, VEC_X7
-        ops = OPS_7
-        rt = 0.1
-    else:
-        raise ValueError("unsupported n")
-    return n, sz, szs, sx, matY, matD, vecB, vecY, vecF, vecK, vecC, vecP, vecQ, vecG, vecE, vecO, vecD, vecZ, vecX, latex_x, latex_y, ops, rt
-
-def run_case(self, n):
-    n, sz, szs, sx, matY, matD, vecB, vecY, vecF, vecK, vecC, vecP, vecQ, vecG, vecE, vecO, vecD, vecZ, vecX, latex_x, latex_y, ops, rt = get_case_params(n)
-
-    ctx_B = show_mat(self, n=n+1, mat_l=MAT_B, mat_g=MAT_MK1, vec=vecB, latex=LATEX_B, color=B_COLOR, label="B", latex_x=latex_x, latex_y=latex_y, sz=sz, rt=rt)
-    grid_B = make_grid(self, n, 1, mat_l=[vecB], lgt_c=B_COLOR, btn_x=sx, lgt_x=sx, btn_y=szs*5, lgt_y=szs*5, sz=szs, show=False)
-    trans_grid(self, ctx_B["grid_v"], grid_B, keep_from=True, rt=rt)
-    label_B = add_left_labels(self, grid_B , ["b"], dx=szs, color=B_COLOR)
-    del_mat(self, ctx_B, rt=rt)
-
-    ctx_Y = show_mat(self, n=n+1, mat_l=MAT_Y, mat_g=MAT_MK2, vec=vecY, latex=LATEX_Y, color=Y_COLOR, label="Y", latex_x=latex_x, latex_y=latex_y, sz=sz, rt=rt)
-    grid_Y = make_grid(self, n, 1, mat_l=[vecY], lgt_c=Y_COLOR, btn_x=sx, lgt_x=sx, btn_y=szs*4, lgt_y=szs*4, sz=szs, show=False)
-    trans_grid(self, ctx_Y["grid_v"], grid_Y, keep_from=True, rt=rt)
-    label_Y = add_left_labels(self, grid_Y , ["y"], dx=szs, color=Y_COLOR)
-    del_mat(self, ctx_Y, rt=rt)
-
-    ctx_F = show_mat(self, n=n+1, mat_l=MAT_F, mat_g=MAT_MK1, vec=vecF, latex=LATEX_F, color=F_COLOR, label="F", latex_x=latex_x, latex_y=latex_y, sz=sz, rt=rt)
-    grid_F = make_grid(self, n+1, 1, mat_l=[vecF], lgt_c=F_COLOR, btn_x=sx+szs/2, lgt_x=sx+szs/2, btn_y=szs*3, lgt_y=szs*3, sz=szs, show=False)
-    trans_grid(self, ctx_F["grid_v"], grid_F, keep_from=True, rt=rt)
-    label_F = add_left_labels(self, grid_F , ["f"], dx=szs, color=F_COLOR)
-    del_mat(self, ctx_F, rt=rt)
-
-    ctx_K = show_mat(self, n=n+1, mat_l=MAT_K, mat_g=MAT_MK1, vec=vecK, latex=LATEX_K, color=K_COLOR, label="K", latex_x=latex_x, latex_y=latex_y, sz=sz, rt=rt)
-    grid_K = make_grid(self, n, 1, mat_l=[vecK], lgt_c=K_COLOR, btn_x=sx, lgt_x=sx, btn_y=szs*2, lgt_y=szs*2, sz=szs, show=False)
-    trans_grid(self, ctx_K["grid_v"], grid_K, keep_from=True, rt=rt)
-    label_K = add_left_labels(self, grid_K , ["k"], dx=szs, color=K_COLOR)
-    del_mat(self, ctx_K, rt=rt)
-
-    ctx_C = show_mat(self, n=n+1, mat_l=MAT_C, mat_g=MAT_MK1, vec=vecC, latex=LATEX_C, color=C_COLOR, label="C", latex_x=latex_x, latex_y=latex_y, sz=sz, rt=rt)
-    grid_C = make_grid(self, n, 1, mat_l=[vecC], lgt_c=C_COLOR, btn_x=sx, lgt_x=sx, btn_y=szs*1, lgt_y=szs*1, sz=szs, show=False)
-    trans_grid(self, ctx_C["grid_v"], grid_C, keep_from=True, rt=rt)
-    label_C = add_left_labels(self, grid_C , ["c"], dx=szs, color=C_COLOR)
-    del_mat(self, ctx_C, rt=rt)
-
-    lat = show_latex(self, LATEX_P, latex_x, latex_y, run_in=rt, run_out=rt)
-    grid_V = make_grid(self, 1, n, mat_l=[[v] for v in vecB], btn_x=-(n+3)/2*sz, lgt_x=-(n+3)/2*sz, lgt_c=B_COLOR, sz=sz, rt=rt, show=False)
-    trans_grid(self, grid_B, grid_V, keep_from=True, rt=rt)
-    ctx = mul_vec_mat_begin(self, w=n, h=n, mat=MAT_F, vec=vecB, mat_color=F_COLOR, vec_color=B_COLOR, res_color=P_COLOR, mat_label="F", vec_label="b", res_label="p", sz=sz, rt=rt)
-    mul_vec_mat_accumulate(self, ctx)
-    del_grids(self, [grid_V], rt=0.01)
-    grid_P = make_grid(self, n, 1, mat_l=[vecP], lgt_c=P_COLOR, btn_x=sx, lgt_x=sx, btn_y=szs*0, lgt_y=szs*0, sz=szs, show=False)
-    trans_grid(self, ctx["grid_res"], grid_P, keep_from=True, rt=rt)
-    label_P = add_left_labels(self, grid_P , ["p"], dx=szs, color=P_COLOR)
-    mul_vec_mat_cleanup(self, ctx)
-    del_latex(self, lat, rt=rt)
-
-    lat = show_latex(self, LATEX_Q, latex_x, latex_y, run_in=rt, run_out=rt)
-    dx, dy = 2.0, 0.5
-    grid_f = make_grid(self, w=n+1, h=1, lgt_x=-dx, btn_x=-dx, lgt_y=+dy, btn_y=+dy, sz=sz, mat_l=[vecF], lgt_c=F_COLOR, show=False)
-    grid_p = make_grid(self, w=n+1, h=1, lgt_x=-dx, btn_x=-dx, lgt_y=-dy, btn_y=-dy, sz=sz, mat_l=[vecP], lgt_c=P_COLOR, show=False)
-    trans_grid(self, grid_F, grid_f, keep_from=True, rt=rt)
-    trans_grid(self, grid_P, grid_p, keep_from=True, rt=rt)
-    euc = euclid_create(self, vecF, vecP, vecO, vecE, vecG, vecQ, F_COLOR, P_COLOR, I_COLOR, E_COLOR, G_COLOR, Q_COLOR, sz=sz, rt=rt, dx=dx, dy=dy)
-    del_grids(self, [grid_f, grid_p], rt=0.01)
-    euclid_ops(self, euc, ops, rt=rt)
-    euclid_done(self, euc)
-    grid_Q = make_grid(self, n, 1, mat_l=[vecQ], lgt_c=Q_COLOR, btn_x=sx, lgt_x=sx, btn_y=szs*-1, lgt_y=szs*-1, sz=szs, show=False)
-    grid_G = make_grid(self, n, 1, mat_l=[vecG], lgt_c=G_COLOR, btn_x=sx, lgt_x=sx, btn_y=szs*-2, lgt_y=szs*-2, sz=szs, show=False)
-    trans_grid(self, euc["grid_q"], grid_Q, keep_from=True, rt=rt)
-    label_Q = add_left_labels(self, grid_Q , ["q"], dx=szs, color=Q_COLOR)
-    trans_grid(self, euc["grid_g"], grid_G, keep_from=True, rt=rt)
-    label_G = add_left_labels(self, grid_G , ["g"], dx=szs, color=G_COLOR)
-    euclid_clear(self, euc)
-    del_latex(self, lat, rt=rt)
-
-    lat = show_latex(self, LATEX_Z, latex_x, latex_y, run_in=rt, run_out=rt)
-    grid_V = make_grid(self, 1, n, mat_l=[[v] for v in vecQ], btn_x=-(n+3)/2*sz, lgt_x=-(n+3)/2*sz, lgt_c=Q_COLOR, sz=sz, rt=rt, show=False)
-    grid_M = make_grid(self, n, 1, mat_l=[vecY], btn_y=+(n-1)/2*sz, lgt_y=+(n-1)/2*sz, lgt_c=Y_COLOR, sz=sz, rt=rt, show=False)
-    trans_grid(self, grid_Q, grid_V, keep_from=True, rt=rt)
-    trans_grid(self, grid_Y, grid_M, keep_from=True, rt=rt)
-    ctx = mul_vec_mat_begin(self, w=n, h=n, mat=matY, vec=vecQ, mat_color=Y_COLOR, vec_color=Q_COLOR, res_color=Z_COLOR, mat_label="Y", vec_label="q", res_label="z", sz=sz, rt=rt)
-    mul_vec_mat_accumulate(self, ctx)
-    del_grids(self, [grid_V, grid_M], rt=0.01)
-    grid_Z = make_grid(self, n, 1, mat_l=[vecZ], lgt_c=Z_COLOR, btn_x=sx, lgt_x=sx, btn_y=szs*-3, lgt_y=szs*-3, sz=szs, show=False)
-    trans_grid(self, ctx["grid_res"], grid_Z, keep_from=True, rt=rt)
-    label_Z = add_left_labels(self, grid_Z , ["z"], dx=szs, color=Z_COLOR)
-    mul_vec_mat_cleanup(self, ctx)
-    del_latex(self, lat, rt=rt)
-
-    lat = show_latex(self, LATEX_D, latex_x, latex_y, run_in=rt, run_out=rt)
-    grid_V = make_grid(self, 1, n, mat_l=[[v] for v in vecG], btn_x=-(n+3)/2*sz, lgt_x=-(n+3)/2*sz, lgt_c=G_COLOR, sz=sz, rt=rt, show=False)
-    trans_grid(self, grid_G, grid_V, keep_from=True, rt=rt)
-    ctx = mul_vec_mat_begin(self, w=n, h=n, mat=MAT_K, vec=vecG, mat_color=K_COLOR, vec_color=G_COLOR, res_color=D_COLOR, mat_label="K", vec_label="g", res_label="d", sz=sz, rt=rt)
-    mul_vec_mat_accumulate(self, ctx)
-    del_grids(self, [grid_V], rt=0.01)
-    grid_D = make_grid(self, n, 1, mat_l=[vecD], lgt_c=D_COLOR, btn_x=sx, lgt_x=sx, btn_y=szs*-4, lgt_y=szs*-4, sz=szs, show=False)
-    trans_grid(self, ctx["grid_res"], grid_D, keep_from=True, rt=rt)
-    label_D = add_left_labels(self, grid_D , ["d"], dx=szs, color=D_COLOR)
-    mul_vec_mat_cleanup(self, ctx)
-    del_latex(self, lat, rt=rt)
-
-    lat = show_latex(self, LATEX_X, latex_x, latex_y, run_in=rt, run_out=rt)
-    grid_V = make_grid(self, n, 1, mat_l=[vecZ], btn_y=-(n+3)/2*sz, lgt_y=-(n+3)/2*sz, lgt_c=G_COLOR, sz=sz, rt=rt, show=False)
-    grid_M = make_grid(self, n, 1, mat_l=[vecD], btn_y=+(n-1)/2*sz, lgt_y=+(n-1)/2*sz, lgt_c=D_COLOR, sz=sz, rt=rt, show=False)
-    trans_grid(self, grid_Z, grid_V, keep_from=True, rt=rt)
-    trans_grid(self, grid_D, grid_M, keep_from=True, rt=rt)
-    ctx = mul_vec_mat_begin(self, w=n, h=n, mat=matD, vec=[0]*n, res=vecZ, mat_color=D_COLOR, vec_color=X_COLOR, res_color=Z_COLOR, mat_label="D", vec_label="x", res_label="z", sz=sz, rt=rt)
-    grid_D_ = [None] * n
-    for y in range(n):
-        grid_D_[y] = make_grid(self, n, 1, mat_l=[matD[y][:]], btn_y=-(y-(n-1)/2)*sz, lgt_y=-(y-(n-1)/2)*sz, btn_c=D_COLOR, lgt_c=D_COLOR, sz=sz, rt=0.01)
-    mul_vec_mat_accumulate(self, ctx)
-    del_grids(self, [grid_V, grid_M], rt=0.01)
-    for i in range(n - 1, -1, -1):
-        if vecX[i]:
-            toggle_lgt(self, ctx["grid_vec"], 0, i, rt=rt)
-            add_grid(self, grid_D_[i], ctx["grid_res"], keep_from=True, rt=rt)
-    grid_X = make_grid(self, n, 1, mat_l=[vecX], lgt_c=X_COLOR, btn_x=sx, lgt_x=sx, btn_y=szs*-5, lgt_y=szs*-5, sz=szs, show=False)
-    trans_grid(self, ctx["grid_vec"], grid_X, keep_from=True, rt=rt)
-    label_X = add_left_labels(self, grid_X , ["x"], dx=szs, color=X_COLOR)
-    mul_vec_mat_cleanup(self, ctx)
-    del_grids(self, grid_D_, rt=rt)
-    del_latex(self, lat, rt=rt)
-
-    del_left_labels(self, [label_B, label_Y, label_F, label_K, label_C, label_P, label_Q, label_G, label_Z, label_D, label_X], rt=rt)
-    del_grids(self, [grid_B, grid_Y, grid_F, grid_K, grid_C, grid_P, grid_Q, grid_G, grid_Z, grid_D, grid_X], rt=rt)
-
-    return {"grid_B": grid_B, "grid_Y": grid_Y, "grid_F": grid_F, "grid_K": grid_K, "grid_C": grid_C, "grid_P": grid_P, "grid_Q": grid_Q, "grid_G": grid_G, "grid_Z": grid_Z, "grid_D": grid_D, "grid_X": grid_X, "label_B": label_B, "label_Y": label_Y, "label_F": label_F, "label_K": label_K, "label_C": label_C, "label_P": label_P, "label_Q": label_Q, "label_G": label_G, "label_Z": label_Z, "label_D": label_D, "label_X": label_X, "n": n, "sz": sz, "szs": szs, "rt": rt}
-
 def show_mat(scene, n, mat_l, mat_g, vec, color=WHITE, latex="", latex_x=0.0, latex_y=2.5, label="", sz=SZ_DEFAULT, rt=0.3):
     LAT = show_latex(scene, latex, latex_x, latex_y, run_in=rt, run_out=rt)
     mg = mat_g if isinstance(mat_g, dict) else {"lgt": mat_g, "btn": MAT_MK0}
@@ -2849,10 +2702,8 @@ VEC_C7 = [1,1,1,1,1,1,1]
 VEC_P7 = [1,1,1,1,1,1,1]
 VEC_Q7 = [1,1,0,0,0,0,0]
 VEC_G7 = [1,0,0,0,0,0,0,0]
-VEC_D7 = [1,0,0,0,0,0,0]
 VEC_E7 = [1,0,0,0,0,0,0]
 VEC_O7 = [0,0,0,0,0,0,0]
-VEC_Z7 = [1,1,0,1,0,1,1]
 VEC_X7 = [1,1,0,1,0,1,1]
 
 VEC_B11 = [0,0,0,1,1,1,0,0,0,1,1]
@@ -2928,10 +2779,9 @@ MAT_Q = [
     [1,0,1,0,0,0,0,0,0,0,0],
 ]
 
-
-MAT_B5 = make_mat_v(5, VEC_B5, "S")
 MAT_Q5_1 = make_mat_v(5, VEC_Q5, "S")
 MAT_Q5_2 = make_mat_v(5, VEC_Q5_2, "S")
+MAT_B5 = make_mat_v(5, VEC_B5, "S")
 MAT_Q5 = [
     [1,1,0,0,0],
     [1,1,1,0,0],
@@ -2946,12 +2796,12 @@ MAT_E5 = [
     [0,0,0,0,0],
     [0,0,0,0,0],
 ]
-MAT_Q7 = make_mat_v(7, VEC_Q7, "S")
-
 MAT_D5 = make_mat_v(5, VEC_D5, "S")
 MAT_Y5 = make_mat_v(5, VEC_Y5, "K")
-MAT_D7 = make_mat_v(7, VEC_D7, "S")
+
+MAT_Q7 = make_mat_v(7, VEC_Q7, "S")
 MAT_Y7 = make_mat_v(7, VEC_Y7, "K")
+
 MAT_D11 = make_mat_v(11, VEC_D11, "S")
 MAT_Y11 = make_mat_v(11, VEC_Y11, "K")
 
@@ -4694,12 +4544,140 @@ class LightsOut(Scene):
 
 
         """
-        run_case(self, 5)
-        self.wait(1)
-        run_case(self, 7)
-        self.wait(1)
-        run_case(self, 11)
 
+
+        n = 5
+        sz = SZ_DEFAULT*(7+2)/(n+2)
+        szs = sz*0.75
+        matY, matD = MAT_Y5, MAT_D5
+        vecB, vecY, vecF, vecK, vecC = VEC_B5, VEC_Y5, VEC_F5, VEC_K5, VEC_C5
+        vecP, vecQ, vecG, vecE, vecO = VEC_P5, VEC_Q5, VEC_G5, VEC_E5, VEC_O5
+        vecD, vecZ, vecX = VEC_D5, VEC_Z5, VEC_X5
+        latex_x, latex_y = 0.0, 2.5
+        ops = OPS_5
+        rt = 0.2
+
+        n = 11
+        sz = SZ_DEFAULT*(7+2)/(n+2)
+        szs = sz*0.75
+        matY, matD = MAT_Y11, MAT_D11
+        vecB, vecY, vecF, vecK, vecC = VEC_B11, VEC_Y11, VEC_F11, VEC_K11, VEC_C11
+        vecP, vecQ, vecG, vecE, vecO = VEC_P11, VEC_Q11, VEC_G11, VEC_E11, VEC_O11
+        vecD, vecZ, vecX = VEC_D11, VEC_Z11, VEC_X11
+        latex_x, latex_y = 0.0, 2.5
+        ops = OPS_11
+        rt = 0.1
+
+        ctx_B = show_mat(self, n=n+1, mat_l=MAT_B, mat_g=MAT_MK1, vec=vecB, latex=LATEX_B, color=B_COLOR, label="B", latex_x=latex_x, latex_y=latex_y, sz=sz, rt=rt)
+        grid_B = make_grid(self, n, 1, mat_l=[vecB], lgt_c=B_COLOR, btn_x=5, lgt_x=5, btn_y=szs*5, lgt_y=szs*5, sz=szs, show=False)
+        trans_grid(self, ctx_B["grid_v"], grid_B, keep_from=True, rt=rt)
+        label_B = add_left_labels(self, grid_B , ["b"], dx=szs, color=B_COLOR)
+        del_mat(self, ctx_B, rt=rt)
+
+        ctx_Y = show_mat(self, n=n+1, mat_l=MAT_Y, mat_g=MAT_MK2, vec=vecY, latex=LATEX_Y, color=Y_COLOR, label="Y", latex_x=latex_x, latex_y=latex_y, sz=sz, rt=rt)
+        grid_Y = make_grid(self, n, 1, mat_l=[vecY], lgt_c=Y_COLOR, btn_x=5, lgt_x=5, btn_y=szs*4, lgt_y=szs*4, sz=szs, show=False)
+        trans_grid(self, ctx_Y["grid_v"], grid_Y, keep_from=True, rt=rt)
+        label_Y = add_left_labels(self, grid_Y , ["y"], dx=szs, color=Y_COLOR)
+        del_mat(self, ctx_Y, rt=rt)
+
+        ctx_F = show_mat(self, n=n+1, mat_l=MAT_F, mat_g=MAT_MK1, vec=vecF, latex=LATEX_F, color=F_COLOR, label="F", latex_x=latex_x, latex_y=latex_y, sz=sz, rt=rt)
+        grid_F = make_grid(self, n+1, 1, mat_l=[vecF], lgt_c=F_COLOR, btn_x=5+szs/2, lgt_x=5+szs/2, btn_y=szs*3, lgt_y=szs*3, sz=szs, show=False)
+        trans_grid(self, ctx_F["grid_v"], grid_F, keep_from=True, rt=rt)
+        label_F = add_left_labels(self, grid_F , ["f"], dx=szs, color=F_COLOR)
+        del_mat(self, ctx_F, rt=rt)
+
+        ctx_K = show_mat(self, n=n+1, mat_l=MAT_K, mat_g=MAT_MK1, vec=vecK, latex=LATEX_K, color=K_COLOR, label="K", latex_x=latex_x, latex_y=latex_y, sz=sz, rt=rt)
+        grid_K = make_grid(self, n, 1, mat_l=[vecK], lgt_c=K_COLOR, btn_x=5, lgt_x=5, btn_y=szs*2, lgt_y=szs*2, sz=szs, show=False)
+        trans_grid(self, ctx_K["grid_v"], grid_K, keep_from=True, rt=rt)
+        label_K = add_left_labels(self, grid_K , ["k"], dx=szs, color=K_COLOR)
+        del_mat(self, ctx_K, rt=rt)
+
+        ctx_C = show_mat(self, n=n+1, mat_l=MAT_C, mat_g=MAT_MK1, vec=vecC, latex=LATEX_C, color=C_COLOR, label="C", latex_x=latex_x, latex_y=latex_y, sz=sz, rt=rt)
+        grid_C = make_grid(self, n, 1, mat_l=[vecC], lgt_c=C_COLOR, btn_x=5, lgt_x=5, btn_y=szs*1, lgt_y=szs*1, sz=szs, show=False)
+        trans_grid(self, ctx_C["grid_v"], grid_C, keep_from=True, rt=rt)
+        label_C = add_left_labels(self, grid_C , ["c"], dx=szs, color=C_COLOR)
+        del_mat(self, ctx_C, rt=rt)
+
+        lat = show_latex(self, LATEX_P, latex_x, latex_y, run_in=rt, run_out=rt)
+        grid_V = make_grid(self, 1, n, mat_l=[[v] for v in vecB], btn_x=-(n+3)/2*sz, lgt_x=-(n+3)/2*sz, lgt_c=B_COLOR, sz=sz, rt=rt, show=False)
+        trans_grid(self, grid_B, grid_V, keep_from=True, rt=rt)
+        ctx = mul_vec_mat_begin(self, w=n, h=n, mat=MAT_F, vec=vecB, mat_color=F_COLOR, vec_color=B_COLOR, res_color=P_COLOR, mat_label="F", vec_label="b", res_label="p", sz=sz, rt=rt)
+        mul_vec_mat_accumulate(self, ctx)
+        del_grids(self, [grid_V], rt=0.01)
+        grid_P = make_grid(self, n, 1, mat_l=[vecP], lgt_c=P_COLOR, btn_x=5, lgt_x=5, btn_y=szs*0, lgt_y=szs*0, sz=szs, show=False)
+        trans_grid(self, ctx["grid_res"], grid_P, keep_from=True, rt=rt)
+        label_P = add_left_labels(self, grid_P , ["p"], dx=szs, color=P_COLOR)
+        mul_vec_mat_cleanup(self, ctx)
+        del_latex(self, lat, rt=rt)
+
+        lat = show_latex(self, LATEX_Q, latex_x, latex_y, run_in=rt, run_out=rt)
+        dx, dy = 2.0, 0.5
+        grid_f = make_grid(self, w=n+1, h=1, lgt_x=-dx, btn_x=-dx, lgt_y=+dy, btn_y=+dy, sz=sz, mat_l=[vecF], lgt_c=F_COLOR, show=False)
+        grid_p = make_grid(self, w=n+1, h=1, lgt_x=-dx, btn_x=-dx, lgt_y=-dy, btn_y=-dy, sz=sz, mat_l=[vecP], lgt_c=P_COLOR, show=False)
+        trans_grid(self, grid_F, grid_f, keep_from=True, rt=rt)
+        trans_grid(self, grid_P, grid_p, keep_from=True, rt=rt)
+        euc = euclid_create(self, vecF, vecP, vecO, vecE, vecG, vecQ, F_COLOR, P_COLOR, I_COLOR, E_COLOR, G_COLOR, Q_COLOR, sz=sz, rt=rt, dx=dx, dy=dy)
+        del_grids(self, [grid_f, grid_p], rt=0.01)
+        euclid_ops(self, euc, ops, rt=rt)
+        euclid_done(self, euc)
+        grid_Q = make_grid(self, n, 1, mat_l=[vecQ], lgt_c=Q_COLOR, btn_x=5, lgt_x=5, btn_y=szs*-1, lgt_y=szs*-1, sz=szs, show=False)
+        grid_G = make_grid(self, n, 1, mat_l=[vecG], lgt_c=G_COLOR, btn_x=5, lgt_x=5, btn_y=szs*-2, lgt_y=szs*-2, sz=szs, show=False)
+        trans_grid(self, euc["grid_q"], grid_Q, keep_from=True, rt=rt)
+        label_Q = add_left_labels(self, grid_Q , ["q"], dx=szs, color=Q_COLOR)
+        trans_grid(self, euc["grid_g"], grid_G, keep_from=True, rt=rt)
+        label_G = add_left_labels(self, grid_G , ["g"], dx=szs, color=G_COLOR)
+        euclid_clear(self, euc)
+        del_latex(self, lat, rt=rt)
+
+        lat = show_latex(self, LATEX_Z, latex_x, latex_y, run_in=rt, run_out=rt)
+        grid_V = make_grid(self, 1, n, mat_l=[[v] for v in vecQ], btn_x=-(n+3)/2*sz, lgt_x=-(n+3)/2*sz, lgt_c=Q_COLOR, sz=sz, rt=rt, show=False)
+        grid_M = make_grid(self, n, 1, mat_l=[vecY], btn_y=+(n+0)/2*sz, lgt_y=+(n+0)/2*sz, lgt_c=Y_COLOR, sz=sz, rt=rt, show=False)
+        trans_grid(self, grid_Q, grid_V, keep_from=True, rt=rt)
+        trans_grid(self, grid_Y, grid_M, keep_from=True, rt=rt)
+        ctx = mul_vec_mat_begin(self, w=n, h=n, mat=matY, vec=vecQ, mat_color=Y_COLOR, vec_color=Q_COLOR, res_color=Z_COLOR, mat_label="Y", vec_label="q", res_label="z", sz=sz, rt=rt)
+        mul_vec_mat_accumulate(self, ctx)
+        del_grids(self, [grid_V, grid_M], rt=0.01)
+        grid_Z = make_grid(self, n, 1, mat_l=[vecZ], lgt_c=Z_COLOR, btn_x=5, lgt_x=5, btn_y=szs*-3, lgt_y=szs*-3, sz=szs, show=False)
+        trans_grid(self, ctx["grid_res"], grid_Z, keep_from=True, rt=rt)
+        label_Z = add_left_labels(self, grid_Z , ["z"], dx=szs, color=Z_COLOR)
+        mul_vec_mat_cleanup(self, ctx)
+        del_latex(self, lat, rt=rt)
+
+        lat = show_latex(self, LATEX_D, latex_x, latex_y, run_in=rt, run_out=rt)
+        grid_V = make_grid(self, 1, n, mat_l=[[v] for v in vecG], btn_x=-(n+3)/2*sz, lgt_x=-(n+3)/2*sz, lgt_c=G_COLOR, sz=sz, rt=rt, show=False)
+        trans_grid(self, grid_G, grid_V, keep_from=True, rt=rt)
+        ctx = mul_vec_mat_begin(self, w=n, h=n, mat=MAT_K, vec=vecG, mat_color=K_COLOR, vec_color=G_COLOR, res_color=D_COLOR, mat_label="K", vec_label="g", res_label="d", sz=sz, rt=rt)
+        mul_vec_mat_accumulate(self, ctx)
+        del_grids(self, [grid_V], rt=0.01)
+        grid_D = make_grid(self, n, 1, mat_l=[vecD], lgt_c=D_COLOR, btn_x=5, lgt_x=5, btn_y=szs*-4, lgt_y=szs*-4, sz=szs, show=False)
+        trans_grid(self, ctx["grid_res"], grid_D, keep_from=True, rt=rt)
+        label_D = add_left_labels(self, grid_D , ["d"], dx=szs, color=D_COLOR)
+        mul_vec_mat_cleanup(self, ctx)
+        del_latex(self, lat, rt=rt)
+
+        lat = show_latex(self, LATEX_X, latex_x, latex_y, run_in=rt, run_out=rt)
+        grid_V = make_grid(self, n, 1, mat_l=[vecZ], btn_y=-(n+3)/2*sz, lgt_y=-(n+3)/2*sz, lgt_c=G_COLOR, sz=sz, rt=rt, show=False)
+        grid_M = make_grid(self, n, 1, mat_l=[vecD], btn_y=+(n+0)/2*sz, lgt_y=+(n+0)/2*sz, lgt_c=D_COLOR, sz=sz, rt=rt, show=False)
+        trans_grid(self, grid_Z, grid_V, keep_from=True, rt=rt)
+        trans_grid(self, grid_D, grid_M, keep_from=True, rt=rt)
+        ctx = mul_vec_mat_begin(self, w=n, h=n, mat=matD, vec=[0]*n, res=vecZ, mat_color=D_COLOR, vec_color=X_COLOR, res_color=Z_COLOR, mat_label="D", vec_label="x", res_label="z", sz=sz, rt=rt)
+        grid_D_ = [None] * n
+        for y in range(n):
+            grid_D_[y] = make_grid(self, n, 1, mat_l=[matD[y][:]], btn_y=-(y-(n-1)/2)*sz, lgt_y=-(y-(n-1)/2)*sz, btn_c=D_COLOR, lgt_c=D_COLOR, sz=sz, rt=0.01)
+        mul_vec_mat_accumulate(self, ctx)
+        del_grids(self, [grid_V, grid_M], rt=0.01)
+        grid_X = ctx["grid_vec"]
+        grid_Z = ctx["grid_res"]
+        for i in range(n - 1, -1, -1):
+            if vecX[i]:
+                toggle_lgt(self, grid_X, 0, i, rt=rt)
+                add_grid(self, grid_D_[i], grid_Z, keep_from=True, rt=rt)
+        grid_X = make_grid(self, n, 1, mat_l=[vecX], lgt_c=X_COLOR, btn_x=5, lgt_x=5, btn_y=szs*-5, lgt_y=szs*-5, sz=szs, show=False)
+        trans_grid(self, ctx["grid_vec"], grid_X, keep_from=True, rt=rt)
+        label_X = add_left_labels(self, grid_X , ["x"], dx=szs, color=X_COLOR)
+        mul_vec_mat_cleanup(self, ctx)
+        del_grids(self, grid_D_, rt=rt)
+        del_latex(self, lat, rt=rt)
 #——————————————————————
         """
         show_title(self, "算法总结")
