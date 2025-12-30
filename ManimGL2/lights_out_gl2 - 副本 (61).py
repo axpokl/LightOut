@@ -2686,14 +2686,12 @@ def run_case_show_T(scene, ctx):
     label_T = add_top_labels(scene, grid_T, [("T" if i==((n-1)//2) else "") for i in range(n)], color=T_COLOR, rt=rt)
     ctx["lat"] = lat; ctx["grid_X_"] = grid_X_; ctx["grid_T"] = grid_T; ctx["label_T"] = label_T
 
-
 def run_case_del_T(scene, ctx):
     rt = ctx["rt"]; lat = ctx["lat"]; grid_X_ = ctx["grid_X_"]; grid_T = ctx["grid_T"]; label_T = ctx["label_T"]
     del_grids(scene, [grid_X_], rt=rt)
     del_top_labels(scene, label_T, rt=rt)
     del_grids(scene, [grid_T], rt=rt)
     del_latex(scene, lat, rt=rt)
-
 
 def run_case_end(scene, ctx):
     rt = ctx["rt"]
