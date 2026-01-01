@@ -1,16 +1,17 @@
 替换表：
 
-⊕	\oplus		注意加号和异或区分
-*	\cdot		多项式系数、抽象算子乘法，写点乘号。
-Sum	\Sum	\bigoplus
-...	\cdots
-~	\neg
-gcd	\gcd\bigl(
-deg	\deg\bigl(
-mod	\bmod
-|	\lvert	\rvert
-p0	p_0		系数下标
-p^-1	p^{-1}		逆
+⊕	⊕	\oplus		注意加号和异或区分
+*	·	\cdot		多项式系数、抽象算子乘法，写点乘号。
+Sum	∑	\Sum	\bigoplus
+...	…	\cdots
+~	¬	\neg
+gcd		\gcd\bigl(
+deg		\deg\bigl(
+mod		\bmod
+|		\lvert	\rvert
+^n	⁰¹²³⁴⁵⁶⁷⁸⁹	^_n		系数上标	ᵃ ᵇ ᶜ ᵈ ᵉ ᶠ ᵍ ʰ ⁱ ʲ ᵏ ˡ ᵐ ⁿ ᵒ ᵖ ʳ ˢ ᵗ ᵘ ᵛ ʷ ˣ ʸ ᶻ
+p0	₀₁₂₃₄₅₆₇₈₉	p_0		系数下标ₐ ₑ ₕ ₖ ₗ ₘ ₙ ₒ ₚ ₛ ₜ ᵢ ᵣ ᵤ ᵥ ₓ
+p^-1	⁻¹	p^{-1}		逆
 
 矩阵·向量、矩阵·矩阵：不写乘号，直接拼在一起。单引号同理。
 Bx=y → $Bx = y$

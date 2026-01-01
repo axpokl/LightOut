@@ -3065,12 +3065,12 @@ LATEX_CENTER = [
     {"type": "text", "content": "/269795c9-18b9-44b5-ba88-1d4a422008da/content", "scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
     {"type": "text", "content": "[10] Anil Damle，《克雷洛夫方法》", "scale": SCALE_CENTER, "indent": 0.0},
     {"type": "text", "content": "https://www.cs.cornell.edu/courses/cs6220/2017fa/CS6220_Lecture8.pdf", "scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
-    {"type": "text", "content": "[11] Erich Kaltofen，《关于Wiedemann求解稀疏线性系统的方法》", "scale": SCALE_CENTER, "indent": 0.0},
-    {"type": "text", "content": "https://users.cs.duke.edu/~elk27/bibliography/91/KaSa91.pdf", "scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
-    {"type": "text", "content": "[12] Douglas H. Wiedemann，《在有限域上求解稀疏线性方程》", "scale": SCALE_CENTER, "indent": 0.0},
+    {"type": "text", "content": "[11] Douglas H. Wiedemann，《在有限域上求解稀疏线性方程》", "scale": SCALE_CENTER, "indent": 0.0},
     {"type": "text", "content": "https://www.enseignement.polytechnique.fr", "scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
     {"type": "text", "content": "/informatique/profs/Francois.Morain", "scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
     {"type": "text", "content": "/Master1/Crypto/projects/Wiedemann86.pdf", "scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
+    {"type": "text", "content": "[12] Erich Kaltofen，《关于Wiedemann求解稀疏线性系统的方法》", "scale": SCALE_CENTER, "indent": 0.0},
+    {"type": "text", "content": "https://users.cs.duke.edu/~elk27/bibliography/91/KaSa91.pdf", "scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
     {"type": "text", "content": "[13] John L. Goldwasser，《网格图中的奇偶支配集》", "scale": SCALE_CENTER, "indent": 0.0},
     {"type": "text", "content": "https://www.researchgate.net/profile/John-Goldwasser", "scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
     {"type": "text", "content": "/publication/250342861_Parity_Dominating_Sets_in_Grid_Graphs", "scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
@@ -3137,7 +3137,6 @@ LATEX_MAT = [
 class LightsOut(Scene):
     def construct(self):
         self.camera.background_color = BLACK
-        """
 
         show_title(self, "点灯游戏的$O(n^2)$解法")
 
@@ -4833,7 +4832,7 @@ class LightsOut(Scene):
         self.wait(2)
 
         hide_algo_table(self, table)
-        """
+
         show_title(self, "参考文献")
 
         TOP_Y = 2
