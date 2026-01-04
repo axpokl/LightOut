@@ -23,4 +23,4 @@ latex规范化（符号）
 
 hl_cell可能在grid之后
 
-
+！改show_subtitle后，长字幕大小变小
