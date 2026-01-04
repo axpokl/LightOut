@@ -3104,7 +3104,7 @@ LATEX_MAT = [
     (L_COLOR, "<cL>", "L", "-", "灯矩阵第一行", "公式递推", "<cL>L(n,x)=L(n-1,x-1)⊕L(n-1,x)⊕L(n-1,x+1)⊕L(n-2,x)"),
     (B_COLOR, "<cB>", "B", "-", "按钮矩阵第一行", "公式递推", "<cB>B(n,x)=B(n-1,x-1)⊕B(n-1,x)⊕B(n-1,x+1)⊕B(n-2,x)"),
     (Y_COLOR, "<cY>", "Y", "-", "灯矩阵最后一行", "公式递推", "<cY>Y(n,y)=¬(Y(n-1,y-1)⊕Y(n-1,y)⊕Y(n-1,y+1)⊕Y(n-2,y))"),
-    (H_COLOR, "<cH>", "H", "-", "邻接矩阵", "公式递推", "<cH>H(y,x)=(∣x-y∣=1)"),
+    (H_COLOR, "<cH>", "H", "-", "邻接矩阵", "公式递推", "<cH>H(y,x)=(|x-y|=1)"),
     (K_COLOR, "<cK>", "K", "<cH>H", "Hⁿ第一行（Krylov扩散基矩阵）", "公式递推", "<cK>K(n,x)=K(n-1,x-1)⊕K(n-1,x+1)"),
     (F_COLOR, "<cF>", "F", "<cK>K", "K的逆矩阵（Krylov解耦矩阵）", "公式递推", "<cF>F(n,x)=F(n-1,x-1)⊕F(n-2,x)"),
     (C_COLOR, "<cC>", "C", "<cB>B", "B关于H的系数矩阵", "公式递推", "<cC>C(n,x)=C(n-1,x-1)⊕C(n-1,x)⊕C(n-2,x)"),
@@ -3344,7 +3344,7 @@ class LightsOut(Scene):
         show_subtitle(self, "例如，当第一个向量的第一个灯亮起时，", "表示第一个灯除了由刚才说的按钮叠加外，还需要再翻转才是正确的状态。")
         self.wait(4)
 
-        show_subtitle(self, "同理，B7=¬L2=¬(B1⊕B2⊕B3)，即第七个按钮B6是第二个灯L2的翻转。", "同样，第二行的按钮B7和第一行灯L2的叠加状态是相同的。")
+        show_subtitle(self, "同理，B7=¬L2=¬(B1⊕B2⊕B3)，即第七个按钮B7是第二个灯L2的翻转。", "同样，第二行的按钮B7和第一行灯L2的叠加状态是相同的。")
         toggle_lgt(self, G5_[0][1], 0, 0)
         toggle_lgt(self, G5_[0][1], 1, 0)
         toggle_lgt(self, G5_[0][1], 2, 0)
@@ -3372,7 +3372,7 @@ class LightsOut(Scene):
         add_cell(self, G5_[1][1], G5_[1][0], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
         add_cell(self, G5_[1][1], G5_[1][0], 2, 0, 2, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
 
-        show_subtitle(self, "又比如，L7=B2⊕B6⊕B7⊕B8", "=B2⊕¬(B1⊕B2)⊕¬(B1⊕B2⊕B3)⊕¬(B2⊕B3⊕B4)=¬B4")
+        show_subtitle(self, "又比如，L7=B2⊕B6⊕B7⊕B8", "=B2⊕¬(B1⊕B2)⊕¬(B1⊕B2⊕B3)⊕¬(B2⊕B3⊕B4)=¬B4。")
         toggle_btn(self, G5_[0][1], 1, 0)
         toggle_btn(self, G5_[1][2], 1, 0)
         toggle_btn(self, G5_[1][2], 2, 0)
@@ -3913,7 +3913,7 @@ class LightsOut(Scene):
         show_subtitle(self, "对于H的每一个元素，如果x和y的差为一则为一，否则为零。")
         self.wait(2)
         show_subtitle(self, "如果将向量v乘以该矩阵，等同于将向量v的每个元素向左右扩散后叠加。")
-        LAT_V = show_latex(self, "<cV>v'(x)=v(x)*<cH>H<cV>=v(x-1)⊕v(x+1)", 0, 2.5)
+        LAT_V = show_latex(self, "<cV>v'(x)=v(x)<cH>H<cV>=v(x-1)⊕v(x+1)", 0, 2.5)
         mul_vec_mat_accumulate(self, ctx)
         self.wait(2)
         show_subtitle(self, "这是因为矩阵的对应行就是向量每个元素左右扩散的结果。")
@@ -3925,8 +3925,8 @@ class LightsOut(Scene):
 
         LAT_BH = show_latex(self, "<cB>B(n)=B(n-1)<cH>H<cB>⊕B(n-1)⊕B(n-2)", 0, 2.5)
         LAT_BH0 = show_latex(self, "<cB>B(0)=<cI>I<cH>=H⁰", 0, 2.0)
-        LAT_BH1 = show_latex(self, "<cB>B(1)=<cH>H=<cH>H⁰+H¹", 0, 1.5)
-        LAT_BH2 = show_latex(self, "<cB>B(2)=B(1)<cH>H<cB>+B(1)+B(0)=<cH>(H²+H¹)+(H¹+H⁰)+H⁰=H²", 0, 1.0)
+        LAT_BH1 = show_latex(self, "<cB>B(1)=<cH>H=<cH>H⁰⊕H¹", 0, 1.5)
+        LAT_BH2 = show_latex(self, "<cB>B(2)=B(1)<cH>H<cB>⊕B(1)⊕B(0)=<cH>(H²⊕H¹)⊕(H¹⊕H⁰)⊕H⁰=H²", 0, 1.0)
 
         show_subtitle(self, "例如，B(0)、B(1)、B(2)分别可以表示为H的不同次数的叠加。")
         self.wait(2)
@@ -3957,7 +3957,7 @@ class LightsOut(Scene):
         bottom_obj = add_bottom_label(self, grid_K, "K", color=K_COLOR)
         self.wait(2)
         show_subtitle(self, "我们把这个下三角矩阵记为K，即Krylov矩阵或扩散基矩阵。", "也就是说，对于K的第n行，以上公式。")
-        LAT_K1 = show_latex(self, "<cK>K(n)=k(n-1)<cH>H=Hⁿ(0)", 0, 2.5)
+        LAT_K1 = show_latex(self, "<cK>K(n)=K(n-1)<cH>H=Hⁿ(0)", 0, 2.5)
         self.wait(2)
         show_subtitle(self, "这里下一行是上一行乘以H，也就是上一行左右扩散的叠加。", "因此对于K的每个元素，有上述递推公式。")
         LAT_K2 = show_latex(self, LATEX_K, 0, 2.0)
@@ -3972,7 +3972,7 @@ class LightsOut(Scene):
         del_grids(self, [grid_K])
 
         show_subtitle(self, "现在，定义多项式p(x)。", "我们的目标是把B拆分成Hⁿ。")
-        LAT_P1 = show_latex(self, "<cP>p(x)=p₀x⁰+p₁x¹+p₂x²…=∑(pᵢxⁱ)", 0, 2.5)
+        LAT_P1 = show_latex(self, "<cP>p(x)=p₀x⁰⊕p₁x¹⊕p₂x²…=∑(pᵢxⁱ)", 0, 2.5)
         self.wait(2)
         show_subtitle(self, "将矩阵H代入多项式p(x)，得到p(H)，并用其表示矩阵B。")
         LAT_P2 = show_latex(self, "<cB>B<cP>=p(<cH>H<cP>)=p₀<cH>H⁰<cP>⊕p₁<cH>H¹<cP>⊕p₂<cH>H²<cP>⊕…=∑(pᵢ<cH>Hⁱ<cP>)", 0, 2.0)
@@ -4186,13 +4186,13 @@ class LightsOut(Scene):
         LAT_C0 = show_latex(self, 
             "<cC>C'(n,x)<br>"
             "<cC>=(<cB>B'<cF>F<cC>)(n,x)<br>"
-            "<cC>=∑[<cB>B'(n,j)<cF>F(j,x)<cC>]<br>"
-            "<cC>=∑[(<cB>B'(n-1,j-1)<cC>⊕<cB>B'(n-1,j)<cC>⊕<cB>B'(n-1,j+1)<cC>⊕<cB>B'(n-2,j))<cF>F(j,x)<cC>]<br>"
-            "<cC>=∑[<cB>B'(n-1,j-1)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j+1)<cF>F(j,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br>"
-            "<cC>=∑[<cB>B'(n-1,j)<cF>F(j+1,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j-1,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br>"
-            "<cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j-1,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j-2,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br>"
-            "<cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)(<cF>F(j-1,x-1)<cC>⊕<cF>F(j-2,x))<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br>"
-            "<cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br>"
+            "<cC>=∑[<cB>B'(n,i)<cF>F(i,x)<cC>]<br>"
+            "<cC>=∑[(<cB>B'(n-1,i-1)<cC>⊕<cB>B'(n-1,i)<cC>⊕<cB>B'(n-1,i+1)<cC>⊕<cB>B'(n-2,i))<cF>F(i,x)<cC>]<br>"
+            "<cC>=∑[<cB>B'(n-1,i-1)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i+1)<cF>F(i,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br>"
+            "<cC>=∑[<cB>B'(n-1,i)<cF>F(i+1,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i-1,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br>"
+            "<cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i-1,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i-2,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br>"
+            "<cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)(<cF>F(i-1,x-1)<cC>⊕<cF>F(i-2,x))<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br>"
+            "<cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br>"
             "<cC>=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)",
              0, 1.0, font_size=FONT_SIZE_SMALL)
         self.wait(2)
@@ -4296,7 +4296,7 @@ class LightsOut(Scene):
         show_subtitle(self, "这里，我们可以从Y开始，不断将其和H相乘，", "使用左右扩散的方法计算y的下一行，然后和q(n)叠加，得到x。")
         LAT_Q4 = show_latex(self, "<cX>x<cQ>=q(<cH>H<cQ>)<cY>y<cQ>=∑qᵢ<cH>Hⁱ<cY>y", 0, 2.5, show=False)
         trans_latex(self, LAT_Q3, LAT_Q4)
-        LAT_Y3 = show_latex(self, "<cY>Y'(n,x)=Y'(n-1,x-1)+Y'(n-1,x+1)", 0, 2.0)
+        LAT_Y3 = show_latex(self, "<cY>Y'(n,x)=Y'(n-1,x-1)⊕Y'(n-1,x+1)", 0, 2.0)
         mul_vec_mat(self, w=7, h=7, mat=MAT_Y7, vec=VEC_Q7, mat_color=Y_COLOR, vec_color=Q_COLOR, res_color=X_COLOR, mat_label="Y'", vec_label="q", res_label="x")
         del_latex(self, LAT_Q4, LAT_Y3)
 
@@ -4331,8 +4331,8 @@ class LightsOut(Scene):
         LAT_R2 = show_latex(self, "<cR>r'(n)=deg(<cG>gcd(g(n,x))", 0, 1.0, show=False)
         trans_latex(self, LAT_R, LAT_R2)
         self.wait(2)
-        show_subtitle(self, "同时，由于F=C+P，因此gcd(f,c)和gcd(f,p)是相等的。")
-        LAT_F = show_latex(self, "<cF>f(n,x)=<cC>c(n,x)<cF>+<cP>p(n,x)", 0, 0.5)
+        show_subtitle(self, "同时，由于F=C⊕P，因此gcd(f,c)和gcd(f,p)是相等的。")
+        LAT_F = show_latex(self, "<cF>f(n,x)=<cC>c(n,x)<cF>⊕<cP>p(n,x)", 0, 0.5)
         LAT_G2 = show_latex(self, "<cG>g(n,x)=gcd(<cF>f(n,x)<cG>,<cC>c(n,x)<cG>)=gcd(<cF>f(n,x)<cG>,<cP>p(n,x)<cG>)", 0, 0.0, show=False)
         trans_latex(self, LAT_G, LAT_G2)
         self.wait(2)
@@ -4773,7 +4773,7 @@ class LightsOut(Scene):
         set_all_lights(self, grid_Z, on=False)
         toggle_lgt(self, grid_Z, 1, 0)
         toggle_lgt(self, grid_Z, 3, 0)
-        LAT_D_ = show_latex(self, "<cD>D(j,i)=D(i,j)", 0, 2.0)
+        LAT_D_ = show_latex(self, "<cD>D(x,y)=D(y,x)", 0, 2.0)
         self.wait(2)
 
         show_subtitle(self, "因此，我们可以同样只叠加前r行，从右往左进行消元。", "由于效果是相同的，这里不再赘述。")

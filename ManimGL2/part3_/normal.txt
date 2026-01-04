@@ -778,7 +778,7 @@
 00:07:08.833 0.520481 0.244961 <cY>Y0(n,y)=Y0(n-1,y-1)⊕Y0(n-1,y)⊕Y0(n-1,y+1)⊕Y0(n-2,y),y>1;Y'(n,y),y=1<br><cY>Y'(n,y)=¬(Y'(n-1,y-2)⊕Y'(n-1,y-1)⊕Y'(n-1,y)⊕Y'(n-2,y-2)<br><cY>⊕Y0(n-1,y-1)⊕Y0(n-1,y)⊕Y0(n-1,y+1)⊕Y0(n-2,y-1)⊕Y0(n-2,y)),y<=n;0,y>n
 00:07:12.333 0.476425 0.408269 为了实现这个目标，我们需要首先将B进行分解。这里，让我首先介绍一个非常重要的矩阵H，称为邻接矩阵。
 00:07:12.333 0.479275 0.408269 为了实现这个目标，我们需要首先将B进行分解。这里，让我首先介绍一个非常重要的矩阵H，称为邻接矩阵。
-00:07:12.633 0.693975 0.326615 <cH>H(y,x)=(∣x-y∣=1)
+00:07:12.633 0.729600 0.326615 <cH>H(y,x)=(|x-y|=1)
 00:07:13.233 0.510862 0.195969 H
 00:07:13.400 0.352212 0.195969 0 1 2 3 4 5 6
 00:07:13.400 0.348175 0.195969 0 1 2 3 4 5 6
@@ -789,15 +789,15 @@
 00:07:13.400 0.352212 0.195969 0 1 2 3 4 5 6
 00:07:13.867 0.529692 0.408269 对于H的每一个元素，如果x和y的差为一则为一，否则为零。
 00:07:16.467 0.475000 0.408269 如果将向量v乘以该矩阵，等同于将向量v的每个元素向左右扩散后叠加。
-00:07:16.767 0.638400 0.326615 <cV>v'(x)=v(x)*<cH>H<cV>=v(x-1)⊕v(x+1)
+00:07:16.767 0.638400 0.326615 <cV>v'(x)=v(x)<cH>H<cV>=v(x-1)⊕v(x+1)
 00:07:17.367 0.243200 0.195969 v
 00:07:18.433 0.340575 0.195969 v'
 00:07:21.500 0.477375 0.408269 这是因为矩阵的对应行就是向量每个元素左右扩散的结果。
 00:07:25.667 0.476425 0.408269 不难发现，《首行叠加法》中的各个B矩阵，可以使用H表示为以上公式。
 00:07:25.967 0.638400 0.326615 <cB>B(n)=B(n-1)<cH>H<cB>⊕B(n-1)⊕B(n-2)
 00:07:26.267 0.741000 0.326615 <cB>B(0)=<cI>I<cH>=H⁰
-00:07:26.567 0.741712 0.326615 <cB>B(1)=<cH>H=<cH>H⁰+H¹
-00:07:26.867 0.741712 0.326615 <cB>B(2)=B(1)<cH>H<cB>+B(1)+B(0)=<cH>(H²+H¹)+(H¹+H⁰)+H⁰=H²
+00:07:26.567 0.741712 0.326615 <cB>B(1)=<cH>H=<cH>H⁰⊕H¹
+00:07:26.867 0.741712 0.326615 <cB>B(2)=B(1)<cH>H<cB>⊕B(1)⊕B(0)=<cH>(H²⊕H¹)⊕(H¹⊕H⁰)⊕H⁰=H²
 00:07:27.467 0.489792 0.408269 例如，B(0)、B(1)、B(2)分别可以表示为H的不同次数的叠加。
 00:07:30.967 0.489792 0.408269 将其系数用多项式c(n,x)表达，则有和B矩阵类似的表达式。同时，将系数c写成矩阵的形式，记为C。
 00:07:30.967 0.477375 0.408269 将其系数用多项式c(n,x)表达，则有和B矩阵类似的表达式。同时，将系数c写成矩阵的形式，记为C。
@@ -827,13 +827,13 @@
 00:07:42.900 0.510862 0.195969 K
 00:07:45.367 0.528267 0.408269 我们把这个下三角矩阵记为K，即Krylov矩阵或扩散基矩阵。也就是说，对于K的第n行，以上公式。
 00:07:45.367 0.475475 0.408269 我们把这个下三角矩阵记为K，即Krylov矩阵或扩散基矩阵。也就是说，对于K的第n行，以上公式。
-00:07:45.667 0.656212 0.326615 <cK>K(n)=k(n-1)<cH>H=Hⁿ(0)
+00:07:45.667 0.638400 0.326615 <cK>K(n)=K(n-1)<cH>H=Hⁿ(0)
 00:07:48.267 0.475475 0.408269 这里下一行是上一行乘以H，也就是上一行左右扩散的叠加。因此对于K的每个元素，有上述递推公式。
 00:07:48.267 0.475000 0.408269 这里下一行是上一行乘以H，也就是上一行左右扩散的叠加。因此对于K的每个元素，有上述递推公式。
 00:07:48.567 0.638400 0.326615 <cK>K(n,x)=K(n-1,x-1)⊕K(n-1,x+1)
-00:07:53.600 0.522804 0.408269 现在，定义多项式p(x)。我们的目标是把B拆分成H^n。
-00:07:53.600 0.474525 0.408269 现在，定义多项式p(x)。我们的目标是把B拆分成H^n。
-00:07:53.900 0.798713 0.326615 <cP>p(x)=p₀x⁰+p₁x¹+p₂x²…=∑(pᵢxⁱ)
+00:07:53.600 0.522804 0.408269 现在，定义多项式p(x)。我们的目标是把B拆分成Hⁿ。
+00:07:53.600 0.711788 0.408269 现在，定义多项式p(x)。我们的目标是把B拆分成Hⁿ。
+00:07:53.900 0.798713 0.326615 <cP>p(x)=p₀x⁰⊕p₁x¹⊕p₂x²…=∑(pᵢxⁱ)
 00:07:56.500 0.524229 0.408269 将矩阵H代入多项式p(x)，得到p(H)，并用其表示矩阵B。
 00:07:56.800 0.798713 0.326615 <cB>B<cP>=p(<cH>H<cP>)=p₀<cH>H⁰<cP>⊕p₁<cH>H¹<cP>⊕p₂<cH>H²<cP>⊕…=∑(pᵢ<cH>Hⁱ<cP>)
 00:07:59.400 0.526842 0.408269 这样，原始求x的问题就变为了p(H)x=y。
@@ -1020,16 +1020,16 @@
 00:09:51.300 0.340575 0.195969 B'
 00:09:55.500 0.475950 0.408269 为了证明这一点，我们假定B'F=C'，得出以上递推公式。由于C'的递推公式和C是相同的，因此这里的C'就是C，即C'=C=B'F。
 00:09:55.500 0.475475 0.408269 为了证明这一点，我们假定B'F=C'，得出以上递推公式。由于C'的递推公式和C是相同的，因此这里的C'就是C，即C'=C=B'F。
-00:09:55.800 0.476662 0.244961 <cC>C'(n,x)<br><cC>=(<cB>B'<cF>F<cC>)(n,x)<br><cC>=∑[<cB>B'(n,j)<cF>F(j,x)<cC>]<br><cC>=∑[(<cB>B'(n-1,j-1)<cC>⊕<cB>B'(n-1,j)<cC>⊕<cB>B'(n-1,j+1)<cC>⊕<cB>B'(n-2,j))<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j-1)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j+1)<cF>F(j,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j+1,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j-1,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j-1,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j-2,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)(<cF>F(j-1,x-1)<cC>⊕<cF>F(j-2,x))<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)
-00:09:55.800 0.476662 0.244961 <cC>C'(n,x)<br><cC>=(<cB>B'<cF>F<cC>)(n,x)<br><cC>=∑[<cB>B'(n,j)<cF>F(j,x)<cC>]<br><cC>=∑[(<cB>B'(n-1,j-1)<cC>⊕<cB>B'(n-1,j)<cC>⊕<cB>B'(n-1,j+1)<cC>⊕<cB>B'(n-2,j))<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j-1)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j+1)<cF>F(j,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j+1,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j-1,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j-1,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j-2,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)(<cF>F(j-1,x-1)<cC>⊕<cF>F(j-2,x))<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)
-00:09:55.800 0.528764 0.244961 <cC>C'(n,x)<br><cC>=(<cB>B'<cF>F<cC>)(n,x)<br><cC>=∑[<cB>B'(n,j)<cF>F(j,x)<cC>]<br><cC>=∑[(<cB>B'(n-1,j-1)<cC>⊕<cB>B'(n-1,j)<cC>⊕<cB>B'(n-1,j+1)<cC>⊕<cB>B'(n-2,j))<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j-1)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j+1)<cF>F(j,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j+1,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j-1,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j-1,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j-2,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)(<cF>F(j-1,x-1)<cC>⊕<cF>F(j-2,x))<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)
-00:09:55.800 0.528764 0.244961 <cC>C'(n,x)<br><cC>=(<cB>B'<cF>F<cC>)(n,x)<br><cC>=∑[<cB>B'(n,j)<cF>F(j,x)<cC>]<br><cC>=∑[(<cB>B'(n-1,j-1)<cC>⊕<cB>B'(n-1,j)<cC>⊕<cB>B'(n-1,j+1)<cC>⊕<cB>B'(n-2,j))<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j-1)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j+1)<cF>F(j,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j+1,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j-1,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j-1,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j-2,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)(<cF>F(j-1,x-1)<cC>⊕<cF>F(j-2,x))<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)
-00:09:55.800 0.528764 0.244961 <cC>C'(n,x)<br><cC>=(<cB>B'<cF>F<cC>)(n,x)<br><cC>=∑[<cB>B'(n,j)<cF>F(j,x)<cC>]<br><cC>=∑[(<cB>B'(n-1,j-1)<cC>⊕<cB>B'(n-1,j)<cC>⊕<cB>B'(n-1,j+1)<cC>⊕<cB>B'(n-2,j))<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j-1)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j+1)<cF>F(j,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j+1,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j-1,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j-1,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j-2,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)(<cF>F(j-1,x-1)<cC>⊕<cF>F(j-2,x))<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)
-00:09:55.800 0.528764 0.244961 <cC>C'(n,x)<br><cC>=(<cB>B'<cF>F<cC>)(n,x)<br><cC>=∑[<cB>B'(n,j)<cF>F(j,x)<cC>]<br><cC>=∑[(<cB>B'(n-1,j-1)<cC>⊕<cB>B'(n-1,j)<cC>⊕<cB>B'(n-1,j+1)<cC>⊕<cB>B'(n-2,j))<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j-1)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j+1)<cF>F(j,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j+1,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j-1,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j-1,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j-2,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)(<cF>F(j-1,x-1)<cC>⊕<cF>F(j-2,x))<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)
-00:09:55.800 0.528764 0.244961 <cC>C'(n,x)<br><cC>=(<cB>B'<cF>F<cC>)(n,x)<br><cC>=∑[<cB>B'(n,j)<cF>F(j,x)<cC>]<br><cC>=∑[(<cB>B'(n-1,j-1)<cC>⊕<cB>B'(n-1,j)<cC>⊕<cB>B'(n-1,j+1)<cC>⊕<cB>B'(n-2,j))<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j-1)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j+1)<cF>F(j,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j+1,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j-1,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j-1,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j-2,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)(<cF>F(j-1,x-1)<cC>⊕<cF>F(j-2,x))<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)
-00:09:55.800 0.528764 0.244961 <cC>C'(n,x)<br><cC>=(<cB>B'<cF>F<cC>)(n,x)<br><cC>=∑[<cB>B'(n,j)<cF>F(j,x)<cC>]<br><cC>=∑[(<cB>B'(n-1,j-1)<cC>⊕<cB>B'(n-1,j)<cC>⊕<cB>B'(n-1,j+1)<cC>⊕<cB>B'(n-2,j))<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j-1)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j+1)<cF>F(j,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j+1,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j-1,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j-1,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j-2,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)(<cF>F(j-1,x-1)<cC>⊕<cF>F(j-2,x))<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)
-00:09:55.800 0.528764 0.244961 <cC>C'(n,x)<br><cC>=(<cB>B'<cF>F<cC>)(n,x)<br><cC>=∑[<cB>B'(n,j)<cF>F(j,x)<cC>]<br><cC>=∑[(<cB>B'(n-1,j-1)<cC>⊕<cB>B'(n-1,j)<cC>⊕<cB>B'(n-1,j+1)<cC>⊕<cB>B'(n-2,j))<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j-1)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j+1)<cF>F(j,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j+1,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j-1,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j-1,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j-2,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)(<cF>F(j-1,x-1)<cC>⊕<cF>F(j-2,x))<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)
-00:09:55.800 0.478800 0.244961 <cC>C'(n,x)<br><cC>=(<cB>B'<cF>F<cC>)(n,x)<br><cC>=∑[<cB>B'(n,j)<cF>F(j,x)<cC>]<br><cC>=∑[(<cB>B'(n-1,j-1)<cC>⊕<cB>B'(n-1,j)<cC>⊕<cB>B'(n-1,j+1)<cC>⊕<cB>B'(n-2,j))<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j-1)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j+1)<cF>F(j,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j+1,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-1,j)<cF>F(j-1,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j-1,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j-2,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)(<cF>F(j-1,x-1)<cC>⊕<cF>F(j-2,x))<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=∑[<cB>B'(n-1,j)<cF>F(j,x-1)<cC>⊕<cB>B'(n-1,j)<cF>F(j,x)<cC>⊕<cB>B'(n-2,j)<cF>F(j,x)<cC>]<br><cC>=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)
+00:09:55.800 0.476662 0.244961 <cC>C'(n,x)<br><cC>=(<cB>B'<cF>F<cC>)(n,x)<br><cC>=∑[<cB>B'(n,i)<cF>F(i,x)<cC>]<br><cC>=∑[(<cB>B'(n-1,i-1)<cC>⊕<cB>B'(n-1,i)<cC>⊕<cB>B'(n-1,i+1)<cC>⊕<cB>B'(n-2,i))<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i-1)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i+1)<cF>F(i,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i+1,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i-1,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i-1,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i-2,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)(<cF>F(i-1,x-1)<cC>⊕<cF>F(i-2,x))<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)
+00:09:55.800 0.476662 0.244961 <cC>C'(n,x)<br><cC>=(<cB>B'<cF>F<cC>)(n,x)<br><cC>=∑[<cB>B'(n,i)<cF>F(i,x)<cC>]<br><cC>=∑[(<cB>B'(n-1,i-1)<cC>⊕<cB>B'(n-1,i)<cC>⊕<cB>B'(n-1,i+1)<cC>⊕<cB>B'(n-2,i))<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i-1)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i+1)<cF>F(i,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i+1,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i-1,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i-1,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i-2,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)(<cF>F(i-1,x-1)<cC>⊕<cF>F(i-2,x))<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)
+00:09:55.800 0.525291 0.244961 <cC>C'(n,x)<br><cC>=(<cB>B'<cF>F<cC>)(n,x)<br><cC>=∑[<cB>B'(n,i)<cF>F(i,x)<cC>]<br><cC>=∑[(<cB>B'(n-1,i-1)<cC>⊕<cB>B'(n-1,i)<cC>⊕<cB>B'(n-1,i+1)<cC>⊕<cB>B'(n-2,i))<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i-1)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i+1)<cF>F(i,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i+1,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i-1,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i-1,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i-2,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)(<cF>F(i-1,x-1)<cC>⊕<cF>F(i-2,x))<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)
+00:09:55.800 0.525291 0.244961 <cC>C'(n,x)<br><cC>=(<cB>B'<cF>F<cC>)(n,x)<br><cC>=∑[<cB>B'(n,i)<cF>F(i,x)<cC>]<br><cC>=∑[(<cB>B'(n-1,i-1)<cC>⊕<cB>B'(n-1,i)<cC>⊕<cB>B'(n-1,i+1)<cC>⊕<cB>B'(n-2,i))<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i-1)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i+1)<cF>F(i,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i+1,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i-1,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i-1,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i-2,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)(<cF>F(i-1,x-1)<cC>⊕<cF>F(i-2,x))<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)
+00:09:55.800 0.525291 0.244961 <cC>C'(n,x)<br><cC>=(<cB>B'<cF>F<cC>)(n,x)<br><cC>=∑[<cB>B'(n,i)<cF>F(i,x)<cC>]<br><cC>=∑[(<cB>B'(n-1,i-1)<cC>⊕<cB>B'(n-1,i)<cC>⊕<cB>B'(n-1,i+1)<cC>⊕<cB>B'(n-2,i))<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i-1)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i+1)<cF>F(i,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i+1,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i-1,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i-1,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i-2,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)(<cF>F(i-1,x-1)<cC>⊕<cF>F(i-2,x))<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)
+00:09:55.800 0.525291 0.244961 <cC>C'(n,x)<br><cC>=(<cB>B'<cF>F<cC>)(n,x)<br><cC>=∑[<cB>B'(n,i)<cF>F(i,x)<cC>]<br><cC>=∑[(<cB>B'(n-1,i-1)<cC>⊕<cB>B'(n-1,i)<cC>⊕<cB>B'(n-1,i+1)<cC>⊕<cB>B'(n-2,i))<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i-1)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i+1)<cF>F(i,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i+1,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i-1,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i-1,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i-2,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)(<cF>F(i-1,x-1)<cC>⊕<cF>F(i-2,x))<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)
+00:09:55.800 0.525291 0.244961 <cC>C'(n,x)<br><cC>=(<cB>B'<cF>F<cC>)(n,x)<br><cC>=∑[<cB>B'(n,i)<cF>F(i,x)<cC>]<br><cC>=∑[(<cB>B'(n-1,i-1)<cC>⊕<cB>B'(n-1,i)<cC>⊕<cB>B'(n-1,i+1)<cC>⊕<cB>B'(n-2,i))<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i-1)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i+1)<cF>F(i,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i+1,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i-1,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i-1,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i-2,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)(<cF>F(i-1,x-1)<cC>⊕<cF>F(i-2,x))<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)
+00:09:55.800 0.525291 0.244961 <cC>C'(n,x)<br><cC>=(<cB>B'<cF>F<cC>)(n,x)<br><cC>=∑[<cB>B'(n,i)<cF>F(i,x)<cC>]<br><cC>=∑[(<cB>B'(n-1,i-1)<cC>⊕<cB>B'(n-1,i)<cC>⊕<cB>B'(n-1,i+1)<cC>⊕<cB>B'(n-2,i))<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i-1)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i+1)<cF>F(i,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i+1,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i-1,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i-1,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i-2,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)(<cF>F(i-1,x-1)<cC>⊕<cF>F(i-2,x))<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)
+00:09:55.800 0.525291 0.244961 <cC>C'(n,x)<br><cC>=(<cB>B'<cF>F<cC>)(n,x)<br><cC>=∑[<cB>B'(n,i)<cF>F(i,x)<cC>]<br><cC>=∑[(<cB>B'(n-1,i-1)<cC>⊕<cB>B'(n-1,i)<cC>⊕<cB>B'(n-1,i+1)<cC>⊕<cB>B'(n-2,i))<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i-1)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i+1)<cF>F(i,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i+1,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i-1,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i-1,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i-2,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)(<cF>F(i-1,x-1)<cC>⊕<cF>F(i-2,x))<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)
+00:09:55.800 0.478800 0.244961 <cC>C'(n,x)<br><cC>=(<cB>B'<cF>F<cC>)(n,x)<br><cC>=∑[<cB>B'(n,i)<cF>F(i,x)<cC>]<br><cC>=∑[(<cB>B'(n-1,i-1)<cC>⊕<cB>B'(n-1,i)<cC>⊕<cB>B'(n-1,i+1)<cC>⊕<cB>B'(n-2,i))<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i-1)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i+1)<cF>F(i,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i+1,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-1,i)<cF>F(i-1,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i-1,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i-2,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)(<cF>F(i-1,x-1)<cC>⊕<cF>F(i-2,x))<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br><cC>=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)
 00:09:58.100 0.638400 0.326615 <cC>C'(n,x)=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)
 00:10:01.200 0.472625 0.408269 由于C=B'F，因此P=C⊕F。我们可以用递推公式计算出C，和F叠加直接求得P，无需使用矩阵乘法。
 00:10:01.200 0.475950 0.408269 由于C=B'F，因此P=C⊕F。我们可以用递推公式计算出C，和F叠加直接求得P，无需使用矩阵乘法。
@@ -1104,7 +1104,7 @@
 00:11:18.600 0.475475 0.408269 这里，我们可以从Y开始，不断将其和H相乘，使用左右扩散的方法计算y的下一行，然后和q(n)叠加，得到x。
 00:11:18.600 0.525417 0.408269 这里，我们可以从Y开始，不断将其和H相乘，使用左右扩散的方法计算y的下一行，然后和q(n)叠加，得到x。
 00:11:18.900 0.802631 0.326615 <cX>x<cQ>=q(<cH>H<cQ>)<cY>y<cQ>=∑qᵢ<cH>Hⁱ<cY>y
-00:11:19.700 0.638400 0.326615 <cY>Y'(n,x)=Y'(n-1,x-1)+Y'(n-1,x+1)
+00:11:19.700 0.638400 0.326615 <cY>Y'(n,x)=Y'(n-1,x-1)⊕Y'(n-1,x+1)
 00:11:20.300 0.340575 0.195969 Y'
 00:11:20.467 0.352212 0.195969 0 1 2 3 4 5 6
 00:11:20.467 0.348175 0.195969 0 1 2 3 4 5 6
@@ -1141,11 +1141,11 @@
 00:11:47.167 0.526842 0.408269 这里，gcd表示最大公因子。不难发现，这里的gcd(f,c)就是前面扩展欧几里得算法中的g(x)。
 00:11:47.467 0.719625 0.326615 <cG>g(n,x)=gcd(<cF>f(n,x)<cG>,<cC>c(n,x)<cG>)
 00:11:47.767 0.711788 0.326615 <cR>r'(n)=deg(<cG>gcd(g(n,x))
-00:11:50.867 0.525417 0.408269 同时，由于F=C+P，因此gcd(f,c)和gcd(f,p)是相等的。
-00:11:51.167 0.715706 0.326615 <cF>f(n,x)=<cC>c(n,x)<cF>+<cP>p(n,x)
+00:11:50.867 0.788136 0.408269 同时，由于F=C⊕P，因此gcd(f,c)和gcd(f,p)是相等的。
+00:11:51.167 0.715706 0.326615 <cF>f(n,x)=<cC>c(n,x)<cF>⊕<cP>p(n,x)
 00:11:51.467 0.719625 0.326615 <cG>g(n,x)=gcd(<cF>f(n,x)<cG>,<cC>c(n,x)<cG>)=gcd(<cF>f(n,x)<cG>,<cP>p(n,x)<cG>)
-00:11:54.567 0.525112 0.408269 deg则表示最高次幂。r'代表矩阵B丢失的秩，也就是n-r。r'的值决定了解的数量，即2^r'。
-00:11:54.567 0.476900 0.408269 deg则表示最高次幂。r'代表矩阵B丢失的秩，也就是n-r。r'的值决定了解的数量，即2^r'。
+00:11:54.567 0.525112 0.408269 deg则表示最高次幂。r'代表矩阵B丢失的秩，也就是n-r。r'的值决定了解的数量，即2ʳ'。
+00:11:54.567 0.715350 0.408269 deg则表示最高次幂。r'代表矩阵B丢失的秩，也就是n-r。r'的值决定了解的数量，即2ʳ'。
 00:11:57.167 0.524467 0.408269 可以发现，如果B是可逆的，则g(x)=1，r'=0，n=r-r'=r。
 00:12:00.067 0.719625 0.326615 <cG>g=gcd(<cF>f<cG>,<cC>c<cG>)=gcd(<cF>f<cG>,<cP>p<cG>)
 00:12:01.167 0.525892 0.408269 将g(x)写成矩阵的形式，记为G。
@@ -1352,10 +1352,10 @@
 00:16:21.167 0.475475 0.408269 不难发现这里求得的x是一个特解。
 00:16:23.767 0.526842 0.408269 由于前r'行可以表示为后r行的线性叠加，因此我们可以在操作y之前，先将其和前r'的任意行叠加，然后再求解。
 00:16:23.767 0.477850 0.408269 由于前r'行可以表示为后r行的线性叠加，因此我们可以在操作y之前，先将其和前r'的任意行叠加，然后再求解。
-00:16:26.667 0.475000 0.408269 由于前r'行共有2^r'种，因此求得的解也有2^r'种。
+00:16:26.667 0.712500 0.408269 由于前r'行共有2ʳ'种，因此求得的解也有2ʳ'种。
 00:16:29.867 0.478325 0.408269 另一方面，由于D矩阵满足十字偶校验约束，表现出高度的对称性。其中，行和列的坐标可以互换。
 00:16:29.867 0.474525 0.408269 另一方面，由于D矩阵满足十字偶校验约束，表现出高度的对称性。其中，行和列的坐标可以互换。
-00:16:31.067 0.705019 0.326615 <cD>D(j,i)=D(i,j)
+00:16:31.067 0.691125 0.326615 <cD>D(x,y)=D(y,x)
 00:16:33.667 0.475000 0.408269 因此，我们可以同样只叠加前r行，从右往左进行消元。由于效果是相同的，这里不再赘述。
 00:16:33.667 0.475000 0.408269 因此，我们可以同样只叠加前r行，从右往左进行消元。由于效果是相同的，这里不再赘述。
 00:16:43.633 0.476900 0.408269 细心的观众会发现，其实这两个式子有相同的形式。
@@ -1506,7 +1506,7 @@
 00:17:40.933 0.319289 0.204134 <cH>H
 00:17:40.933 0.443531 0.204134 <cH>邻接矩阵
 00:17:40.933 0.443086 0.204134 <cH>公式递推
-00:17:40.933 0.433734 0.204134 <cH><cH>H(y,x)=(∣x-y∣=1)
+00:17:40.933 0.456000 0.204134 <cH><cH>H(y,x)=(|x-y|=1)
 00:17:40.933 0.319289 0.204134 <cK>K
 00:17:40.933 0.319289 0.204134 <cK><cH>H
 00:17:40.933 0.488730 0.204134 <cK>Hⁿ第一行（Krylov扩散基矩阵）
@@ -1568,11 +1568,11 @@
 00:17:53.033 0.284715 0.130646 https://www.jaapsch.net/puzzles/lomath.htm
 00:17:53.033 0.438829 0.195969 [2] Granvallen，《点灯游戏与数学之美》
 00:17:53.033 0.284715 0.130646 https://granvallen.github.io/lightoutgame/
-00:17:53.033 0.466402 0.195969 [3] axpokl，《点灯游戏Flip Game的O(n^3)算法》
+00:17:53.033 0.475594 0.195969 [3] axpokl，《点灯游戏Flip Game的O(n³)算法》
 00:17:53.033 0.283148 0.130646 https://zhuanlan.zhihu.com/p/53646257
 00:17:53.033 0.436264 0.195969 [4] Chao Xu，《逼零集、点灯游戏与线性方程组》
 00:17:53.033 0.283148 0.130646 https://zhuanlan.zhihu.com/p/553780037
-00:17:53.033 0.465975 0.195969 [5] GitHub — axpokl，《点灯问题O(^2)Pascal求解》
+00:17:53.033 0.475594 0.195969 [5] GitHub — axpokl，《点灯问题O(n²)Pascal求解》
 00:17:53.033 0.284715 0.130646 https://github.com/axpokl/LightOut
 00:17:53.033 0.468326 0.195969 [6] GitHub — njpipeorgan，《大规模点灯问题求解器》
 00:17:53.033 0.284715 0.130646 https://github.com/njpipeorgan/LightsOut
@@ -1604,7 +1604,7 @@
 00:17:53.033 0.427500 0.195969 Pascal语言算法实现：
 00:17:53.033 0.284715 0.130646 https://github.com/axpokl/LightOut
 00:17:53.033 0.287850 0.130646 /blob/master/diandeng10_a_faster2_png_H13.pas
-00:17:53.033 0.443531 0.195969 点灯游戏安卓 APK（含 O(^3) 求解）：
+00:17:53.033 0.446029 0.195969 点灯游戏安卓 APK（含 O(n³) 求解）：
 00:17:53.033 0.284715 0.130646 https://axpokl.com/cx/axdiandeng2.apk
 00:17:53.033 0.427928 0.195969 维基百科，《克雷洛夫子空间》
 00:17:53.033 0.313358 0.130646 https://zh.wikipedia.org/wiki/克雷洛夫子空间
@@ -1616,11 +1616,11 @@
 00:17:53.033 0.284715 0.130646 https://www.jaapsch.net/puzzles/lomath.htm
 00:17:53.033 0.438829 0.195969 [2] Granvallen，《点灯游戏与数学之美》
 00:17:53.033 0.284715 0.130646 https://granvallen.github.io/lightoutgame/
-00:17:53.033 0.466402 0.195969 [3] axpokl，《点灯游戏Flip Game的O(n^3)算法》
+00:17:53.033 0.475594 0.195969 [3] axpokl，《点灯游戏Flip Game的O(n³)算法》
 00:17:53.033 0.283148 0.130646 https://zhuanlan.zhihu.com/p/53646257
 00:17:53.033 0.436264 0.195969 [4] Chao Xu，《逼零集、点灯游戏与线性方程组》
 00:17:53.033 0.283148 0.130646 https://zhuanlan.zhihu.com/p/553780037
-00:17:53.033 0.465975 0.195969 [5] GitHub — axpokl，《点灯问题O(^2)Pascal求解》
+00:17:53.033 0.475594 0.195969 [5] GitHub — axpokl，《点灯问题O(n²)Pascal求解》
 00:17:53.033 0.284715 0.130646 https://github.com/axpokl/LightOut
 00:17:53.033 0.468326 0.195969 [6] GitHub — njpipeorgan，《大规模点灯问题求解器》
 00:17:53.033 0.284715 0.130646 https://github.com/njpipeorgan/LightsOut
@@ -1652,7 +1652,7 @@
 00:17:54.633 0.427500 0.195969 Pascal语言算法实现：
 00:17:54.633 0.284715 0.130646 https://github.com/axpokl/LightOut
 00:17:54.633 0.287850 0.130646 /blob/master/diandeng10_a_faster2_png_H13.pas
-00:17:54.633 0.443531 0.195969 点灯游戏安卓 APK（含 O(^3) 求解）：
+00:17:54.633 0.446029 0.195969 点灯游戏安卓 APK（含 O(n³) 求解）：
 00:17:54.633 0.284715 0.130646 https://axpokl.com/cx/axdiandeng2.apk
 00:17:54.633 0.427928 0.195969 维基百科，《克雷洛夫子空间》
 00:17:54.633 0.313358 0.130646 https://zh.wikipedia.org/wiki/克雷洛夫子空间
