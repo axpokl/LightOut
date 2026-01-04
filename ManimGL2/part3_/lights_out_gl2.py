@@ -18,7 +18,7 @@ SZ_ZOOM_MID = 1.25
 SCALE_DEFAULT = 0.6
 SCALE_SMALLER = 0.4
 
-FONT_DEFAULT = "SimHei"
+FONT_DEFAULT = "Segoe UI"
 FONT_LATEX = "Segoe UI"
 
 SCALE_LATEX = 1.0
@@ -1714,6 +1714,12 @@ def show_subtitle(scene, text, text2=None, run_in=0.3, run_out=0.3, font=FONT_DE
         pass
     lines = VGroup(*[_mk_line_group(p, font, font_size, WHITE, baseline, auto_k, ref_tex) for p in parts])
     normalize_by_ref(lines.submobjects, SCALE_SUBTITLE * font_size / FONT_SIZE_DEFAULT, ref_tex, scene=scene, text_desc=out_text)
+    for lg in lines:
+        subs=list(getattr(lg,"submobjects",[]))
+        if len(subs)>1:
+            ty=max(float(s.get_bottom()[1]) for s in subs)
+            for s in subs:
+                s.shift(UP*(ty-float(s.get_bottom()[1])))
     lines.arrange(DOWN, buff=line_gap).to_edge(DOWN, buff=buff)
     scene.add(lines)
     scene.play(FadeIn(lines, run_time=run_in))
@@ -2326,7 +2332,7 @@ def show_algo_table(
     y=3.0,
     run_in=0.3,
     run_out=0.3,
-    font=FONT_DEFAULT,
+    font=FONT_LATEX,
     font_size=FONT_SIZE_DEFAULT,
     row_gap=0.4,
     col_gap=0.6,
@@ -2344,6 +2350,8 @@ def show_algo_table(
             text = ""
         if not is_header and isinstance(text, str) and text:
             text = f"{tag}{text}"
+        if isinstance(text,str) and text:
+            text=text.replace("¬","¬")
         c = header_color if is_header else color
         m = show_latex(
             scene,
@@ -2394,19 +2402,13 @@ def show_algo_table(
         for j, cell in enumerate(row):
             x_left = sum(col_widths[:j]) + j * col_gap
             cur_left = float(cell.get_left()[0])
-            dx = x_left - cur_left
-            cell.shift(RIGHT * dx)
-        row_group = VGroup(*row)
-        table_rows.append(row_group)
+            cell.shift(RIGHT*(x_left-cur_left))
+        table_rows.append(VGroup(*row))
     table = VGroup(*table_rows).arrange(DOWN, buff=row_gap, aligned_edge=LEFT)
-    table.move_to(ORIGIN)
-    table.shift(RIGHT * x + UP * y)
-    if not show or scene is None:
-        return table
-    scene.add(table)
-    if run_in > 0:
+    table.move_to(ORIGIN).shift(RIGHT*x+UP*y)
+    if show:
+        scene.add(table)
         scene.play(FadeIn(table, run_time=run_in))
-    scene._algo_table = table
     return table
 
 def hide_algo_table(scene, table=None, run_out=0.3, remove=True):
@@ -3046,11 +3048,11 @@ LATEX_LEFT = [
     {"type": "text", "content": "https://www.jaapsch.net/puzzles/lomath.htm", "scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
     {"type": "text", "content": "[2] Granvallen，《点灯游戏与数学之美》", "scale": SCALE_CENTER, "indent": 0.0},
     {"type": "text", "content": "https://granvallen.github.io/lightoutgame/","scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
-    {"type": "text", "content": "[3] axpokl，《点灯游戏Flip Game的O(n^3)算法》", "scale": SCALE_CENTER, "indent": 0.0},
+    {"type": "text", "content": "[3] axpokl，《点灯游戏Flip Game的O(n³)算法》", "scale": SCALE_CENTER, "indent": 0.0},
     {"type": "text", "content": "https://zhuanlan.zhihu.com/p/53646257", "scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
     {"type": "text", "content": "[4] Chao Xu，《逼零集、点灯游戏与线性方程组》", "scale": SCALE_CENTER, "indent": 0.0},
     {"type": "text", "content": "https://zhuanlan.zhihu.com/p/553780037","scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
-    {"type": "text", "content": "[5] GitHub — axpokl，《点灯问题O(^2)Pascal求解》", "scale": SCALE_CENTER, "indent": 0.0},
+    {"type": "text", "content": "[5] GitHub — axpokl，《点灯问题O(n²)Pascal求解》", "scale": SCALE_CENTER, "indent": 0.0},
     {"type": "text", "content": "https://github.com/axpokl/LightOut","scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
     {"type": "text", "content": "[6] GitHub — njpipeorgan，《大规模点灯问题求解器》", "scale": SCALE_CENTER, "indent": 0.0},
     {"type": "text", "content": "https://github.com/njpipeorgan/LightsOut", "scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
@@ -3088,7 +3090,7 @@ LATEX_RIGHT = [
     {"type": "text", "content": "Pascal语言算法实现：", "scale": SCALE_CENTER, "indent": 0.0},
     {"type": "text", "content": "https://github.com/axpokl/LightOut", "scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
     {"type": "text", "content": "/blob/master/diandeng10_a_faster2_png_H13.pas", "scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
-    {"type": "text", "content": "点灯游戏安卓 APK（含 O(^3) 求解）：","scale": SCALE_CENTER, "indent": 0.0},
+    {"type": "text", "content": "点灯游戏安卓 APK（含 O(n³) 求解）：","scale": SCALE_CENTER, "indent": 0.0},
     {"type": "text", "content": "https://axpokl.com/cx/axdiandeng2.apk", "scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
     {"type": "text", "content": "维基百科，《克雷洛夫子空间》", "scale": SCALE_CENTER, "indent": 0.0},
     {"type": "text", "content": "https://zh.wikipedia.org/wiki/克雷洛夫子空间", "scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
@@ -3139,7 +3141,7 @@ class LightsOut(Scene):
     def construct(self):
         self.camera.background_color = BLACK
 
-        show_title(self, "点灯游戏的$O(n^2)$解法")
+        show_title(self, "点灯游戏的O(n²)解法")
 
         sx = 5.5
         sy = 3
@@ -3202,7 +3204,7 @@ class LightsOut(Scene):
         LAT2 = show_latex(self, "<cB>B按钮    <cL>L灯    <cH1>⊕叠加    <cH2>¬翻转", 0, 1.5)
         self.wait(4)
 
-        show_subtitle(self, "我们用B代表按钮，L代表灯，⊕（加）代表叠加，$\\neg$（非）代表翻转。")
+        show_subtitle(self, "我们用B代表按钮，L代表灯，⊕（加）代表叠加，¬（非）代表翻转。")
         sz=SZ_SMALL
         cols, rows = 5, 5
         G5_ = [[None] * cols for _ in range(rows)]
@@ -3331,7 +3333,7 @@ class LightsOut(Scene):
         toggle_lgt(self, G5_[0][0], 1, 0)
         self.wait(4)
 
-        show_subtitle(self, "然后，B6=$\\neg$L1=$\\neg$(B1⊕B2)，即第六个按钮B6是第一个灯L1的翻转。", "因此，第二行按钮B6和第一行灯L1的叠加状态是相同的。")
+        show_subtitle(self, "然后，B6=¬L1=¬(B1⊕B2)，即第六个按钮B6是第一个灯L1的翻转。", "因此，第二行按钮B6和第一行灯L1的叠加状态是相同的。")
         toggle_btn(self, G5_[1][0], 0, 0)
         toggle_btn(self, G5_[1][0], 1, 0)
         self.wait(4)
@@ -3342,7 +3344,7 @@ class LightsOut(Scene):
         show_subtitle(self, "例如，当第一个向量的第一个灯亮起时，", "表示第一个灯除了由刚才说的按钮叠加外，还需要再翻转才是正确的状态。")
         self.wait(4)
 
-        show_subtitle(self, "同理，B7=$\\neg$L2=$\\neg$(B1⊕B2⊕B3)，即第七个按钮B6是第二个灯L2的翻转。", "同样，第二行的按钮B7和第一行灯L2的叠加状态是相同的。")
+        show_subtitle(self, "同理，B7=¬L2=¬(B1⊕B2⊕B3)，即第七个按钮B6是第二个灯L2的翻转。", "同样，第二行的按钮B7和第一行灯L2的叠加状态是相同的。")
         toggle_lgt(self, G5_[0][1], 0, 0)
         toggle_lgt(self, G5_[0][1], 1, 0)
         toggle_lgt(self, G5_[0][1], 2, 0)
@@ -3356,7 +3358,7 @@ class LightsOut(Scene):
         toggle_btn(self, G5_[0][0], 0, 0)
         self.wait(4)
 
-        show_subtitle(self, "接下来我们来看第六个灯。", "L6=B1⊕B6⊕B7=B1⊕$\\neg$(B1⊕B2)⊕$\\neg$(B1⊕B2⊕B3)=B1⊕B3。")
+        show_subtitle(self, "接下来我们来看第六个灯。", "L6=B1⊕B6⊕B7=B1⊕¬(B1⊕B2)⊕¬(B1⊕B2⊕B3)=B1⊕B3。")
         hl_cells(self, [G5_[0][0]], indices=[(0, 0)])
         hl_cells(self, [G5_[1][0]], indices=[(0, 0)])
         hl_cells(self, [G5_[1][0]], indices=[(1, 0)])
@@ -3370,7 +3372,7 @@ class LightsOut(Scene):
         add_cell(self, G5_[1][1], G5_[1][0], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
         add_cell(self, G5_[1][1], G5_[1][0], 2, 0, 2, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
 
-        show_subtitle(self, "又比如，L7=B2⊕B6⊕B7⊕B8", "=B2⊕$\\neg$(B1⊕B2)⊕$\\neg$(B1⊕B2⊕B3)⊕$\\neg$(B2⊕B3⊕B4)=$\\neg$B4")
+        show_subtitle(self, "又比如，L7=B2⊕B6⊕B7⊕B8", "=B2⊕¬(B1⊕B2)⊕¬(B1⊕B2⊕B3)⊕¬(B2⊕B3⊕B4)=¬B4")
         toggle_btn(self, G5_[0][1], 1, 0)
         toggle_btn(self, G5_[1][2], 1, 0)
         toggle_btn(self, G5_[1][2], 2, 0)
@@ -3493,7 +3495,7 @@ class LightsOut(Scene):
         LAT2_1 = show_latex(self, "<cL>L(n+1,x)=<cL>¬L(n,x-1)⊕¬L(n,x)⊕¬L(n,x+1)⊕¬L(n-1,x)", 0, 1.5)
         self.wait(2)
 
-        show_subtitle(self, "如果把翻转$\\neg$提取出来，便有了一开始的推导公式。")
+        show_subtitle(self, "如果把翻转¬提取出来，便有了一开始的推导公式。")
         self.wait(2)
         show_subtitle(self, "也就是，按钮是上一行的左中右按钮和上上行的按钮的叠加。")
         LAT1_5 = show_latex(self, "<cB>B(n,x)=<cB>B(n-1,x-1)⊕B(n-1,x)⊕B(n-1,x+1)⊕B(n-2,x)", 0, 2.0, show=False)
@@ -3527,7 +3529,7 @@ class LightsOut(Scene):
         hl_cells(self, [G5Y_[1][1]], indices=[(0, 0)])
         hl_cells(self, [G5Y_[1][2]], indices=[(0, 0)])
 
-        show_subtitle(self, "可以注意到，这里的公式Y和公式B的推导公式是类似的的。", "只不过，Y是从零向量开始推导的，并且不能省略翻转符号$\\neg$。")
+        show_subtitle(self, "可以注意到，这里的公式Y和公式B的推导公式是类似的的。", "只不过，Y是从零向量开始推导的，并且不能省略翻转符号¬。")
         self.wait(2)
         show_subtitle(self, "1. 使用零向量：第一次翻转发生在从一到二行的推导过程中，", "在此之前没有发生过翻转，因此Y的第一行是全零。")
         hl_cells(self, [G5Y_[0][0]], indices=[(0, 0)], color=HL_COLOR_2)
@@ -3536,7 +3538,7 @@ class LightsOut(Scene):
         hl_cells(self, [G5Y_[0][3]], indices=[(0, 0)], color=HL_COLOR_2)
         hl_cells(self, [G5Y_[0][4]], indices=[(0, 0)], color=HL_COLOR_2)
         self.wait(2)
-        show_subtitle(self, "2. 翻转符号$\\neg$必须存在：每次推导都需要翻转，因此不可省略。", "而前者将这个翻转取出来了，因此不用翻转符号$\\neg$。")
+        show_subtitle(self, "2. 翻转符号¬必须存在：每次推导都需要翻转，因此不可省略。", "而前者将这个翻转取出来了，因此不用翻转符号¬。")
         self.wait(2)
         show_subtitle(self, "3. 不使用x而使用y：翻转是前面所有按钮的翻转叠加后提取出来的，", "代表的是灯的翻转，而不是某个按钮的翻转。")
         self.wait(4)
@@ -3662,7 +3664,7 @@ class LightsOut(Scene):
 
         show_subtitle(self, "这是一个十分重要的性质。", "通过这个性质，可以由第一个灯直接推导后面的灯。")
         self.wait(2)
-        show_subtitle(self, "在后面会说的$O(n^2)$算法中，", "其本质也是利用这个性质进行的优化。")
+        show_subtitle(self, "在后面会说的O(n²)算法中，", "其本质也是利用这个性质进行的优化。")
         self.wait(2)
         show_subtitle(self, "下面让我用数学归纳法，证明这个性质。")
         self.wait(2)
@@ -3828,7 +3830,7 @@ class LightsOut(Scene):
 
         show_title(self, "首行求逆法")
 
-        show_subtitle(self, "对于$O(n^2)$的算法，我们也是使用类似的方法，", "尽可能的不去对完整矩阵进行操作，而是通过第一行来求逆或求解。")
+        show_subtitle(self, "对于O(n²)的算法，我们也是使用类似的方法，", "尽可能的不去对完整矩阵进行操作，而是通过第一行来求逆或求解。")
         grid_B1 = make_grid(self, 7, 1, mat_l=[MAT7B[7][0]], btn_c=B_COLOR, lgt_c=B_COLOR, btn_y=1.2, lgt_y=1.2)
         topy_obj_B = add_top_labels(self, grid_B1, ["", "", "", "B", "", "", ""], color=B_COLOR)
         self.wait(2)
@@ -3949,7 +3951,7 @@ class LightsOut(Scene):
         del_bottom_labels(self, bottom_obj)
         del_grids(self, [grid_C])
 
-        show_subtitle(self, "现在，如果我们将多个H相乘，也就是$H^n$，", "则其首行$H^n(0)$从单位矩阵n=0开始，看起来像是这样的。")
+        show_subtitle(self, "现在，如果我们将多个H相乘，也就是Hⁿ，", "则其首行Hⁿ(0)从单位矩阵n=0开始，看起来像是这样的。")
         grid_K = make_grid(self, 8, 8, mat_l=MAT_K, mat_g={"lgt": MAT_MK1, "btn": MAT_MK0}, btn_c=K_COLOR, lgt_c=K_COLOR)
         left_obj = add_left_labels(self, grid_K, list(range(8)))
         bottom_obj = add_bottom_label(self, grid_K, "K", color=K_COLOR)
@@ -3969,7 +3971,7 @@ class LightsOut(Scene):
         del_bottom_labels(self, bottom_obj)
         del_grids(self, [grid_K])
 
-        show_subtitle(self, "现在，定义多项式p(x)。", "我们的目标是把B拆分成H^n。")
+        show_subtitle(self, "现在，定义多项式p(x)。", "我们的目标是把B拆分成Hⁿ。")
         LAT_P1 = show_latex(self, "<cP>p(x)=p₀x⁰+p₁x¹+p₂x²…=∑(pᵢxⁱ)", 0, 2.5)
         self.wait(2)
         show_subtitle(self, "将矩阵H代入多项式p(x)，得到p(H)，并用其表示矩阵B。")
@@ -4113,7 +4115,7 @@ class LightsOut(Scene):
         hl_cells(self, [grid_B], indices=[(1,1),(0,2),(1,2),(2,2)])
         hl_cells(self, [grid_B], indices=[(1,3)], color=HL_COLOR_2)
         self.wait(1)
-        show_subtitle(self, "这样，如果我们是从n=0开始计算的，", "我们只需要$O(n)$的时间复杂度便可求出b。")
+        show_subtitle(self, "这样，如果我们是从n=0开始计算的，", "我们只需要O(n)的时间复杂度便可求出b。")
         self.wait(2)
         del_latex(self, [LAT_B1, LAT_B2])
         del_cells(self, [grid_B], indices=[(1,1),(0,2),(1,2),(2,2)])
@@ -4122,7 +4124,7 @@ class LightsOut(Scene):
         del_bottom_labels(self, bottom_obj)
         del_grids(self, [grid_B])
 
-        show_subtitle(self, "同样，计算K和F也是如此。因为每行之间有递推公式，", "如果从n=0开始计算，也可以在$O(n)$时间内求出。")
+        show_subtitle(self, "同样，计算K和F也是如此。因为每行之间有递推公式，", "如果从n=0开始计算，也可以在O(n)时间内求出。")
         LAT_K = show_latex(self, LATEX_K, 0, 2.0)
         grid_K = make_grid(self, 8, 8, mat_l=MAT_K, mat_g={"lgt": MAT_MK1, "btn": MAT_MK0}, btn_c=K_COLOR, lgt_c=K_COLOR)
         left_obj = add_left_labels(self, grid_K, list(range(8)))
@@ -4142,7 +4144,7 @@ class LightsOut(Scene):
         bottom_obj = add_bottom_label(self, grid_F, "F", color=F_COLOR)
         hl_cells(self, [grid_F], indices=[(1,1),(0,2)])
         hl_cells(self, [grid_F], indices=[(1,3)], color=HL_COLOR_2)
-        show_subtitle(self, "如果需要直接计算特定n，可以用别的方式优化到$O(n\cdot log(n))$。", "因为这里的算法不涉及这个优化，因此不再赘述。")
+        show_subtitle(self, "如果需要直接计算特定n，可以用别的方式优化到O(n·log(n))。", "因为这里的算法不涉及这个优化，因此不再赘述。")
         self.wait(2)
         del_latex(self, [LAT_F])
         del_cells(self, [grid_F], indices=[(1,1),(0,2)])
@@ -4150,14 +4152,14 @@ class LightsOut(Scene):
         del_left_labels(self, left_obj)
         del_bottom_labels(self, bottom_obj)
 
-        show_subtitle(self, "为了求出p=Fb，我们需要将向量和矩阵相乘，", "一般情况下时间复杂度是$O(n^2)$。")
+        show_subtitle(self, "为了求出p=Fb，我们需要将向量和矩阵相乘，", "一般情况下时间复杂度是O(n²)。")
         move_grid(self, grid_F, btn_y=-0.2, lgt_y=-0.2, btn_x=0.2, lgt_x=0.2)
         grid_F2 = make_grid(self, 7, 7, mat_l=MAT_F, mat_g={"lgt": MAT_MK1, "btn": MAT_MK0}, btn_c=F_COLOR, lgt_c=F_COLOR)
         del_grids(self, [grid_F])
         LAT_P = show_latex(self, LATEX_P, 0, 2.0)
         ctx = mul_vec_mat_begin(self, w=7, h=7, mat=MAT_F, vec=VEC_B7, mat_color=F_COLOR, vec_color=B_COLOR, res_color=P_COLOR, mat_label="F", vec_label="b", res_label="p")
         mul_vec_mat_accumulate(self, ctx)
-        show_subtitle(self, "因为矩阵F是有递推规律的，理论上使用FFT等算法，", "可以把乘法优化到$O(n\cdot log(n))$。")
+        show_subtitle(self, "因为矩阵F是有递推规律的，理论上使用FFT等算法，", "可以把乘法优化到O(n·log(n))。")
         del_latex(self, [LAT_P])
         del_grids(self, [grid_F2])
         mul_vec_mat_cleanup(self, ctx)
@@ -4202,7 +4204,7 @@ class LightsOut(Scene):
         LAT_CF = show_latex(self, "<cP>P=<cB>B''<cF>F<cP>=(<cB>B'<cP>⊕<cI>I<cP>)<cF>F=<cB>B'<cF>F<cP>⊕<cI>I<cF>F<cP>=<cC>C<cP>⊕<cF>F", 0, 0.0)
         self.wait(2)
 
-        show_subtitle(self, "同时，由于P=C⊕F，因此P也可以写成这个递推公式，", "从而无需B，C或F，直接在$O(n)$的时间内，由P自己推得。")
+        show_subtitle(self, "同时，由于P=C⊕F，因此P也可以写成这个递推公式，", "从而无需B，C或F，直接在O(n)的时间内，由P自己推得。")
         LAT_P = show_latex(self, "<cP>P(n,x)=P(n-1,x)⊕P(n-2,x-1)⊕P(n-2,x-2)⊕P(n-3,x)⊕P(n-4,x)", 0, -0.5)
         self.wait(2)
         show_subtitle(self, "这个证明较长，因此这里就不展示出来了。", "有兴趣的观众可以从C和F的递推公式进行证明。")
@@ -4334,7 +4336,7 @@ class LightsOut(Scene):
         LAT_G2 = show_latex(self, "<cG>g(n,x)=gcd(<cF>f(n,x)<cG>,<cC>c(n,x)<cG>)=gcd(<cF>f(n,x)<cG>,<cP>p(n,x)<cG>)", 0, 0.0, show=False)
         trans_latex(self, LAT_G, LAT_G2)
         self.wait(2)
-        show_subtitle(self, "deg则表示最高次幂。r'代表矩阵B丢失的秩，也就是n-r。", "r'的值决定了解的数量，即2^r'。")
+        show_subtitle(self, "deg则表示最高次幂。r'代表矩阵B丢失的秩，也就是n-r。", "r'的值决定了解的数量，即2ʳ'。")
         self.wait(2)
         show_subtitle(self, "可以发现，如果B是可逆的，则g(x)=1，r'=0，n=r-r'=r。")
         self.wait(2)
@@ -4629,7 +4631,7 @@ class LightsOut(Scene):
             del_bd(self, bdD[y])
         del_grids(self, [grid_G])
 
-        show_subtitle(self, "可以发现，这里的步骤和首行叠加法类似，", "共有n个矩阵要生成，时间复杂度是$O(n^3)$。")
+        show_subtitle(self, "可以发现，这里的步骤和首行叠加法类似，", "共有n个矩阵要生成，时间复杂度是O(n³)。")
         self.wait(2)
         show_subtitle(self, "不过，聪明的你一定能猜到，", "通过《生成矩阵法》调换矩阵的行以后，这些矩阵也都满足十字偶校验约束。")
         sz=SZ_SMALL
@@ -4761,7 +4763,7 @@ class LightsOut(Scene):
         show_subtitle(self, "由于前r'行可以表示为后r行的线性叠加，因此我们可以在操作y之前，", "先将其和前r'的任意行叠加，然后再求解。")
         bd = hl_bd(self, grid_DR2)
         self.wait(2)
-        show_subtitle(self, "由于前r'行共有2^r'种，因此求得的解也有2^r'种。")
+        show_subtitle(self, "由于前r'行共有2ʳ'种，因此求得的解也有2ʳ'种。")
         self.wait(2)
         del_bd(self, bd)
         del_bd(self, bdX)
@@ -4824,7 +4826,7 @@ class LightsOut(Scene):
         del_latex(self, LAT_ZD, LAT_B)
         del_grids(self, [grid_B])
 
-        show_subtitle(self, "最终，我们通过欧几里得法和反向消元法，", "完成了Bx=y的求解，实现了点灯游戏在$O(n^2)$时间复杂度的算法。")
+        show_subtitle(self, "最终，我们通过欧几里得法和反向消元法，", "完成了Bx=y的求解，实现了点灯游戏在O(n²)时间复杂度的算法。")
         run_case(self, 5)
 
 #——————————————————————
@@ -4833,7 +4835,7 @@ class LightsOut(Scene):
         table = show_algo_table(self, x=0.0, y=0.0, font_size=20, row_gap=0.08, col_gap=0.5)
         self.wait(2)
 
-        show_subtitle(self, "向量矩阵乘法，欧几里得算法，逆向消元法，", "理论上通过卷积、FFT或牛顿迭代法，是有可能优化到$O(n\cdot log(n))$的。")
+        show_subtitle(self, "向量矩阵乘法，欧几里得算法，逆向消元法，", "理论上通过卷积、FFT或牛顿迭代法，是有可能优化到O(n·log(n))的。")
         self.wait(2)
         show_subtitle(self, "考虑到UP主《信号与系统》、《数字信号处理》、《数值分析》等课程较差，", "暂时就不研究了。有兴趣的小伙伴可自行研究并留言。")
         self.wait(2)
