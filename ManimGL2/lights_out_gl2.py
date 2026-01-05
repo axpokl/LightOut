@@ -3293,7 +3293,7 @@ class LightsOut(Scene):
                 lgt_objs[y][x] = add_grid_labels(self, G5_[y][x], [[f"L{idx+1}"]], rt=0.01)
                 del_grids(self, [G5], kp_bd=True , rt=rt /5) 
 
-        show_subtitle(self, "通过这种方式，我们得到了25元一次方程组。", "我们将其写成增广矩阵，也就是按钮矩阵和翻转向量（灯向量）的形式。")
+        show_subtitle(self, "通过这种方式，我们得到了25个未知数的一次方程组。", "我们将其写成增广矩阵，也就是按钮矩阵和翻转向量（灯向量）的形式。")
         del_grid_labels(self, objs)
         del_grids(self, [G5]) 
         self.wait(6)
@@ -3825,7 +3825,7 @@ class LightsOut(Scene):
         grid_B1 = make_grid(self, 7, 1, mat_l=[MAT7B[7][0]], btn_c=B_COLOR, lgt_c=B_COLOR, btn_y=1.2, lgt_y=1.2)
         topy_obj_B = add_top_labels(self, grid_B1, ["", "", "", "B", "", "", ""], color=B_COLOR)
         self.wait(2)
-        show_subtitle(self, "这里，让我以以n=7为例。这里的B就是前面提到的按钮矩阵B(n)，", "而y就是翻转向量的最后一行，即B(n)的增广向量。")
+        show_subtitle(self, "这里，让我以n=7为例。这里的B就是前面提到的按钮矩阵B(n)，", "而y就是翻转向量的最后一行，即B(n)的增广向量。")
         grid_B = make_grid(self, 7, 7, mat_l=MAT7B[7], btn_c=B_COLOR, lgt_c=B_COLOR)
         grid_Y = make_grid(self, 1, 7, mat_l=[[v] for v in MAT7Y[7]], btn_c=Y_COLOR, lgt_c=Y_COLOR, btn_x=2, lgt_x=2)
         topy_obj_Y = add_top_labels(self, grid_Y, ["y"], color=Y_COLOR)
@@ -4227,7 +4227,7 @@ class LightsOut(Scene):
         show_subtitle(self, "这样，我们就能立刻求出x。")
         mul_vec_mat(self, w=7, h=7, mat=MAT_Q7, vec=VEC_Y7, mat_color=Q_COLOR, vec_color=Y_COLOR, res_color=X_COLOR, mat_label="Q'", vec_label="y", res_label="x")
 
-        show_subtitle(self, "让我把这样的多项式q(x)我们称之为p(x)的逆多项式。", "那么，如何求出逆多项式q(x)呢？")
+        show_subtitle(self, "让我把这样的多项式q(x)称之为p(x)的逆多项式。", "那么，如何求出逆多项式q(x)呢？")
         label_q = add_left_labels(self, grid_q0, ["q"], color=Q_COLOR)
         self.wait(2)
         del_left_labels(self, [label_q])
