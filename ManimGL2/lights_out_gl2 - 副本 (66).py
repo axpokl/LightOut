@@ -24,12 +24,12 @@ FONT_LATEX = "Segoe UI"
 SCALE_LATEX = 1.0
 SCALE_SUBTITLE = 1.25
 SCALE_TITLE = 1.65
-SCALE_CENTER = 0.6
-SCALE_CENTER_URL = 0.4
-SCALE_CENTER_INDENT = 0.4
+SCALE_CENTER = 0.66
+SCALE_CENTER_URL = 0.55
+SCALE_CENTER_INDENT = 0.45
 
 REF_TEX = "N\\times N"
-ADD_TEX = "<c0>Q"
+ADD_TEX = "<c0>Qy<cI>"
 
 FONT_COLOR_BLACK = "#333333"
 FONT_SIZE_DEFAULT = 32
@@ -1712,7 +1712,8 @@ def show_subtitle(scene, text, text2=None, run_in=0.3, run_out=0.3, font=FONT_DE
             f.write(f"{_fmt_scene_time_ms(scene)} {out_text}\n")
     except Exception:
         pass
-    lines = VGroup(*[_mk_line_group(p, font, font_size, WHITE, baseline, auto_k, ref_tex) for p in parts])
+    wrapped_parts = [f"{ADD_TEX}{p}{ADD_TEX}" for p in parts]
+    lines = VGroup(*[_mk_line_group_color(p, font, font_size, WHITE, baseline, auto_k, ref_tex, COLOR_MAP) for p in wrapped_parts])
     normalize_by_ref(lines.submobjects, SCALE_SUBTITLE * font_size / FONT_SIZE_DEFAULT, ref_tex, scene=scene, text_desc=out_text)
     lines.arrange(DOWN, buff=line_gap).to_edge(DOWN, buff=buff)
     scene.add(lines)
@@ -4852,3 +4853,4 @@ class LightsOut(Scene):
 
         self.wait(1)
         show_subtitle(self, "")
+

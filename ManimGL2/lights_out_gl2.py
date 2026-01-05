@@ -24,12 +24,12 @@ FONT_LATEX = "Segoe UI"
 SCALE_LATEX = 1.0
 SCALE_SUBTITLE = 1.25
 SCALE_TITLE = 1.65
-SCALE_CENTER = 0.6
-SCALE_CENTER_URL = 0.4
-SCALE_CENTER_INDENT = 0.4
+SCALE_CENTER = 0.66
+SCALE_CENTER_URL = 0.55
+SCALE_CENTER_INDENT = 0.45
 
 REF_TEX = "N\\times N"
-ADD_TEX = "<c0>Q"
+ADD_TEX = "<c0>Qy<cI>"
 
 FONT_COLOR_BLACK = "#333333"
 FONT_SIZE_DEFAULT = 32
@@ -1712,7 +1712,8 @@ def show_subtitle(scene, text, text2=None, run_in=0.3, run_out=0.3, font=FONT_DE
             f.write(f"{_fmt_scene_time_ms(scene)} {out_text}\n")
     except Exception:
         pass
-    lines = VGroup(*[_mk_line_group(p, font, font_size, WHITE, baseline, auto_k, ref_tex) for p in parts])
+    wrapped_parts = [f"{ADD_TEX}{p}{ADD_TEX}" for p in parts]
+    lines = VGroup(*[_mk_line_group_color(p, font, font_size, WHITE, baseline, auto_k, ref_tex, COLOR_MAP) for p in wrapped_parts])
     normalize_by_ref(lines.submobjects, SCALE_SUBTITLE * font_size / FONT_SIZE_DEFAULT, ref_tex, scene=scene, text_desc=out_text)
     lines.arrange(DOWN, buff=line_gap).to_edge(DOWN, buff=buff)
     scene.add(lines)
@@ -3066,7 +3067,7 @@ LATEX_CENTER = [
     {"type": "text", "content": "https://www.enseignement.polytechnique.fr", "scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
     {"type": "text", "content": "/informatique/profs/Francois.Morain", "scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
     {"type": "text", "content": "/Master1/Crypto/projects/Wiedemann86.pdf", "scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
-    {"type": "text", "content": "[12] Erich Kaltofen，《关于Wiedemann求解稀疏线性系统的方法》", "scale": SCALE_CENTER, "indent": 0.0},
+    {"type": "text", "content": "[12] Erich Kaltofen，《关于Wiedemann求解稀疏线性系统方法》", "scale": SCALE_CENTER, "indent": 0.0},
     {"type": "text", "content": "https://users.cs.duke.edu/~elk27/bibliography/91/KaSa91.pdf", "scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
     {"type": "text", "content": "[13] John L. Goldwasser，《网格图中的奇偶支配集》", "scale": SCALE_CENTER, "indent": 0.0},
     {"type": "text", "content": "https://www.researchgate.net/profile/John-Goldwasser", "scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
@@ -3134,7 +3135,7 @@ LATEX_MAT = [
 class LightsOut(Scene):
     def construct(self):
         self.camera.background_color = BLACK
-
+        """
         show_title(self, "点灯游戏的O(n²)解法")
 
         sx = 5.5
@@ -4822,7 +4823,7 @@ class LightsOut(Scene):
 
         show_subtitle(self, "最终，我们通过欧几里得法和反向消元法，", "完成了Bx=y的求解，实现了点灯游戏在O(n²)时间复杂度的算法。")
         run_case(self, 5)
-
+        """
 #——————————————————————
         show_title(self, "算法总结")
 
@@ -4852,3 +4853,4 @@ class LightsOut(Scene):
 
         self.wait(1)
         show_subtitle(self, "")
+

@@ -1,0 +1,22 @@
+[subtitle-norm] 00:00:02.000 i=0 scale=0.590731 pad_h=0.691125 before=0.684356 used=0.691125 after=0.404270 text=r×r⨯r⨉r✕r∑⊕·…
+[subtitle-norm] 00:00:02.600 i=0 scale=0.563431 pad_h=0.691125 before=0.724612 used=0.724612 after=0.408269 text=₁₂₃₄₅₆₇₈₉ᵃ ᵇ ᶜ ᵈ ᵉ ᶠ ᵍ ʰ ⁱ ʲ ᵏ ˡ ᵐ ⁿ ᵒ ᵖ ʳ ˢ ᵗ ᵘ ᵛ ʷ ˣ ʸ ᶻ⁻¹Q⊕  ⨁  ·  ∙  ⋅  ⋯  …  ¬  ₀  ⁻¹
+[subtitle-norm] 00:00:03.200 i=0 scale=0.570726 pad_h=0.691125 before=0.715350 used=0.715350 after=0.408269 text=在上集视频的《首行叠加法》中，有观众对按钮和灯的递推仍有疑问。
+[subtitle-norm] 00:00:03.200 i=1 scale=0.570726 pad_h=0.691125 before=0.713213 used=0.713213 after=0.407049 text=这次我们来讲清楚，这个递推公式是怎么来的。
+[subtitle-norm] 00:00:08.400 i=0 scale=0.590731 pad_h=0.691125 before=0.491388 used=0.691125 after=0.290278 text=我们用B代表按钮，L代表灯，⊕（加）代表叠加，¬（非）代表翻转。
+[subtitle-norm] 00:00:13.500 i=0 scale=0.574157 pad_h=0.691125 before=0.711075 used=0.711075 after=0.408269 text=n代表从上到下第n行按钮或灯。
+[subtitle-norm] 00:00:13.500 i=1 scale=0.574157 pad_h=0.691125 before=0.476425 used=0.691125 after=0.273543 text=因为我们是一行行进行推导的，n也代表第n次推导。
+[subtitle-norm] 00:00:18.700 i=0 scale=0.590731 pad_h=0.691125 before=0.476425 used=0.691125 after=0.281439 text=x代表从左到右第x列按钮。将灯表示为第一行的某几个列的按钮的叠加。
+[subtitle-norm] 00:00:18.700 i=1 scale=0.590731 pad_h=0.691125 before=0.475000 used=0.691125 after=0.280597 text=这里的x不局限于第一行。
+[subtitle-norm] 00:00:23.900 i=0 scale=0.590731 pad_h=0.691125 before=0.522262 used=0.691125 after=0.308517 text=y代表从左到右第y列灯。
+[subtitle-norm] 00:00:23.900 i=1 scale=0.590731 pad_h=0.691125 before=0.529217 used=0.691125 after=0.312625 text=这里的公式对任意第y个灯都满足，所以省去了y。
+[subtitle-norm] 00:00:02.000 i=0 scale=0.590731 pad_h=0.691125 before=0.684356 used=0.691125 after=0.404270 text=r×r⨯r⨉r✕r∑⊕·…
+[subtitle-norm] 00:00:02.600 i=0 scale=0.563431 pad_h=0.691125 before=0.724612 used=0.724612 after=0.408269 text=₁₂₃₄₅₆₇₈₉ᵃ ᵇ ᶜ ᵈ ᵉ ᶠ ᵍ ʰ ⁱ ʲ ᵏ ˡ ᵐ ⁿ ᵒ ᵖ ʳ ˢ ᵗ ᵘ ᵛ ʷ ˣ ʸ ᶻ⁻¹Q⊕  ⨁  ·  ∙  ⋅  ⋯  …  ¬  ₀  ⁻¹
+[subtitle-norm] 00:00:03.200 i=0 scale=0.570726 pad_h=0.691125 before=0.715350 used=0.715350 after=0.408269 text=在上集视频的《首行叠加法》中，有观众对按钮和灯的递推仍有疑问。
+[subtitle-norm] 00:00:03.200 i=1 scale=0.570726 pad_h=0.691125 before=0.713213 used=0.713213 after=0.407049 text=这次我们来讲清楚，这个递推公式是怎么来的。
+[subtitle-norm] 00:00:08.400 i=0 scale=0.590731 pad_h=0.691125 before=0.491388 used=0.691125 after=0.290278 text=我们用B代表按钮，L代表灯，⊕（加）代表叠加，¬（非）代表翻转。
+[subtitle-norm] 00:00:13.500 i=0 scale=0.574157 pad_h=0.691125 before=0.711075 used=0.711075 after=0.408269 text=n代表从上到下第n行按钮或灯。
+[subtitle-norm] 00:00:13.500 i=1 scale=0.574157 pad_h=0.691125 before=0.476425 used=0.691125 after=0.273543 text=因为我们是一行行进行推导的，n也代表第n次推导。
+[subtitle-norm] 00:00:18.700 i=0 scale=0.590731 pad_h=0.691125 before=0.476425 used=0.691125 after=0.281439 text=x代表从左到右第x列按钮。将灯表示为第一行的某几个列的按钮的叠加。
+[subtitle-norm] 00:00:18.700 i=1 scale=0.590731 pad_h=0.691125 before=0.475000 used=0.691125 after=0.280597 text=这里的x不局限于第一行。
+[subtitle-norm] 00:00:23.900 i=0 scale=0.590731 pad_h=0.691125 before=0.522262 used=0.691125 after=0.308517 text=y代表从左到右第y列灯。
+[subtitle-norm] 00:00:23.900 i=1 scale=0.590731 pad_h=0.691125 before=0.529217 used=0.691125 after=0.312625 text=这里的公式对任意第y个灯都满足，所以省去了y。
