@@ -3067,7 +3067,7 @@ LATEX_CENTER = [
     {"type": "text", "content": "https://www.enseignement.polytechnique.fr", "scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
     {"type": "text", "content": "/informatique/profs/Francois.Morain", "scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
     {"type": "text", "content": "/Master1/Crypto/projects/Wiedemann86.pdf", "scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
-    {"type": "text", "content": "[12] Erich Kaltofen，《关于Wiedemann求解稀疏线性系统的方法》", "scale": SCALE_CENTER, "indent": 0.0},
+    {"type": "text", "content": "[12] Erich Kaltofen，《关于Wiedemann求解稀疏线性系统方法》", "scale": SCALE_CENTER, "indent": 0.0},
     {"type": "text", "content": "https://users.cs.duke.edu/~elk27/bibliography/91/KaSa91.pdf", "scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
     {"type": "text", "content": "[13] John L. Goldwasser，《网格图中的奇偶支配集》", "scale": SCALE_CENTER, "indent": 0.0},
     {"type": "text", "content": "https://www.researchgate.net/profile/John-Goldwasser", "scale": SCALE_CENTER_URL, "indent": SCALE_CENTER_INDENT},
