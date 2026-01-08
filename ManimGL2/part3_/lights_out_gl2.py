@@ -3135,7 +3135,7 @@ LATEX_MAT = [
 class LightsOut(Scene):
     def construct(self):
         self.camera.background_color = BLACK
-
+        """
         show_title(self, "点灯游戏的O(n²)解法")
 
         sx = 5.5
@@ -4840,13 +4840,13 @@ class LightsOut(Scene):
         self.wait(2)
 
         hide_algo_table(self, table)
-
+        """
         show_title(self, "参考文献")
 
         TOP_Y = 2
-        sy_l = calc_shift_y_for_top(self, LATEX_LEFT,   TOP_Y, shift_x=-4.5)
+        sy_l = calc_shift_y_for_top(self, LATEX_LEFT,   TOP_Y, shift_x=-4.75)
         sy_c = calc_shift_y_for_top(self, LATEX_CENTER, TOP_Y, shift_x= 0.5)
-        sy_r = calc_shift_y_for_top(self, LATEX_RIGHT,  TOP_Y, shift_x= 4.5)
+        sy_r = calc_shift_y_for_top(self, LATEX_RIGHT,  TOP_Y, shift_x= 4.75)
         show_center_latex(self, LATEX_LEFT,   shift_x=-4.5, shift_y=sy_l, replace_old=False)
         show_center_latex(self, LATEX_CENTER, shift_x= 0.25, shift_y=sy_c, replace_old=False)
         show_center_latex(self, LATEX_RIGHT,  shift_x= 4.5, shift_y=sy_r, replace_old=False)
