@@ -53,9 +53,9 @@ P_COLOR  = "#aa55ff"
 Q_COLOR  = "#ff55ff"
 G_COLOR  = "#ffaaff"
 R_COLOR  = "#ffffaa"
-Z_COLOR  = "#ffaa55"
+Z_COLOR  = "#ff7755"
 D_COLOR  = "#aaffff"
-X_COLOR  = "#ff7755"
+X_COLOR  = "#ffaa55"
 T_COLOR  = "#ffffaa"
 
 COLOR_MAP = {
@@ -3099,7 +3099,7 @@ LATEX_MAT = [
     (L_COLOR, "<cL>", "L", "-", "灯矩阵第一行", "公式递推", "<cL>L(n,x)=L(n-1,x-1)⊕L(n-1,x)⊕L(n-1,x+1)⊕L(n-2,x)"),
     (B_COLOR, "<cB>", "B", "-", "按钮矩阵第一行", "公式递推", "<cB>B(n,x)=B(n-1,x-1)⊕B(n-1,x)⊕B(n-1,x+1)⊕B(n-2,x)"),
     (Y_COLOR, "<cY>", "Y", "-", "灯矩阵最后一行", "公式递推", "<cY>Y(n,y)=¬(Y(n-1,y-1)⊕Y(n-1,y)⊕Y(n-1,y+1)⊕Y(n-2,y))"),
-    (H_COLOR, "<cH>", "H", "-", "邻接矩阵", "公式递推", "<cH>H(x,y)=(|x-y|=1)"),
+    (H_COLOR, "<cH>", "H", "-", "邻接扩散矩阵", "公式递推", "<cH>H(x,y)=(|x-y|=1)"),
     (K_COLOR, "<cK>", "K", "<cH>H", "Hⁿ第一行（Krylov扩散基矩阵）", "公式递推", "<cK>K(n,x)=K(n-1,x-1)⊕K(n-1,x+1)"),
     (F_COLOR, "<cF>", "F", "<cK>K", "K的逆矩阵（Krylov解耦矩阵）", "公式递推", "<cF>F(n,x)=F(n-1,x-1)⊕F(n-2,x)"),
     (C_COLOR, "<cC>", "C", "<cB>B", "B关于H的系数矩阵", "公式递推", "<cC>C(n,x)=C(n-1,x-1)⊕C(n-1,x)⊕C(n-2,x)"),
@@ -3855,7 +3855,7 @@ class LightsOut(Scene):
         hl_cells(self, [grid_B], indices=[(1,1),(0,2),(1,2),(2,2)])
         hl_cells(self, [grid_B], indices=[(1,3)], color=HL_COLOR_2)
         self.wait(2)
-        show_subtitle(self, "注意，这里的B'矩阵不是刚才说的当n确定时的完整的矩阵B，", "而是B(n)的第一行拼接起来。")
+        show_subtitle(self, "注意，这里的B'矩阵不是刚才说的当n确定时的完整的矩阵B，", "而是B(n)的第一行拼接起来的结果。")
         self.wait(2)
         del_cells(self, [grid_B], indices=[(1,1),(0,2),(1,2),(2,2)])
         del_cells(self, [grid_B], indices=[(1,3)])
@@ -3865,7 +3865,7 @@ class LightsOut(Scene):
         bottom_obj = add_bottom_label(self, grid_B0, "B''", color=B_COLOR)
         trans_grid(self,grid_B,grid_B0, keep_from=False);
         self.wait(2)
-        show_subtitle(self, "改写后的矩阵记为B''=B'⊕I")
+        show_subtitle(self, "改写后的矩阵记为B''=B'⊕I。")
 
         self.wait(2)
         del_bd(self, bd_b_row7)
@@ -3899,7 +3899,7 @@ class LightsOut(Scene):
         self.wait(2)
         del_latex(self, [LAT_Y, LAT_Y1, LAT_Y2])
 
-        show_subtitle(self, "为了不对整个矩阵进行操作，我们需要将矩阵B进行分解。", "这里，让我介绍一个非常重要的矩阵H，称为邻接矩阵。")
+        show_subtitle(self, "为了不对整个矩阵进行操作，我们需要将矩阵B进行分解。", "这里，让我介绍一个非常重要的矩阵H，称为邻接扩散矩阵。")
         LAT_H = show_latex(self, LATEX_H, 0, 2.0)
         ctx = mul_vec_mat_begin(self, mat=MAT_H, vec=VEC_V, mat_color=H_COLOR, vec_color=V_COLOR, res_color=V_COLOR, mat_label="H", vec_label="v", res_label="v'")
         self.wait(2)
@@ -4046,7 +4046,7 @@ class LightsOut(Scene):
         LAT_C2 = show_latex(self, "<cC>C(n,x)=C(n-1,x-1)⊕C(n-1,x)⊕C(n-2,x)", 0, 0.75)
         LAT_CF = show_latex(self, "<cC>c(n,x)<cF>=f(n,x+1)", 0, 0.0)
         self.wait(2)
-        show_subtitle(self, "这个证明也不难，大家可以通过F和C的关系求出F和C的递推公式，", "或者由递推公式反推。")
+        show_subtitle(self, "这个证明也不难，", "可以由F和C的关系求出F和C的递推公式，或者由递推公式反推。")
         self.wait(2)
         show_subtitle(self, "同时，B(n)矩阵也可以表示为以上形式。", "这里的H⊕I等价于x+1。")
         LAT_B1 = show_latex(self, "<cB>B(n)=B(n-1)(<cH>H<cB>⊕<cI>I<cB>)⊕B(n-2)", 0, -1.0)
@@ -4062,7 +4062,7 @@ class LightsOut(Scene):
         self.wait(2)
         del_grids(self, [grid_F0])
 
-        show_subtitle(self, "这里，为了和视频演示一致，b是竖着的，因此写为p=Fb，省去了转置符号。", "对于矩阵乘法运算来说，则有P=B''F。")
+        show_subtitle(self, "为了和视频中演示一致，由于b是竖着的，因此写为p=Fb。", "对于矩阵乘法运算来说，则有P=B''F。这里省去了转置符号。")
         ctx = mul_vec_mat_begin(self, w=7, h=7, mat=MAT_F, vec=VEC_B7, mat_color=F_COLOR, vec_color=B_COLOR, res_color=P_COLOR, mat_label="F", vec_label="b", res_label="p")
         mul_vec_mat_accumulate(self, ctx)
         del_grids(self, [grid_F2])
@@ -4083,7 +4083,7 @@ class LightsOut(Scene):
         show_subtitle(self, "有了p=Fb之后，后续的计算我们都不需要用到完整的B，", "而只需要B的第一行，即向量b。")
         mul_vec_mat(self, w=7, h=7, mat=MAT_F, vec=VEC_B7, mat_color=F_COLOR, vec_color=B_COLOR, res_color=P_COLOR, mat_label="F", vec_label="b", res_label="p")
         del_latex(self, [LAT_P])
-        show_subtitle(self, "这是因为，我们已经将问题从Bx=y转化为了p(H)x=y，后续计算不再需要B。", "由此，在前面说到的生成矩阵，也只需要计算向量b，也就是矩阵B'。")
+        show_subtitle(self, "这是因为，问题已经从Bx=y转化为了p(H)x=y。", "因此，在前面说到的生成矩阵，也只需要计算向量b，也就是矩阵B'。")
         sz=SZ_DEFAULT
         cols, n = 7, 7
         rows = n + 1
@@ -4258,7 +4258,7 @@ class LightsOut(Scene):
         euclid_ops(self, euc, OPS_7, start=1, end=1)
         self.wait(2)
 
-        show_subtitle(self, "否则，当f(x)的最高次数小于p(x)时，将p(x)和f(x)互换。")
+        show_subtitle(self, "否则，当f(x)的最高次数小于p(x)时，将p(x)和f(x)互换，", "使得f(x)的最高次数始终大于或等于p(x)，让叠加操作可以继续下去。")
         euclid_ops(self, euc, OPS_7, start=2, end=2)
         self.wait(2)
 
@@ -4304,7 +4304,7 @@ class LightsOut(Scene):
         ctx = mul_vec_mat_begin(self, w=7, h=7, mat=MAT_Q7, vec=VEC_Y7, mat_color=Q_COLOR, vec_color=Y_COLOR, res_color=X_COLOR, mat_label="Q'", vec_label="y", res_label="x")
         self.wait(2)
 
-        show_subtitle(self, "因此，我们也可以通过Kq求出逆矩阵Q'的第一行", "再通过递推公式求得Q'，最后再和y相乘求得x。")
+        show_subtitle(self, "因此，我们也可以通过Kq求出逆矩阵Q'的第一行", "再通过递推公式求得完整的Q'，最后再和y相乘求得x。")
         mul_vec_mat_accumulate(self, ctx)
         self.wait(1)
         show_subtitle(self, "两种方法求得的x是相同的，有兴趣的观众可以自行证明。")
@@ -4480,7 +4480,7 @@ class LightsOut(Scene):
         del_left_labels(self, [label_p, label_q1, label_q2, label_f, label_g1, label_g2])
         del_grids(self, [grid_p, grid_q1, grid_q2, grid_f, grid_g1, grid_g2])
 
-        show_subtitle(self, "那么对于不可逆的矩阵B，我们又有什么方法解决呢？")
+        show_subtitle(self, "那么对于不可逆的矩阵B，我们又有什么方法可以求出正确的解呢？")
         LAT_G = show_latex(self, "<cB>B<cQ>Q'<cE>=E'", 0, 2.0)
         grid_B5 = make_grid(self, 5, 5, lgt_x=-3, btn_x=-3, mat_l=MAT_B5, btn_c=B_COLOR, lgt_c=B_COLOR)
         grid_Q5 = make_grid(self, 5, 5, lgt_x=-0, btn_x=-0, mat_l=MAT_Q5, btn_c=Q_COLOR, lgt_c=Q_COLOR)
