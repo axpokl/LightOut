@@ -3139,6 +3139,14 @@ class LightsOut(Scene):
     def construct(self):
         self.camera.background_color = BLACK
 
+        """
+        LAT1 = show_latex(self, "<cI>5×5⨯5⨉5✕5∑⊕·…", 0, 1.0)
+        LAT1 = show_latex(self, "<cI>₁₂₃₄₅₆₇₈₉ᵃ ᵇ ᶜ ᵈ ᵉ ᶠ ᵍ ʰ ⁱ ʲ ᵏ ˡ ᵐ ⁿ ᵒ ᵖ ʳ ˢ ᵗ ᵘ ᵛ ʷ ˣ ʸ ᶻ⁻¹Q⊕  ⨁  ·  ∙  ⋅  ⋯  …  ¬  ₀  ⁻¹", 0, 0.5)
+
+        show_subtitle(self, "r×r⨯r⨉r✕r∑⊕·…")
+        show_subtitle(self, "₁₂₃₄₅₆₇₈₉ᵃ ᵇ ᶜ ᵈ ᵉ ᶠ ᵍ ʰ ⁱ ʲ ᵏ ˡ ᵐ ⁿ ᵒ ᵖ ʳ ˢ ᵗ ᵘ ᵛ ʷ ˣ ʸ ᶻ⁻¹Q⊕  ⨁  ·  ∙  ⋅  ⋯  …  ¬  ₀  ⁻¹")
+        """
+
         show_title(self, "点灯游戏的O(n²)解法")
 
         sx = 5.5
@@ -3188,18 +3196,10 @@ class LightsOut(Scene):
 
         show_title(self, "首行叠加法（续上集）")
 
-        """
-        LAT1 = show_latex(self, "<cI>5×5⨯5⨉5✕5∑⊕·…", 0, 1.0)
-        LAT1 = show_latex(self, "<cI>₁₂₃₄₅₆₇₈₉ᵃ ᵇ ᶜ ᵈ ᵉ ᶠ ᵍ ʰ ⁱ ʲ ᵏ ˡ ᵐ ⁿ ᵒ ᵖ ʳ ˢ ᵗ ᵘ ᵛ ʷ ˣ ʸ ᶻ⁻¹Q⊕  ⨁  ·  ∙  ⋅  ⋯  …  ¬  ₀  ⁻¹", 0, 0.5)
-
-        show_subtitle(self, "r×r⨯r⨉r✕r∑⊕·…")
-        show_subtitle(self, "₁₂₃₄₅₆₇₈₉ᵃ ᵇ ᶜ ᵈ ᵉ ᶠ ᵍ ʰ ⁱ ʲ ᵏ ˡ ᵐ ⁿ ᵒ ᵖ ʳ ˢ ᵗ ᵘ ᵛ ʷ ˣ ʸ ᶻ⁻¹Q⊕  ⨁  ·  ∙  ⋅  ⋯  …  ¬  ₀  ⁻¹")
-        """
-
         show_subtitle(self, "在上集视频的《首行叠加法》中，有小伙伴对按钮和灯的递推仍有疑问。", "这次我们来讲清楚，这个递推公式是怎么来的。")
         LAT1 = show_latex(self, "<cB>B(n,x)=B(n-1,x-1)⊕B(n-1,x)⊕B(n-1,x+1)⊕B(n-2,x)", 0, 2.0)
         LAT2 = show_latex(self, "<cB>B按钮    <cL>L灯    <cH1>⊕叠加    <cH2>¬翻转", 0, 1.5)
-        self.wait(4)
+        self.wait(10)
 
         show_subtitle(self, "我们用B代表按钮，L代表灯，⊕（加）代表叠加，¬（非）代表翻转。")
         sz=SZ_SMALL
@@ -3219,18 +3219,19 @@ class LightsOut(Scene):
                 if k == 0: top_objs[k][y] = add_top_labels(self, G5_[k][y], ["x1","x2","x3","x4","x5"], rt=0.01)
                 if k == 0: topy_objs[k][y] = add_top_labels(self, G5Y_[k][y], [f"y{y+1}"], rt=0.01)
                 left_objs[k][y] = add_left_labels(self, G5_[k][y], [f"n{k+1}"], rt=0.01)
+        self.wait(2)
 
         show_subtitle(self, "n代表从上到下第n行按钮或灯。", "因为我们是一行行进行推导的，n也代表第n次推导。")
         n_frames = hl_objs(self, [left_objs], width=BD_W)
-        self.wait(4)
+        self.wait(6)
         del_hl_objs(self, n_frames)
         show_subtitle(self, "x代表从左到右第x列按钮。我们将灯表示为第一行的某几个列的按钮的叠加。", "这里的x不局限于第一行。")
         x_frames = hl_objs(self, [top_objs], width=BD_W)
-        self.wait(4)
+        self.wait(10)
         del_hl_objs(self, x_frames)
         show_subtitle(self, "y代表从左到右第y列灯。", "这里的公式对任意第y个灯都满足，所以省去了y。")
         y_frames = hl_objs(self, [LAT1])
-        self.wait(4)
+        self.wait(8)
         del_hl_objs(self, y_frames)
 
         show_subtitle(self, "在这里，粉色原点是用按钮表示按钮，淡蓝色方块是用按钮表示灯。")
@@ -3255,15 +3256,15 @@ class LightsOut(Scene):
             mat_btn_y.append(row_btn_y)
         set_grid_mats(self, grids=G5_, mat=mat_btn, mat_l=mat_0, clear_first=False)
         set_grid_mats(self, grids=G5Y_, mat=mat_btn_y, mat_l=mat_0, clear_first=False)
-        self.wait(2)
+        self.wait(3)
         set_grid_mats(self, grids=G5_, mat=mat_0, mat_l=mat_lgt, clear_first=False)
         set_grid_mats(self, grids=G5Y_, mat=mat_0, mat_l=mat_lgt_y, clear_first=False)
-        self.wait(4)
+        self.wait(3)
 
         show_subtitle(self, "而在上集视频中，因为最终目标是将灯用按钮表示，", "因此省去了按钮表示按钮，粉色原点直接是按钮表示灯。")
         set_grid_mats(self, grids=G5_, mat=mat_lgt, mat_l=mat_0, clear_first=False)
         set_grid_mats(self, grids=G5Y_, mat=mat_lgt_y, mat_l=mat_0, clear_first=False)
-        self.wait(4)
+        self.wait(7)
 
         del_latex(self, [LAT1, LAT2]);
         del_top_labels(self, top_objs)
@@ -3277,7 +3278,8 @@ class LightsOut(Scene):
         cols, rows = 5, 5
         G5 = make_grid(self, w=cols, h=rows, lgt_x=-4, btn_x=-4)
         objs = add_grid_labels(self, G5, [[f"B{c*rows + r + 1}" for c in range(cols)] for r in range(rows)])
-        self.wait(2)
+        self.wait(5)
+
         show_subtitle(self, "在《叠加法》中，我们将灯表示为所有按钮的叠加。", "例如：L1=B1⊕B2⊕B6，L6=B1⊕B6⊕B7⊕B11。")
         G5_ = [[None] * cols for _ in range(rows)]
         mat_l = make_mat_l(rows)
@@ -3295,6 +3297,7 @@ class LightsOut(Scene):
                 btn_objs[y][x] = add_grid_labels(self, G5_[y][x], [[f"B{j+1}" for j in range(cols*rows)]], rt=0.01)
                 lgt_objs[y][x] = add_grid_labels(self, G5_[y][x], [[f"L{idx+1}"]], rt=0.01)
                 del_grids(self, [G5], kp_bd=True , rt=rt /5) 
+        self.wait(3)
 
         show_subtitle(self, "通过这种方法，我们得到了25个未知数的一次方程组。", "我们将其写成增广矩阵，也就是按钮矩阵和翻转向量，即灯向量的形式。")
         del_grid_labels(self, objs)
@@ -3303,6 +3306,7 @@ class LightsOut(Scene):
         del_grid_labels(self, btn_objs)
         del_grid_labels(self, lgt_objs)
         del_grids(self, [G5_]) 
+        self.wait(5)
 
         show_subtitle(self, "而在《首行叠加法》中，我们需要把灯表示为第一行按钮的叠加。")
         sz=SZ_SMALL
@@ -3322,24 +3326,25 @@ class LightsOut(Scene):
                 if k == 0: top_objs[k][y] = add_top_labels(self, G5_[k][y], ["B1","B2","B3","B4","B5"], rt=0.01)
                 if k == 0: topy_objs[k][y] = add_top_labels(self, G5Y_[k][y], [f"L{y+1}"], rt=0.01)
                 left_objs[k][y] = add_left_labels(self, G5_[k][y], [f"{ k*cols + y + 1 }"], rt=0.01)
+        self.wait(3)
 
         show_subtitle(self, "这里的五个矩阵，", "分别代表第y列是由第一行的哪几个按钮叠加的。")
-        self.wait(4)
+        self.wait(6)
         show_subtitle(self, "由于按法是动态的，当第二行按钮还未被按下时，", "L1=B1⊕B2，即第一个灯L1是由第一行的第一、第二个按钮B1,B2叠加的。")
         toggle_lgt(self, G5_[0][0], 0, 0)
         toggle_lgt(self, G5_[0][0], 1, 0)
-        self.wait(4)
+        self.wait(12)
 
         show_subtitle(self, "然后，B6=¬L1=¬(B1⊕B2)，即第六个按钮B6是第一个灯L1的翻转。", "因此，第二行按钮B6和第一行灯L1的叠加状态是相同的。")
         toggle_btn(self, G5_[1][0], 0, 0)
         toggle_btn(self, G5_[1][0], 1, 0)
-        self.wait(4)
+        self.wait(13)
         
         show_subtitle(self, "只不过B6是L1的翻转。", "而旁边的向量，代表的就是按钮或灯有没有翻转。")
         toggle_lgt(self, G5Y_[0][0], 0, 0)
-        self.wait(4)
+        self.wait(8)
         show_subtitle(self, "例如，当第一个向量的第一个灯L1亮起时，", "表示L1除了由刚才说的按钮叠加外，还需要翻转才是正确的状态。")
-        self.wait(4)
+        self.wait(10)
 
         show_subtitle(self, "同理，B7=¬L2=¬(B1⊕B2⊕B3)，即第七个按钮B7是第二个灯L2的翻转。", "同样，第二行的按钮B7和第一行灯L2的叠加状态是相同的。")
         toggle_lgt(self, G5_[0][1], 0, 0)
@@ -3349,11 +3354,11 @@ class LightsOut(Scene):
         toggle_btn(self, G5_[1][1], 1, 0)
         toggle_btn(self, G5_[1][1], 2, 0)
         toggle_lgt(self, G5Y_[0][1], 0, 0)
-        self.wait(4)
+        self.wait(13)
 
         show_subtitle(self, "这里，我们将第一个按钮B1的状态补全，", "将B1用第一行的按钮叠加时，有B1=B1。")
         toggle_btn(self, G5_[0][0], 0, 0)
-        self.wait(4)
+        self.wait(8)
 
         show_subtitle(self, "接下来我们来看第六个灯。", "L6=B1⊕B6⊕B7=B1⊕¬(B1⊕B2)⊕¬(B1⊕B2⊕B3)=B1⊕B3。")
         hl_cells(self, [G5_[0][0]], indices=[(0, 0)])
@@ -3368,30 +3373,31 @@ class LightsOut(Scene):
         add_cell(self, G5_[1][1], G5_[1][0], 0, 0, 0, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
         add_cell(self, G5_[1][1], G5_[1][0], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
         add_cell(self, G5_[1][1], G5_[1][0], 2, 0, 2, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
+        self.wait(2)
 
         show_subtitle(self, "又比如，L7=B2⊕B6⊕B7⊕B8", "=B2⊕¬(B1⊕B2)⊕¬(B1⊕B2⊕B3)⊕¬(B2⊕B3⊕B4)=¬B4。")
-        toggle_btn(self, G5_[0][1], 1, 0)
-        toggle_btn(self, G5_[1][2], 1, 0)
-        toggle_btn(self, G5_[1][2], 2, 0)
-        toggle_btn(self, G5_[1][2], 3, 0)
-        hl_cells(self, [G5_[0][1]], indices=[(1, 0)])
-        hl_cells(self, [G5_[1][0]], indices=[(0, 0)])
-        hl_cells(self, [G5_[1][0]], indices=[(1, 0)])
-        hl_cells(self, [G5_[1][1]], indices=[(0, 0)])
-        hl_cells(self, [G5_[1][1]], indices=[(1, 0)])
-        hl_cells(self, [G5_[1][1]], indices=[(2, 0)])
-        hl_cells(self, [G5_[1][2]], indices=[(1, 0)])
-        hl_cells(self, [G5_[1][2]], indices=[(2, 0)])
-        hl_cells(self, [G5_[1][2]], indices=[(3, 0)])
-        add_cell(self, G5_[0][1], G5_[1][1], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
-        add_cell(self, G5_[1][0], G5_[1][1], 0, 0, 0, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
-        add_cell(self, G5_[1][0], G5_[1][1], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
-        add_cell(self, G5_[1][1], G5_[1][1], 0, 0, 0, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
-        add_cell(self, G5_[1][1], G5_[1][1], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
-        add_cell(self, G5_[1][1], G5_[1][1], 2, 0, 2, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
-        add_cell(self, G5_[1][2], G5_[1][1], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
-        add_cell(self, G5_[1][2], G5_[1][1], 2, 0, 2, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
-        add_cell(self, G5_[1][2], G5_[1][1], 3, 0, 3, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2)
+        toggle_btn(self, G5_[0][1], 1, 0, rt=0.2)
+        toggle_btn(self, G5_[1][2], 1, 0, rt=0.2)
+        toggle_btn(self, G5_[1][2], 2, 0, rt=0.2)
+        toggle_btn(self, G5_[1][2], 3, 0, rt=0.2)
+        hl_cells(self, [G5_[0][1]], indices=[(1, 0)], rt=0.2)
+        hl_cells(self, [G5_[1][0]], indices=[(0, 0)], rt=0.2)
+        hl_cells(self, [G5_[1][0]], indices=[(1, 0)], rt=0.2)
+        hl_cells(self, [G5_[1][1]], indices=[(0, 0)], rt=0.2)
+        hl_cells(self, [G5_[1][1]], indices=[(1, 0)], rt=0.2)
+        hl_cells(self, [G5_[1][1]], indices=[(2, 0)], rt=0.2)
+        hl_cells(self, [G5_[1][2]], indices=[(1, 0)], rt=0.2)
+        hl_cells(self, [G5_[1][2]], indices=[(2, 0)], rt=0.2)
+        hl_cells(self, [G5_[1][2]], indices=[(3, 0)], rt=0.2)
+        add_cell(self, G5_[0][1], G5_[1][1], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.2)
+        add_cell(self, G5_[1][0], G5_[1][1], 0, 0, 0, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.2)
+        add_cell(self, G5_[1][0], G5_[1][1], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.2)
+        add_cell(self, G5_[1][1], G5_[1][1], 0, 0, 0, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.2)
+        add_cell(self, G5_[1][1], G5_[1][1], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.2)
+        add_cell(self, G5_[1][1], G5_[1][1], 2, 0, 2, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.2)
+        add_cell(self, G5_[1][2], G5_[1][1], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.2)
+        add_cell(self, G5_[1][2], G5_[1][1], 2, 0, 2, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.2)
+        add_cell(self, G5_[1][2], G5_[1][1], 3, 0, 3, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.2)
 
         show_subtitle(self, "这样不断递推，我们可以将任意L表示为B1—B5的叠加。", "加上翻转后，得到完整的矩阵。")
         for k in range(rows):

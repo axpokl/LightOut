@@ -150,12 +150,12 @@
 因此，如果gx不为1，则qx不满足qxpx=1 mod fx。或者说，满足qxpx=1 mod fx的qx不存在。<break time="1000ms" />
 那么对于不可逆的矩阵B，我们又有什么方法可以求出正确的解呢？<break time="1000ms" />
 在刚才的《首行求逆法》中，我们有这些公式。<break time="1000ms" />
-现在，我们定义多项式q撇x，满足q撇xpx=<mstts:ttsbreak strength="none">gx mod fx 。</mstts:ttsbreak><break time="300ms" /><break time="1000ms" />
-<break time="300ms" /><mstts:ttsbreak strength="none">其中，gx</mstts:ttsbreak>也就是刚才提到的最大公因子，q撇x就是刚才<mstts:ttsbreak strength="none">求得的qx 。</mstts:ttsbreak><break time="300ms" /><break time="1000ms" />
-<break time="300ms" /><mstts:ttsbreak strength="none">由于原本</mstts:ttsbreak>求得的x并不是最终解，我们将其重命名为z，<mstts:ttsbreak strength="none">即z=q撇(H)y 。</mstts:ttsbreak><break time="300ms" /><break time="1000ms" />
-<break time="300ms" /><mstts:ttsbreak strength="none">同时，我们</mstts:ttsbreak>定义q撇x的逆多项式p撇x，<mstts:ttsbreak strength="none">即q撇xp撇x=1 mod fx 。</mstts:ttsbreak><break time="300ms" /><break time="1000ms" />
+现在，我们定义多项式q撇x，满足q撇xpx=gx mod fx。<break time="1000ms" />
+<break time="300ms" />其中，gx也就是刚才提到的最大公因子，q撇x就是刚才求得的qx。<break time="1000ms" />
+<break time="300ms" />由于原本求得的x并不是最终解，我们将其重命名为z，即z=q撇(H)y。<break time="1000ms" />
+<break time="300ms" />同时，我们定义q撇x的逆多项式p撇x，即q撇xp撇x=1 mod fx。<break time="1000ms" />
 我们不难推出这些式子。为了方便表示，这里将mod fx的部分省去。<break time="1000ms" />
-<break time="300ms" /><mstts:ttsbreak strength="none">整理后</mstts:ttsbreak>，我们可以得到这些式子。<break time="1000ms" />
+<break time="300ms" />整理后，我们可以得到这些式子。<break time="1000ms" />
 最终，我们得到了z=g(H)x。这里，如果gx=1，则会有右边这些式子。<break time="1000ms" />
 前面使用的扩展欧几里得法中，我们已求得q撇x和gx。因此，接下来只需要使用gx和z即可求得x。<break time="1000ms" />
 前者，我们有公式z=q撇(H)y。我们不断让y乘以H，然后使用向量乘以矩阵的方法求得z。<break time="1000ms" />

@@ -63,11 +63,7 @@ n代表|<break time="300ms" />n代表
 x代表|<break time="300ms" />x代表
 y代表|<break time="300ms" />y代表
 <break time="300ms" />同样，计算K和F也是如此。|同样，计算K和F也是如此。
-gx mod fx。|<mstts:ttsbreak strength="none">gx mod fx 。</mstts:ttsbreak><break time="300ms" />
-求得的qx。|<mstts:ttsbreak strength="none">求得的qx 。</mstts:ttsbreak><break time="300ms" />
-即z=q撇(H)y。|<mstts:ttsbreak strength="none">即z=q撇(H)y 。</mstts:ttsbreak><break time="300ms" />
-即q撇xp撇x=1 mod fx。|<mstts:ttsbreak strength="none">即q撇xp撇x=1 mod fx 。</mstts:ttsbreak><break time="300ms" />
-其中，gx|<break time="300ms" /><mstts:ttsbreak strength="none">其中，gx</mstts:ttsbreak>
-由于原本|<break time="300ms" /><mstts:ttsbreak strength="none">由于原本</mstts:ttsbreak>
-同时，我们|<break time="300ms" /><mstts:ttsbreak strength="none">同时，我们</mstts:ttsbreak>
-整理后|<break time="300ms" /><mstts:ttsbreak strength="none">整理后</mstts:ttsbreak>
+其中，gx|<break time="300ms" />其中，gx
+由于原本|<break time="300ms" />由于原本
+同时，我们|<break time="300ms" />同时，我们
+整理后|<break time="300ms" />整理后
