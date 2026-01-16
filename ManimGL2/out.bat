@@ -1,4 +1,5 @@
 del subtitle.txt
+del subtitle_raw.txt
 del title.txt
 del latex.txt
 del normal.txt

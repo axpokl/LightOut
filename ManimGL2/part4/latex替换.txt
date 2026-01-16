@@ -1,0 +1,73 @@
+<break time="1000ms" />
+¬|非
+⊕|加
+×|乘
+·|乘
+—|到
+²|的二次方
+³|的三次方
+ⁿ|的n次方
+ʳ|的r次方
+'|撇
+''|撇撇
+：|。<break time="50ms" />
+1. |<break time="300ms" />一，
+2. |<break time="300ms" />二，
+3. |<break time="300ms" />三，
+4. |<break time="300ms" />四，
+加（加）|加
+非（非）|非
+第一、第二个|第一、第<phoneme alphabet="sapi" ph="er 4">二</phoneme>个
+左中右|<break time="50ms" /><mstts:ttsbreak strength="none">左中右</mstts:ttsbreak><break time="50ms" />
+上<break time="50ms" /><mstts:ttsbreak strength="none">|<break time="50ms" /><mstts:ttsbreak strength="none">上
+上上行|上上<phoneme alphabet="sapi" ph="hang 2">行</phoneme>
+坐标x,y表示|<mstts:ttsbreak strength="none">坐标x和y</mstts:ttsbreak>表示
+L7(2)=L(2,2,2)|L7(2)=L(2<break time="50ms" />2<break time="50ms" />2)
+B6是|B6<break time="100ms" />是
+B7是|B7<break time="100ms" />是
+即后一行的翻转是前一行|即<break time="100ms" />后一行的翻转是前一行
+n-1|n减1
+n-2|n减2
+最后一个1|最后一个1，
+1011011|<phoneme alphabet="sapi" ph="yi 1">1</phoneme>0<phoneme alphabet="sapi" ph="yi 1">1</phoneme><phoneme alphabet="sapi" ph="yi 1">1</phoneme>0<phoneme alphabet="sapi" ph="yi 1">1</phoneme><phoneme alphabet="sapi" ph="yi 1">1</phoneme>
+的差|的<break time="100ms" />差
+的<break time="100ms" />|<phoneme alphabet="sapi" ph="de 1">的</phoneme><break time="100ms" />
+x-1|x减1
+x+1|x加1
+Krylov|克雷洛夫
+(n,x)|<mstts:ttsbreak strength="none"> n x</mstts:ttsbreak>
+(f,c)|<mstts:ttsbreak strength="none"> f c</mstts:ttsbreak>
+(f,p)|<mstts:ttsbreak strength="none"> f p</mstts:ttsbreak>
+矩阵F的每行对应多项式|矩阵F的每行<break time="50ms" />对应多项式
+Fibonacci|斐波那契
+deg|<phoneme alphabet="sapi" ph="di 2">d</phoneme>eg
+(x)|x
+将其首行H|<break time="100ms" />将其首行H
+ox|<phoneme alphabet="sapi" ph="ou 1">o</phoneme>x
+ex|<phoneme alphabet="sapi" ph="yi 4">e</phoneme>x
+n-r|n减r
+n减2个|n减<phoneme alphabet="sapi" ph="er 4">2</phoneme>个
+r=3|r等于3
+r次方撇|r撇次方
+点灯游戏O|点灯游戏<break time="100ms" />O
+n乘log(n)|n乘log n
+，为了方便|。为了方便
+类似《优化生成矩阵》|类似<break time="100ms" /><mstts:ttsbreak strength="none">《优化生成矩阵》</mstts:ttsbreak>
+B(n)|B n
+B(0)|B 0
+B(1)|B 1
+B(2)|B 2
+B 0、B 1、B 2|B 0、B 1、B 2<break time="100ms" />
+H的n次方(0)|H的n次方 0
+n代表|<break time="300ms" />n代表
+x代表|<break time="300ms" />x代表
+y代表|<break time="300ms" />y代表
+<break time="300ms" />同样，计算K和F也是如此。|同样，计算K和F也是如此。
+gx mod fx。|<mstts:ttsbreak strength="none">gx mod fx 。</mstts:ttsbreak><break time="300ms" />
+求得的qx。|<mstts:ttsbreak strength="none">求得的qx 。</mstts:ttsbreak><break time="300ms" />
+即z=q撇(H)y。|<mstts:ttsbreak strength="none">即z=q撇(H)y 。</mstts:ttsbreak><break time="300ms" />
+即q撇xp撇x=1 mod fx。|<mstts:ttsbreak strength="none">即q撇xp撇x=1 mod fx 。</mstts:ttsbreak><break time="300ms" />
+其中，gx|<break time="300ms" /><mstts:ttsbreak strength="none">其中，gx</mstts:ttsbreak>
+由于原本|<break time="300ms" /><mstts:ttsbreak strength="none">由于原本</mstts:ttsbreak>
+同时，我们|<break time="300ms" /><mstts:ttsbreak strength="none">同时，我们</mstts:ttsbreak>
+整理后|<break time="300ms" /><mstts:ttsbreak strength="none">整理后</mstts:ttsbreak>
