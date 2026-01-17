@@ -3,7 +3,7 @@ param(
   [string]$NoiseDb = "-30dB",
   [string]$InputMp3,
   [switch]$IncludeTailSilence,
-  [switch]$Debug,
+  [switch]$Debug = $True,
   [int]$DebugHeadEvents = 25
 )
 

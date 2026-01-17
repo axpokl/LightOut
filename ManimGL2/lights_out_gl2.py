@@ -4176,7 +4176,7 @@ class LightsOut(Scene):
         self.wait(3)
 
         show_subtitle(self, "因为矩阵F是有递推规律的，理论上使用FFT等算法，", "可以把乘法优化到O(n·log(n))。")
-        self.wait(5)
+        self.wait(7)
         del_latex(self, [LAT_P])
         del_grids(self, [grid_F2])
         mul_vec_mat_cleanup(self, ctx)
@@ -4186,14 +4186,14 @@ class LightsOut(Scene):
         grid_B = make_grid(self, 8, 8, mat_l=MAT_B, mat_g={"lgt": MAT_MK2, "btn": MAT_MK0}, btn_c=B_COLOR, lgt_c=B_COLOR)
         left_obj = add_left_labels(self, grid_B, list(range(8)))
         bottom_obj = add_bottom_label(self, grid_B, "B''", color=B_COLOR)
-        self.wait(5)
+        self.wait(4)
         del_latex(self, [LAT_P])
         LAT_C = show_latex(self, "<cC>C=<cB>B'<cF>F", 0, 2.0)
         del_bottom_labels(self, bottom_obj)
         grid_B0 = make_grid(self, 8, 8, mat_l=MAT_B, mat_g={"lgt": MAT_MK1, "btn": MAT_MK0}, btn_c=B_COLOR, lgt_c=B_COLOR, show=False)
         bottom_obj = add_bottom_label(self, grid_B0, "B'", color=B_COLOR)
         trans_grid(self, grid_B, grid_B0, keep_from=False);
-        self.wait(6)
+        self.wait(5)
         del_latex(self, [LAT_C])
         del_left_labels(self, left_obj)
         del_bottom_labels(self, bottom_obj)
@@ -4212,7 +4212,7 @@ class LightsOut(Scene):
             "<cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br>"
             "<cC>=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)",
              0, 1.0, font_size=FONT_SIZE_SMALL)
-        self.wait(6)
+        self.wait(7)
         LAT_C = show_latex(self, "<cC>C'(n,x)=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)", 0, 1.0, show=False)
         trans_latex(self, LAT_C0, LAT_C)
         self.wait(7)
@@ -4291,7 +4291,7 @@ class LightsOut(Scene):
         grid_e0 = make_grid(self, w=8, h=1, lgt_x= dx, btn_x= 2.5, lgt_y=-0.5, btn_y=-0.5, mat_l=[VEC_Q7], btn_c=Q_COLOR, lgt_c=Q_COLOR, rt=0.01)
         euclid_clear(self, euc)
 
-        show_subtitle(self, "我们将q(x)写成矩阵Q。注意，这里的矩阵Q不是前面的完整逆矩阵Q'，", "而是把把多个q(x)拼接起来的结果。")
+        show_subtitle(self, "我们将q(x)写成矩阵Q。注意，这里的矩阵Q不是前面的完整逆矩阵Q'，", "而是把多个q(x)拼接起来的结果。")
         move_grid(self, grid_e0, btn_y=-1.4, lgt_y=-1.4)
         grid_Q = make_grid(self, 8, 8, mat_l=MAT_Q, mat_g={"lgt": MAT_MK2, "btn": MAT_MK0}, btn_c=Q_COLOR, lgt_c=Q_COLOR)
         left_obj = add_left_labels(self, grid_Q, list(range(8)))
@@ -4533,14 +4533,14 @@ class LightsOut(Scene):
 
         show_subtitle(self, "其中，g(x)也就是刚才提到的最大公因子，", "q'(x)就是刚才求得的q(x)。")
         LAT_A0_1 = show_latex(self, "<cG>g(x)=gcd(<cP>p(x)<cG>,<cF>f(x)<cG>)", 0, 2.5)
-        self.wait(7)
+        self.wait(8)
 
         show_subtitle(self, "由于原本求得的x并不是最终解，", "我们将其重命名为z，即z=q'(H)y。")
         LAT_B1_2 = show_latex(self, "<cP>p(H)<cX>x=<cY>y", 0, -0.0, show=False)
         trans_latex(self, LAT_B1_1, LAT_B1_2)
         LAT_B2_2 = show_latex(self, "<cZ>z=<cQ>q'(H)<cY>y", 0, -0.5, show=False)
         trans_latex(self, LAT_B2_1, LAT_B2_2)
-        self.wait(6)
+        self.wait(7)
 
         show_subtitle(self, "同时，我们定义q'(x)的逆多项式p'(x)，", "即q'(x)p'(x)=1 mod f(x)。")
         LAT_A2_1 = show_latex(self, "<cQ>q'(x)<cP>p'(x)<cI>=1 mod <cF>f(x)", 0, 1.5)
@@ -4556,7 +4556,7 @@ class LightsOut(Scene):
         LAT_D1_1 = show_latex(self, "<cP>p(H)<cX>x=<cG>g(H)<cP>p'(H)<cX>x=<cP>p'(H)<cZ>z=<cP>p'(H)<cQ>q'(H)<cY>y=y", 0, -1.0)
         LAT_D2_1 = show_latex(self, "<cZ>z=<cQ>q'(H)<cY>y=<cQ>q'(H)<cP>p(H)<cX>x=<cG>g(H)<cX>x", 0, -1.5)
         LAT_D3_1 = show_latex(self, "<cG>g(H)<cY>y=<cQ>q'(H)<cP>p(H)<cY>y=<cG>g(H)<cP>p(H)<cX>x", 0, -2.0)
-        self.wait(5)
+        self.wait(4)
 
         show_subtitle(self, "整理后，我们可以得到这些式子。")
         LAT_A1_4 = show_latex(self, "<cG>g(x)=<cQ>q'(x)<cP>p(x)", 0, 2.0, show=False)
@@ -4594,7 +4594,7 @@ class LightsOut(Scene):
 
         show_subtitle(self, "前面使用的扩展欧几里得法中，我们已求得q'(x)和g(x)。", "因此，接下来只需要使用g(x)和z即可求得x。")
         LAT_E0 = show_latex(self, "<cQ>q'(x)=<cP>p(x)⁻¹<cI> mod <cF>f(x)", 0, 2.0)
-        self.wait(10)
+        self.wait(11)
 
         show_subtitle(self, "前者，我们有公式z=q'(H)y。", "我们不断让y乘以H，然后使用向量乘以矩阵的方法求得z。")
         LAT_E1 = show_latex(self, "<cZ>z=<cQ>q'(H)<cY>y", 0, 1.0, show=False)
@@ -4750,10 +4750,10 @@ class LightsOut(Scene):
         show_subtitle(self, "让我们观察z的第一个元素和D的后三行。", "在D的后三行中，第三行的第一个元素为1。")
         hl_cells(self, [grid_D_[2]], indices=[(0,0)])
         hl_cells(self, [grid_Z], indices=[(0,0)])
-        self.wait(7)
+        self.wait(9)
 
         show_subtitle(self, "z的第一个元素已经为0。如果我们叠加第三行，", "则z的第一个元素会变为1，因此不能叠加第三行。")
-        self.wait(11)
+        self.wait(9)
         del_cells(self, [grid_D_[2]], indices=[(0,0)])
         del_cells(self, [grid_Z], indices=[(0,0)])
 
@@ -4773,7 +4773,7 @@ class LightsOut(Scene):
         show_subtitle(self, "我们接着看z的第三个元素。", "由于z的第三个元素变为了1，我们需要叠加D的第五行。")
         hl_cells(self, [grid_D_[4]], indices=[(2,0)])
         hl_cells(self, [grid_Z], indices=[(2,0)])
-        self.wait(7)
+        self.wait(8)
 
         show_subtitle(self, "这次，z被彻底消去了，变为了零，", "并且，x的第五个元素被标记为1。")
         toggle_lgt(self, grid_X, 0, 4)
@@ -4796,7 +4796,7 @@ class LightsOut(Scene):
         self.wait(11)
 
         show_subtitle(self, "由于前r'行共有2ʳ'种，因此求得的解也有2ʳ'种。")
-        self.wait(6)
+        self.wait(7)
         del_bd(self, bd)
         del_bd(self, bdX)
 
