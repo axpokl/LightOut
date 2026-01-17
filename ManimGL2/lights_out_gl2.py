@@ -3223,7 +3223,7 @@ class LightsOut(Scene):
 
         show_subtitle(self, "n代表从上到下第n行按钮或灯。", "因为我们是一行行进行推导的，n也代表第n次推导。")
         n_frames = hl_objs(self, [left_objs], width=BD_W)
-        self.wait(6)
+        self.wait(8)
         del_hl_objs(self, n_frames)
         show_subtitle(self, "x代表从左到右第x列按钮。我们将灯表示为第一行的某几个列的按钮的叠加。", "这里的x不局限于第一行。")
         x_frames = hl_objs(self, [top_objs], width=BD_W)
@@ -3278,7 +3278,7 @@ class LightsOut(Scene):
         cols, rows = 5, 5
         G5 = make_grid(self, w=cols, h=rows, lgt_x=-4, btn_x=-4)
         objs = add_grid_labels(self, G5, [[f"B{c*rows + r + 1}" for c in range(cols)] for r in range(rows)])
-        self.wait(5)
+        self.wait(7)
 
         show_subtitle(self, "在《叠加法》中，我们将灯表示为所有按钮的叠加。", "例如：L1=B1⊕B2⊕B6，L6=B1⊕B6⊕B7⊕B11。")
         G5_ = [[None] * cols for _ in range(rows)]
@@ -3398,6 +3398,7 @@ class LightsOut(Scene):
         add_cell(self, G5_[1][2], G5_[1][1], 1, 0, 1, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.2)
         add_cell(self, G5_[1][2], G5_[1][1], 2, 0, 2, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.2)
         add_cell(self, G5_[1][2], G5_[1][1], 3, 0, 3, 0, color_from=HL_COLOR_1, color_to=HL_COLOR_2, rt=0.2)
+        self.wait(2)
 
         show_subtitle(self, "这样不断递推，我们可以将任意L表示为B1—B5的叠加。", "加上翻转后，得到完整的矩阵。")
         for k in range(rows):
@@ -3458,9 +3459,9 @@ class LightsOut(Scene):
         show_subtitle(self, "某个元素的左右两个矩阵的对应位置的元素，", "和元素所在矩阵左右两个元素的叠加后为零。")
         LAT0_2 = show_latex(self, "<cH2>B(n,x-1,y)⊕B(n,x+1,y)=B(n,x,y-1)⊕B(n,x,y+1)", 0, 2.5, show=False)
         trans_latex(self, LAT0_1, LAT0_2)
-        self.wait(5)
+        self.wait(7)
         show_subtitle(self, "这也就是上集视频中《优化生成矩阵》章节中的性质，", "之后会给出证明。")
-        self.wait(4)
+        self.wait(6)
         del_cells(self, [G5_[1][0]], indices=[(1, 0)])
         del_cells(self, [G5_[1][2]], indices=[(1, 0)])
         del_cells(self, [G5_[1][1]], indices=[(0, 0)])
@@ -3781,7 +3782,7 @@ class LightsOut(Scene):
         self.wait(8)
 
         show_subtitle(self, "由于零矩阵显然满足这个性质，因此第二个矩阵也满足这个性质。")
-        self.wait(3)
+        self.wait(5)
         del_cells(self, [G5_[0][1]], indices=[(1, 0)])
         del_cells(self, [G5_[1][1]], indices=[(0, 0)])
         del_cells(self, [G5_[1][1]], indices=[(2, 0)])
@@ -3916,7 +3917,7 @@ class LightsOut(Scene):
         self.wait(11)
 
         show_subtitle(self, "这是因为，矩阵的对应行就是向量每个元素左右扩散的结果。")
-        self.wait(24)
+        self.wait(4)
         del_latex(self, [LAT_H, LAT_V])
         mul_vec_mat_cleanup(self, ctx)
 
@@ -4211,10 +4212,10 @@ class LightsOut(Scene):
             "<cC>=∑[<cB>B'(n-1,i)<cF>F(i,x-1)<cC>⊕<cB>B'(n-1,i)<cF>F(i,x)<cC>⊕<cB>B'(n-2,i)<cF>F(i,x)<cC>]<br>"
             "<cC>=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)",
              0, 1.0, font_size=FONT_SIZE_SMALL)
-        self.wait(4)
+        self.wait(6)
         LAT_C = show_latex(self, "<cC>C'(n,x)=C'(n-1,x-1)<cC>⊕C'(n-1,x)<cC>⊕C'(n-2,x)", 0, 1.0, show=False)
         trans_latex(self, LAT_C0, LAT_C)
-        self.wait(6)
+        self.wait(7)
 
         show_subtitle(self, "由于C=B'F，我们可以推得P=C⊕F。", "因此，我们可以计算出C和F，叠加后直接求得P，无需使用矩阵乘法。")
         LAT_CF = show_latex(self, "<cP>P=<cB>B''<cF>F<cP>=(<cB>B'<cP>⊕<cI>I<cP>)<cF>F=<cB>B'<cF>F<cP>⊕<cI>I<cF>F<cP>=<cC>C<cP>⊕<cF>F", 0, 0.5)
@@ -4281,8 +4282,8 @@ class LightsOut(Scene):
         self.wait(12)
 
         show_subtitle(self, "重复这样的操作，直到f(x)最终被叠加为零。")
-        euclid_ops(self, euc, OPS_7, start=3, rt=0.15)
-        self.wait(1)
+        euclid_ops(self, euc, OPS_7, start=3, rt=0.5)
+        self.wait(4)
 
         show_subtitle(self, "最后，剩下的p(x)为两个多项式的最大公因子，记为g(x)，", "同时，剩下的e(x)为p(x)的逆，也就是q(x)。")
         euclid_done(self, euc)
@@ -4498,7 +4499,7 @@ class LightsOut(Scene):
         self.wait(6)
 
         show_subtitle(self, "因此，如果g(x)不为1，则q(x)不满足q(x)p(x)=1 mod f(x)。", "或者说，满足q(x)p(x)=1的q(x)不存在。")
-        self.wait(10)
+        self.wait(12)
         del_left_labels(self, [label_p, label_q1, label_q2, label_f, label_g1, label_g2])
         del_grids(self, [grid_p, grid_q1, grid_q2, grid_f, grid_g1, grid_g2])
 
@@ -4543,9 +4544,9 @@ class LightsOut(Scene):
 
         show_subtitle(self, "同时，我们定义q'(x)的逆多项式p'(x)，", "即q'(x)p'(x)=1 mod f(x)。")
         LAT_A2_1 = show_latex(self, "<cQ>q'(x)<cP>p'(x)<cI>=1 mod <cF>f(x)", 0, 1.5)
-        self.wait(8)
+        self.wait(9)
 
-        show_subtitle(self, "我们不难推出这些式子。", "为了方便表示，这里将mod f(x)的部分省去。")
+        show_subtitle(self, "我们不难推出这些式子。", "为了方便表示，这里将mod f(x)的部分省去了。")
         LAT_A1_3 = show_latex(self, "<cQ>q'(x)<cP>p(x)<cG>=g(x)", 0, 2.0, show=False)
         trans_latex(self, LAT_A1_2, LAT_A1_3)
         LAT_A2_2 = show_latex(self, "<cQ>q'(x)<cP>p'(x)<cI>=1", 0, 1.5, show=False)
@@ -4749,7 +4750,7 @@ class LightsOut(Scene):
         show_subtitle(self, "让我们观察z的第一个元素和D的后三行。", "在D的后三行中，第三行的第一个元素为1。")
         hl_cells(self, [grid_D_[2]], indices=[(0,0)])
         hl_cells(self, [grid_Z], indices=[(0,0)])
-        self.wait(6)
+        self.wait(7)
 
         show_subtitle(self, "z的第一个元素已经为0。如果我们叠加第三行，", "则z的第一个元素会变为1，因此不能叠加第三行。")
         self.wait(11)

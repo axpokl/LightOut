@@ -67,3 +67,8 @@ y代表|<break time="300ms" />y代表
 由于原本|<break time="300ms" />由于原本
 同时，我们|<break time="300ms" />同时，我们
 整理后|<break time="300ms" />整理后
+即z=q撇(H)y|即z=q撇(H)<phoneme alphabet="sapi" ph="wai 4">外</phoneme>
+q撇x就是刚才求得的qx。|q撇x就是刚才求得的qx<phoneme alphabet="sapi" ph="si 5">思</phoneme>。
+满足q撇xpx=gx mod fx|满足q撇xpx=gx mod fx<phoneme alphabet="sapi" ph="si 5">思</phoneme>。
+即q撇xp撇x=1 mod fx|即q撇xp撇x=1 mod fx<phoneme alphabet="sapi" ph="si 5">思</phoneme>。
+这里将mod fx的部分省去。|这里将mod fx的部分省去。<break time="300ms" />
