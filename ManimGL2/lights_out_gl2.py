@@ -4683,7 +4683,7 @@ class LightsOut(Scene):
         show_subtitle(self, "因此，只需要将g(x)和K直接相乘，", "即可得到第一个矩阵的最后一行，即矩阵D的第一行。")
         mul_vec_mat_accumulate(self, ctx)
         self.wait(5)
-        grid_D = make_grid(self, 5, 1, mat_l=[VEC_D5], btn_y=-2, lgt_y=-2, btn_c=D_COLOR, lgt_c=D_COLOR)
+        grid_D = make_grid(self, 5, 1, mat_l=[VEC_D5], btn_y=-2+SZ_DEFAULT, lgt_y=-2+SZ_DEFAULT, btn_c=D_COLOR, lgt_c=D_COLOR)
         mul_vec_mat_cleanup(self, ctx)
 
         show_subtitle(self, "然后，我们就可以使用十字偶校验约束的递推关系，", "求得之后的行。")
@@ -4859,7 +4859,6 @@ class LightsOut(Scene):
 
         show_subtitle(self, "最终，我们通过欧几里得法和反向叠加法，", "完成了Bx=y的求解，实现了点灯游戏O(n²)的时间复杂度的算法。")
         run_case(self, 5)
-        self.wait(2)
 
 #——————————————————————
 
