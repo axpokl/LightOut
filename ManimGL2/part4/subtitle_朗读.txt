@@ -80,7 +80,7 @@
 现在，如果我们将多个H相乘，也就是H的n次方。<break time="100ms" />将其首行H的n次方 0拼接起来，看起来像是这样的。<break time="1000ms" />
 我们把这个下三角矩阵记为K，又称克雷洛夫矩阵或扩散基矩阵。对于K的第n行，有以上公式。<break time="1000ms" />
 这里后一行是前一行乘以H，也就是前一行的左右扩散。因此对于K的每个元素，有以上递推公式。<break time="1000ms" />
-现在，定义多项式px。我们的目标是把B拆分成H的n次方。<break time="1000ms" />
+现在，我们定义多项式px。我们的目标是把B拆分成H的n次方。<break time="1000ms" />
 将矩阵H代入多项式px，得到p(H)，并用其表示矩阵B。<break time="1000ms" />
 这样，原始求x的问题就转化为了p(H)x=y。<break time="1000ms" />
 现在，我们需要把多项式p(H)的系数计算出来。这个系数构成的向量我们记为p。<break time="1000ms" />
@@ -90,7 +90,7 @@
 使用这两个性质构造的矩阵K和F，可以证明S=KF为单位矩阵I，有兴趣的小伙伴可以自己试着证明一下。<break time="1000ms" />
 提示。<break time="50ms" />矩阵S=KF满足十字偶校验约束，也就是满足以上递推公式。<break time="1000ms" />
 这里说明一下，矩阵F的每行<break time="50ms" />对应多项式f<mstts:ttsbreak strength="none"> n x</mstts:ttsbreak>，也就是上集视频《解的数量》章节中提到的OEIS中的斐波那契多项式。<break time="1000ms" />
-此外，刚才递推得到的矩阵C对应多项式c<mstts:ttsbreak strength="none"> n x</mstts:ttsbreak>，等价于《解的数量》章节中提到的f(n,x加1)。<break time="1000ms" />
+此外，刚才递推得到的矩阵C对应的多项式c<mstts:ttsbreak strength="none"> n x</mstts:ttsbreak>，等价于《解的数量》章节中提到的f(n,x加1)。<break time="1000ms" />
 这个证明也不难，可以由F和C的关系求出F和C的递推公式，或者由递推公式反推。<break time="1000ms" />
 同时，B n矩阵也可以表示为以上形式。这里的H加I等价于x加1。<break time="1000ms" />
 让我们继续求p。由于F和K互逆，于是我们有。<break time="50ms" />Fb=FKp=p。将向量b和矩阵F相乘，我们便求出了p。<break time="1000ms" />
@@ -107,7 +107,7 @@
 另一方面，这里在计算p的时候，我们将B撇撇的对角线去除了，即P=B撇撇F。假如我们保留B撇撇的对角线，则有C=B撇F。<break time="1000ms" />
 为了证明这一点，我们假定B撇F=C撇，得出以上递推公式。由于C撇的递推公式和C是相同的，因此这里的C撇就是C，即C撇=C=B撇F。<break time="1000ms" />
 由于C=B撇F，我们可以推得P=C加F。因此，我们可以计算出C和F，叠加后直接求得P，无需使用矩阵乘法。<break time="1000ms" />
-同时，由于P=C加F，P也可以写成这个递推公式，从而无需B，C或F，直接在O(n)的时间内，由P的递推公式推得。<break time="1000ms" />
+同时，由于P=C加F，P也可以写成这个递推公式，从而无需B，C或F，在O(n)的时间内，由P的递推公式直接推得。<break time="1000ms" />
 由于这个证明较长，因此这里就不展示出来了。有兴趣的小伙伴可以从C和F的递推公式自行证明。<break time="1000ms" />
 现在，我们已用多种方法求得了p，并将原始问题转化为了p(H)x=y，可这又有什么用呢？<break time="1000ms" />
 试想一下，如果有一个多项式qx，满足qxpx=1 mod fx。这里的fx就是前面提到的多项式f<mstts:ttsbreak strength="none"> n x</mstts:ttsbreak>。<break time="1000ms" />
@@ -132,27 +132,27 @@
 在上集视频《解的数量》章节中，我们提到了公式r撇(n)。<break time="1000ms" />
 这里，gcd表示最大公因子。不难发现，这里的gcd<mstts:ttsbreak strength="none"> f c</mstts:ttsbreak>就是前面扩展欧几里得算法中的g。<break time="1000ms" />
 同时，由于F=C加P，因此gcd<mstts:ttsbreak strength="none"> f c</mstts:ttsbreak>和gcd<mstts:ttsbreak strength="none"> f p</mstts:ttsbreak>是相等的。<break time="1000ms" />
-这里，<phoneme alphabet="sapi" ph="di 2">d</phoneme>eg表示最高次数，r撇代表矩阵B丢失的秩，也就是n减r。r撇的值决定了解的数量，即2的r撇次方。<break time="1000ms" />
+这里，<phoneme alphabet="sapi" ph="di 2">d</phoneme>eg表示最高次数，r撇代表矩阵B丢失的秩，也就是n减r。r撇的值决定<phoneme alphabet="sapi" ph="le 5">了</phoneme>解的数量，即2的r撇次方。<break time="1000ms" />
 将gx写成矩阵的形式，记为G。<break time="1000ms" />
 不难注意到，只有当矩阵B为可逆矩阵时，gx=1，并且gx的最高次数为r撇=n减r=0。<break time="1000ms" />
 例如，当n=5时，高斯消元后的B的伪逆矩阵Q撇和单位矩阵E撇矩阵是这样的。<break time="1000ms" />
-这里，矩阵B不可逆，其秩为r等于3。我们以r乘r为界将矩阵分为四块，则会有这些结论。<break time="1000ms" />
+这里，矩阵B不可逆，其秩为r等于3。现在，我们以r乘r为界，将矩阵分为四块。<break time="1000ms" />
 <break time="300ms" />一，矩阵B左上角r乘r的子矩阵满秩，并且和Q撇左上角r乘r的子矩阵互为逆矩阵。<break time="1000ms" />
 <break time="300ms" />二，Q撇右下角和E撇左上角为单位矩阵，Q撇右上角和E撇下方为零矩阵。<break time="1000ms" />
 <break time="300ms" />三，Q撇左下角Wr和E撇右上角的静默操作相同，并且其值等于Q撇左上角乘以B右上角，或者B左下角乘以Q撇左上角。<break time="1000ms" />
 这些性质可以通过分块矩阵乘法，结合高斯消元法和矩阵B的对称性得出，有兴趣的小伙伴可以自行证明。<break time="1000ms" />
 可以发现，Q撇不满足十字偶校验约束，因而无法通过公式递推求得。并且使用Q撇第一行求得的x也不是原方程的解。<break time="1000ms" />
-如果我们令Q撇第一行为qx，并且和px相乘，得到的gx不为1，最高次数为4。<break time="1000ms" />
+如果我们令Q撇第一行为qx，并且和px相乘，由此得到的gx不为1，且最高次数为4。<break time="1000ms" />
 另一方面，如果我们直接使用扩展欧几里得法，通过px和fx进行求解，得到的gx也不为1。<break time="1000ms" />
 将求得的qx和px相乘，得到刚才求得的gx，其最高次数为2。<break time="1000ms" />
-这里，我们计算q(H)y，发现求得的x也不是正确解。<break time="1000ms" />
-两种方法求得的qx和gx都不相同，gx都不为1，并且q(H)y也都不是正确解。<break time="1000ms" />
+这里，我们计算q(H)y，发现求得的x也不是正确的解。<break time="1000ms" />
+两种方法求得的qx和gx都不相同，gx都不为1，并且q(H)y也都不是正确的解。<break time="1000ms" />
 因此，如果gx不为1，则qx不满足qxpx=1 mod fx。或者说，满足qxpx=1的qx不存在。<break time="1000ms" />
 那么对于不可逆的矩阵B，我们又有什么方法可以求出正确的解呢？<break time="1000ms" />
 在刚才的《首行求逆法》中，我们有这些公式。<break time="1000ms" />
 现在，我们定义多项式q撇x，满足q撇xpx=gx mod fx<phoneme alphabet="sapi" ph="si 5">思</phoneme>。。<break time="1000ms" />
 <break time="300ms" />其中，gx也就是刚才提到的最大公因子，q撇x就是刚才求得的qx<phoneme alphabet="sapi" ph="si 5">思</phoneme>。<break time="1000ms" />
-<break time="300ms" />由于原本求得的x并不是最终解，我们将其重命名为z，即z=q撇(H)<phoneme alphabet="sapi" ph="wai 4">外</phoneme>。<break time="1000ms" />
+<break time="300ms" />由于原本求得的x并不是正确的解，我们将其重命名为z，即z=q撇(H)<phoneme alphabet="sapi" ph="wai 4">外</phoneme>。<break time="1000ms" />
 <break time="300ms" />同时，我们定义q撇x的逆多项式p撇x，即q撇xp撇x=1 mod fx<phoneme alphabet="sapi" ph="si 5">思</phoneme>。。<break time="1000ms" />
 我们不难推出这些式子。为了方便表示，这里将mod fx的部分省去了。<break time="1000ms" />
 <break time="300ms" />整理后，我们可以得到这些式子。<break time="1000ms" />
@@ -178,10 +178,10 @@
 <break time="300ms" />四，前r撇=2行，任意一行都可以由后r等于3行叠加。<break time="1000ms" />
 这些性质都不难证明，有兴趣的小伙伴可以自行证明。<break time="1000ms" />
 现在，我们有z=g(H)x=Dx。我们可以利用D的性质进行求解。接下来，我们需要将z拆解成矩阵D的若干行的叠加，从而表示出x。<break time="1000ms" />
-由于矩阵D后三行线性无关，因此我们只考虑把后三行叠加起来，不需考虑前二行。<break time="1000ms" />
+由于矩阵D后三行线性无关，因此我们只考虑把后三行叠加起来，不考虑前二行。<break time="1000ms" />
 这里，我们尝试将后三行的若干行叠加到现有的z上，使其被消去。<break time="1000ms" />
 让我们观察z的第一个元素和D的后三行。在D的后三行中，第三行的第一个元素为1。<break time="1000ms" />
-z的第一个元素已经为0。如果我们叠加第三行，则z的第一个元素会变为1，因此不能叠加第三行。<break time="1000ms" />
+由于z的第一个元素已经为0。如果我们叠加第三行，则z的第一个元素会变为1。因此不能叠加第三行。<break time="1000ms" />
 我们再看z的第二个元素，该元素为1，因此，我们需要将第四行叠加到z上。<break time="1000ms" />
 现在，z的第二个元素被消去了，同时，x的第四个元素被标记为1。<break time="1000ms" />
 我们接着看z的第三个元素。由于z的第三个元素变为了1，我们需要叠加D的第五行。<break time="1000ms" />
@@ -191,7 +191,7 @@ z的第一个元素已经为0。如果我们叠加第三行，则z的第一个�
 由于前r撇行可以表示为后r行的线性叠加，因此我们可以在操作y之前，先将其和前r撇的任意行叠加，然后再求解。<break time="1000ms" />
 由于前r撇行共有2的r撇次方种，因此求得的解也有2的r撇次方种。<break time="1000ms" />
 另一方面，由于矩阵D满足十字偶校验约束，表现出高度的对称性。其中，行和列的坐标可以互换。<break time="1000ms" />
-因此，我们可以同样只叠加前r行，从右往左进行消去。由于效果是相同的，这里不再赘述。<break time="1000ms" />
+因此，我们可以同样只叠加前r行，从右往左进行消去。由于结果是相同的，这里不再赘述。<break time="1000ms" />
 细心的小伙伴会发现，这两个式子具有相同的形式。<break time="1000ms" />
 既然我们可以在第一个式子用反向叠加法求x，为什么不能用相同的方法在第二个式子求x呢？<break time="1000ms" />
 这是因为矩阵D是由g(H)生成的，具有带状上三角的可回代结构，满足前面说到的四个性质。<break time="1000ms" />
@@ -201,4 +201,4 @@ z的第一个元素已经为0。如果我们叠加第三行，则z的第一个�
 最终，我们通过欧几里得法和反向叠加法，完成了Bx=y的求解，实现了点灯游戏<break time="100ms" />O(n的二次方)的时间复杂度的算法。<break time="1000ms" />
 向量和矩阵的乘法，欧几里得算法，逆向消元法，理论上通过卷积、FFT或牛顿迭代法，是有可能优化到O(n乘log n)的。<break time="1000ms" />
 考虑到UP主《信号与系统》、《数字信号处理》、《数值分析》等课程较差，暂时就不研究了。有兴趣的小伙伴可自行研究并留言。<break time="1000ms" />
-如果对视频中的内容有疑问，觉得视频内容表述不清，或者发现视频中的任何错误，也请大家多多留言和指证。谢谢大家的观看！<break time="1000ms" />
+如果对视频中的内容有疑问，觉得视频内容表述不清，或者发现视频中的任何错误，也请小伙伴们多多留言和指证。谢谢观看！<break time="1000ms" />
