@@ -3504,7 +3504,7 @@ class LightsOut(Scene):
         self.wait(4)
 
         show_subtitle(self, "因此，如果把翻转¬提取出来，便有了一开始的推导公式。")
-        self.wait(5)
+        self.wait(5.5)
         show_subtitle(self, "也就是，按钮是前一行的左中右的按钮和上上行的按钮的叠加。", "以及，灯是前一行的左中右的按钮和上上行的灯的叠加。")
         LAT1_5 = show_latex(self, "<cB>B(n,x)=<cB>B(n-1,x-1)⊕B(n-1,x)⊕B(n-1,x+1)⊕B(n-2,x)", 0, 2.0, show=False)
         trans_latex(self, LAT1_4, LAT1_5)
@@ -4772,7 +4772,7 @@ class LightsOut(Scene):
         self.wait(9)
 
         show_subtitle(self, "由于z的第一个元素已经为0。如果我们叠加第三行，", "则z的第一个元素会变为1。因此不能叠加第三行。")
-        self.wait(9)
+        self.wait(10)
         del_cells(self, [grid_D_[2]], indices=[(0,0)])
         del_cells(self, [grid_Z], indices=[(0,0)])
 

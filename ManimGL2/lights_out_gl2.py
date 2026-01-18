@@ -4784,8 +4784,7 @@ class LightsOut(Scene):
         show_subtitle(self, "现在，z的第二个元素被消去了，", "同时，x的第四个元素被标记为1。")
         toggle_lgt(self, grid_X, 0, 3)
         add_grid(self, grid_D_[3], grid_Z, keep_from=True)
-
-        self.wait(5)
+        self.wait(5.5)
         del_cells(self, [grid_D_[3]], indices=[(1,0)])
         del_cells(self, [grid_Z], indices=[(1,0)])
 
