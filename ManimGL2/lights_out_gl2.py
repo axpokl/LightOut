@@ -4772,7 +4772,7 @@ class LightsOut(Scene):
         self.wait(9)
 
         show_subtitle(self, "由于z的第一个元素已经为0。如果我们叠加第三行，", "则z的第一个元素会变为1。因此不能叠加第三行。")
-        self.wait(10)
+        self.wait(9)
         del_cells(self, [grid_D_[2]], indices=[(0,0)])
         del_cells(self, [grid_Z], indices=[(0,0)])
 
