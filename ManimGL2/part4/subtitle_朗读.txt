@@ -12,7 +12,7 @@
 这里的五个矩阵，分别代表第y列是由第一行的哪几个按钮叠加的。<break time="1000ms" />
 由于按法是动态的，当第二行按钮还未被按下时，L1=B1加B2，即第一个灯L1是由第一行的第一、第<phoneme alphabet="sapi" ph="er 4">二</phoneme>个按钮B1,B2叠加的。<break time="1000ms" />
 然后，B6=非L1=非(B1加B2)，即第六个按钮B6<break time="100ms" />是第一个灯L1的翻转。因此，第二行按钮B6和第一行灯L1的叠加状态是相同的。<break time="1000ms" />
-只不过B6<break time="100ms" />是L1的翻转。而旁边的向量，代表的就是按钮或灯有没有翻转。<break time="1000ms" />
+只不过B6<break time="100ms" />是L1的翻转。而旁边的翻转向量，代表的就是按钮或灯有没有翻转。<break time="1000ms" />
 例如，当第一个向量的第一个灯L1亮起时，表示L1除了由刚才说的按钮叠加外，还需要翻转才是正确的状态。<break time="1000ms" />
 同理，B7=非L2=非(B1加B2加B3)，即第七个按钮B7<break time="100ms" />是第二个灯L2的翻转。同样，第二行的按钮B7和第一行灯L2的叠加状态是相同的。<break time="1000ms" />
 这里，我们将第一个按钮B1的状态补全，将B1用第一行的按钮叠加时，有B1=B1。<break time="1000ms" />
@@ -25,8 +25,8 @@
 这也就是上集视频中《优化生成矩阵》章节中的性质，之后会给出证明。<break time="1000ms" />
 通过这个性质，递推公式可化为只根据当前矩阵的元素来叠加，无需依赖于左右矩阵。<break time="1000ms" />
 因此，我们可以在公式中去除y。于是，灯可以表示为当前矩阵的<break time="50ms" /><mstts:ttsbreak strength="none">上左中右</mstts:ttsbreak><break time="50ms" />的按钮的叠加。<break time="1000ms" />
-又因为，后一行的按钮是前一行灯的翻转。而后一行的灯是<break time="50ms" /><mstts:ttsbreak strength="none">上左中右</mstts:ttsbreak><break time="50ms" />的灯的翻转的叠加。<break time="1000ms" />
-如果把翻转非提取出来，便有了一开始的推导公式。<break time="1000ms" />
+又因为，后一行的按钮是前一行灯的翻转，而后一行的灯是<break time="50ms" /><mstts:ttsbreak strength="none">上左中右</mstts:ttsbreak><break time="50ms" />的灯的翻转的叠加。<break time="1000ms" />
+因此，如果把翻转非提取出来，便有了一开始的推导公式。<break time="1000ms" />
 也就是，按钮是前一行的<break time="50ms" /><mstts:ttsbreak strength="none">左中右</mstts:ttsbreak><break time="50ms" />的按钮和上上<phoneme alphabet="sapi" ph="hang 2">行</phoneme>的按钮的叠加。以及，灯是前一行的<break time="50ms" /><mstts:ttsbreak strength="none">左中右</mstts:ttsbreak><break time="50ms" />的按钮和上上<phoneme alphabet="sapi" ph="hang 2">行</phoneme>的灯的叠加。<break time="1000ms" />
 可以注意到，按钮和灯的递推公式具有相同的形式，这是因为前一行灯就是后一行按钮。<break time="1000ms" />
 因为最终需要推导的是灯，因此灯是从按钮的第一行推导5行。因为最后一次推导的是灯，因此按钮也是5行。<break time="1000ms" />
@@ -113,7 +113,7 @@
 试想一下，如果有一个多项式qx，满足qxpx=1 mod fx。这里的fx就是前面提到的多项式f<mstts:ttsbreak strength="none"> n x</mstts:ttsbreak>。<break time="1000ms" />
 那么，将式子两边同时乘以q(H)，便有。<break time="50ms" />x=q(H)y。这样，我们就能立即求出x。<break time="1000ms" />
 我们把这样的多项式qx称之为px的逆多项式。那么，如何求出逆多项式qx呢？<break time="1000ms" />
-我们可以使用扩展欧几里得算法，通过fx和px来求取qx。<break time="1000ms" />
+我们可以使用扩展欧几里得算法，通过fx和px来求qx。<break time="1000ms" />
 这里，我们同时定义一个零多项式<phoneme alphabet="sapi" ph="ou 1">o</phoneme>x和单位多项式<phoneme alphabet="sapi" ph="yi 4">e</phoneme>x，在对fx和px操作的同时，对<phoneme alphabet="sapi" ph="ou 1">o</phoneme>x和<phoneme alphabet="sapi" ph="yi 4">e</phoneme>x做相同的操作。<break time="1000ms" />
 类似矩阵求逆，我们的目标是。<break time="50ms" />将fx变为零多项式，px变为单位多项式。<break time="1000ms" />
 我们使用辗转相减法，将px右移，使其最高次项和fx对齐，然后叠加到fx上，从而消去fx的最高次项。<break time="1000ms" />
@@ -121,7 +121,7 @@
 否则，当fx的最高次数小于px时，将px和fx互换，使得fx的最高次数始终大于或等于px，让叠加操作可以继续下去。<break time="1000ms" />
 重复这样的操作，直到fx最终被叠加为零。<break time="1000ms" />
 最后，剩下的px为两个多项式的最大公因子，记为gx，同时，剩下的<phoneme alphabet="sapi" ph="yi 4">e</phoneme>x为px的逆，也就是qx。<break time="1000ms" />
-我们将qx写成矩阵Q。注意，这里的矩阵Q不是前面的完整逆矩阵Q撇，而是把把多个qx拼接起来的结果。<break time="1000ms" />
+我们将qx写成矩阵Q。注意，这里的矩阵Q不是前面的完整逆矩阵Q撇，而是把多个qx拼接起来的结果。<break time="1000ms" />
 现在，我们已求得qx，接着，我们可以根据q(H)y的定义，用这个式子来求x。<break time="1000ms" />
 这里，我们将y不断乘以矩阵H进行左右扩散，再根据qx的值进行叠加，从而得到x。<break time="1000ms" />
 另一方面，由于q(H)就是B的逆矩阵Q撇，并且可以证明Q撇也满足十字偶校验约束。<break time="1000ms" />
