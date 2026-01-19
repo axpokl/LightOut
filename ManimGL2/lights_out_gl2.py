@@ -1409,7 +1409,7 @@ def mul_vec_mat_begin(scene, mat, vec, res=None, mat_color=I_COLOR, vec_color=Y_
             labels = [""] * w
             labels[w // 2] = mat_label
         mat_label_obj = add_top_labels(scene, grid_M, labels, dy=sz, color=mat_color, rt=rt)
-    left_obj = add_left_labels(scene, grid_M, list(range(1, h+1)), dx=sz, rt=rt)
+    left_obj = add_left_labels(scene, grid_M, list(range(h)), dx=sz, rt=rt)
     ctx = {
         "mat":mat,
         "vec":vec,
@@ -2740,7 +2740,7 @@ def run_case_begin(scene, n, rt=0.01):
 def run_case_show_T(scene, ctx):
     n = ctx["n"]; sz = ctx["sz"]; rt = ctx["rt"]; latex_x = ctx["latex_x"]; latex_y = ctx["latex_y"]; vecX = ctx["vecX"]; grid_X = ctx["grid_X"]; matT = ctx["matT"]
     lat = show_latex(scene, LATEX_T, latex_x, latex_y, run_in=rt, run_out=rt)
-    grid_X_ = make_grid(scene, n, 1, mat_l=[vecX], lgt_c=T_COLOR, btn_y=(n-1)/2*sz, lgt_y=(n-1)/2*sz, sz=sz, show=False)
+    grid_X_ = make_grid(scene, n, 1, mat_l=[vecX], lgt_c=X_COLOR, btn_y=(n-1)/2*sz, lgt_y=(n-1)/2*sz, sz=sz, show=False)
     trans_grid(scene, grid_X, grid_X_, keep_from=True, rt=rt)
     grid_T = make_grid(scene, n, n, mat_l=([[0]*n] + matT[1:]), lgt_c=T_COLOR, sz=sz, rt=rt)
     label_T = add_top_labels(scene, grid_T, [("T" if i==((n-1)//2) else "") for i in range(n)], color=T_COLOR, rt=rt)
@@ -3266,7 +3266,7 @@ class LightsOut(Scene):
         show_subtitle(self, "而在上集视频中，因为最终目标是将灯用按钮表示，", "因此省去了按钮表示按钮，粉色原点直接是按钮表示灯。")
         set_grid_mats(self, grids=G5_, mat=mat_lgt, mat_l=mat_0, clear_first=False)
         set_grid_mats(self, grids=G5Y_, mat=mat_lgt_y, mat_l=mat_0, clear_first=False)
-        self.wait(7.5)
+        self.wait(9)
 
         del_latex(self, [LAT1, LAT2]);
         del_top_labels(self, top_objs)
@@ -3293,13 +3293,12 @@ class LightsOut(Scene):
                 my = ((rows * cols) - 1) * sz / 2 - idx * sz
                 G5_[y][x] = make_grid(self, w=cols * rows, h=1, w_l=1, h_l=1, lgt_x=3, btn_x=0, lgt_y=my, btn_y=my, sz=SZ_SMALLER, rt=0.01, mat=[mat_l[idx][:]], mat_l=[[1]], show=False)
                 rt = 0.15
-                if y==0 and x<=1 : rt = 1.0
                 press_rev(self, G5, x,y, rt=rt / 5)
                 trans_grid(self,G5,G5_[y][x], keep_from=True, rt=rt);
                 btn_objs[y][x] = add_grid_labels(self, G5_[y][x], [[f"B{j+1}" for j in range(cols*rows)]], rt=0.01)
                 lgt_objs[y][x] = add_grid_labels(self, G5_[y][x], [[f"L{idx+1}"]], rt=0.01)
                 del_grids(self, [G5], kp_bd=True , rt=rt /5) 
-        self.wait(3)
+        self.wait(5)
 
         show_subtitle(self, "通过这种方法，我们得到了25个未知数的一次方程组。", "我们将其写成增广矩阵，也就是按钮矩阵和翻转向量，即灯向量的形式。")
         self.wait(11.5)
@@ -3343,6 +3342,7 @@ class LightsOut(Scene):
         
         show_subtitle(self, "只不过B6是L1的翻转。", "而旁边的翻转向量，代表的就是按钮或灯有没有翻转。")
         toggle_lgt(self, G5Y_[0][0], 0, 0)
+        toggle_btn(self, G5Y_[1][0], 0, 0)
         self.wait(8.5)
 
         show_subtitle(self, "例如，当第一个向量的第一个灯L1亮起时，", "表示L1除了由刚才说的按钮叠加外，还需要翻转才是正确的状态。")
@@ -3356,6 +3356,7 @@ class LightsOut(Scene):
         toggle_btn(self, G5_[1][1], 1, 0)
         toggle_btn(self, G5_[1][1], 2, 0)
         toggle_lgt(self, G5Y_[0][1], 0, 0)
+        toggle_btn(self, G5Y_[1][1], 0, 0)
         self.wait(13)
 
         show_subtitle(self, "这里，我们将第一个按钮B1的状态补全，", "将B1用第一行的按钮叠加时，有B1=B1。")
@@ -3913,7 +3914,7 @@ class LightsOut(Scene):
             "<cY>Y'(n,y)=¬(Y'(n-1,y-2)⊕Y'(n-1,y-1)⊕Y'(n-1,y)⊕Y'(n-2,y-2)<br>"
             "<cY>⊕Y0(n-1,y-1)⊕Y0(n-1,y)⊕Y0(n-1,y+1)⊕Y0(n-2,y-1)⊕Y0(n-2,y)),y<=n;0,y>n",
             0, -1.25, font_size=FONT_SIZE_SMALL)
-        self.wait(3)
+        self.wait(4)
         del_latex(self, [LAT_Y, LAT_Y1, LAT_Y2])
 
         show_subtitle(self, "为了不对整个矩阵进行操作，我们需要将矩阵B进行分解。", "这里介绍一个非常重要的矩阵H，称为邻接扩散矩阵。")
@@ -4263,7 +4264,7 @@ class LightsOut(Scene):
         LAT_Q2 = show_latex(self, "<cX>x=<cQ>q(<cH>H<cQ>)<cP>p(<cH>H<cP>)<cX>x=<cQ>q(<cH>H<cQ>)<cY>y", 0, 2.0)
         grid_q0 = make_grid(self, 7, 1, mat_l=[VEC_Q7], btn_y=(7-1)*SZ_DEFAULT/2, lgt_y=(7-1)*SZ_DEFAULT/2, btn_c=P_COLOR, lgt_c=Q_COLOR, show=False)
         trans_grid(self, grid_q1, grid_q0)
-        mul_vec_mat(self, w=7, h=7, mat=MAT_Q7, vec=VEC_Y7, mat_color=Q_COLOR, vec_color=Y_COLOR, res_color=X_COLOR, mat_label="Q'", vec_label="y", res_label="x", wait=4.0)
+        mul_vec_mat(self, w=7, h=7, mat=MAT_Q7, vec=VEC_Y7, mat_color=Q_COLOR, vec_color=Y_COLOR, res_color=X_COLOR, mat_label="Q'", vec_label="y", res_label="x", wait=5.0)
 
         show_subtitle(self, "我们把这样的多项式q(x)称之为p(x)的逆多项式。", "那么，如何求出逆多项式q(x)呢？")
         label_q = add_left_labels(self, grid_q0, ["q"], color=Q_COLOR)
@@ -4282,8 +4283,12 @@ class LightsOut(Scene):
         self.wait(8)
 
         show_subtitle(self, "我们使用辗转相减法，将p(x)右移，使其最高次项和f(x)对齐，", "然后叠加到f(x)上，从而消去f(x)的最高次项。")
+        grid_f = euc["grid_f"]
+        w = grid_f["params"]["w"]
+        hl_cells(self, [grid_f], indices=[(w-1, 0)])
         euclid_ops(self, euc, OPS_7, start=0, end=0)
         self.wait(10.5)
+        del_cells(self, [grid_f], indices=[(w-1, 0)], rt=0.2)
 
         show_subtitle(self, "叠加后，如果f(x)的最高次数仍旧大于等于p(x)，", "则继续右移p(x)并叠加到f(x)上。")
         euclid_ops(self, euc, OPS_7, start=1, end=1)
@@ -4336,9 +4341,9 @@ class LightsOut(Scene):
         ctx = mul_vec_mat_begin(self, w=7, h=7, mat=MAT_Q7, vec=VEC_Y7, mat_color=Q_COLOR, vec_color=Y_COLOR, res_color=X_COLOR, mat_label="Q'", vec_label="y", res_label="x")
         self.wait(7.5)
 
-        show_subtitle(self, "因此，我们也可以通过Kq求出逆矩阵Q'的第一行，", "再通过递推公式求得完整的Q'，最后再和y相乘求得x。")
+        show_subtitle(self, "因此，我们也可以通过Kq求出逆矩阵Q'的第一行Q'(0)，", "再通过递推公式求得完整的Q'，最后再和y相乘求得x。")
         mul_vec_mat_accumulate(self, ctx)
-        self.wait(8)
+        self.wait(9)
         show_subtitle(self, "两种方法求得的x是相同的，有兴趣的小伙伴可以自行证明。")
         self.wait(6)
 
@@ -4390,7 +4395,7 @@ class LightsOut(Scene):
         del_bottom_labels(self, bottom_obj)
         del_grids(self, [grid_G])
 
-        show_subtitle(self, "例如，当n=5时，", "高斯消元后的B的伪逆矩阵Q'和单位矩阵E'矩阵是这样的。")
+        show_subtitle(self, "例如，当n=5时，", "高斯消元后的B的伪逆矩阵Q'和单位矩阵E'是这样的。")
         LAT_G = show_latex(self, "<cB>B<cQ>Q'<cE>=E'", 0, 2.0)
         grid_B5 = make_grid(self, 5, 5, lgt_x=-3, btn_x=-3, mat_l=MAT_B5, btn_c=B_COLOR, lgt_c=B_COLOR)
         grid_Q5 = make_grid(self, 5, 5, lgt_x=-0, btn_x=-0, mat_l=MAT_Q5, btn_c=Q_COLOR, lgt_c=Q_COLOR)
@@ -4409,7 +4414,7 @@ class LightsOut(Scene):
         bd_E5_Ir = hl_bd(self, grid_E5_Ir, color=HL_COLOR_2)
         self.wait(9)
 
-        show_subtitle(self, "1. 矩阵B左上角r×r的子矩阵满秩，", "并且和Q'左上角r×r的子矩阵互为逆矩阵。")
+        show_subtitle(self, "1. 矩阵B左上角r×r的子矩阵可逆，", "并且和Q'左上角r×r的子矩阵互为逆矩阵。")
         self.wait(8.5)
         del_grids(self, [grid_B5_Br, grid_Q5_Qr, grid_E5_Ir])
         del_bd(self, bd_B5_Br)
@@ -4521,7 +4526,7 @@ class LightsOut(Scene):
         topy_obj_B5 = add_top_labels(self, grid_B5, ["", "", "B", "", ""], color=B_COLOR)
         topy_obj_Q5 = add_top_labels(self, grid_Q5, ["", "", "Q'", "", ""], color=Q_COLOR)
         topy_obj_E5 = add_top_labels(self, grid_E5, ["", "", "E'", "", ""], color=E_COLOR)
-        self.wait(4)
+        self.wait(5)
         del_latex(self, LAT_G)
         del_top_labels(self, [topy_obj_B5, topy_obj_Q5, topy_obj_E5])
         del_grids(self, [grid_B5, grid_Q5, grid_E5])
@@ -4599,7 +4604,7 @@ class LightsOut(Scene):
         LAT_C1_0 = show_latex(self, "<cQ>q'(x)=q(x)", 4, 1.0)
         LAT_C2_0 = show_latex(self, "<cP>p'(x)=p(x)", 4, 0.5)
         LAT_D2_0 = show_latex(self, "<cZ>z=<cX>x", 4, -0.25)
-        self.wait(6)
+        self.wait(7)
         del_latex(self, [LAT_A1_0, LAT_C1_0, LAT_C2_0, LAT_D2_0])
         del_latex(self, [LAT_A1_4, LAT_A2_3, LAT_C1_2, LAT_C2_2, LAT_B1_4])
         del_hl_objs(self, lat_B2)
@@ -4624,12 +4629,18 @@ class LightsOut(Scene):
 #——————————————————————
 
         show_subtitle(self, "这次，我们需要用反向叠加法来求x。", "我们以n=5为例。")
-        grid_D5 = make_grid(self, 5, 5, mat_l=MAT_D5, lgt_c=D_COLOR)
+        grid_G5 = make_grid(self, 5, 5, mat_l=MAT_D5, lgt_c=G_COLOR)
+        label_G5 = add_top_labels(self, grid_G5, ["", "", "g(H)", "", ""], dy=grid_G5["params"]["sz"], color=G_COLOR)
         self.wait(6.5)
 
         show_subtitle(self, "首先，我们需要使用类似生成矩阵B的方法生成g(H)，", "这里记为矩阵D，其秩与矩阵B相同。")
         LAT_D = show_latex(self, "<cG>g(<cH>H<cG>)=<cD>D", 0, 2.0)
+        grid_D5 = make_grid(self, 5, 5, mat_l=MAT_D5, lgt_c=D_COLOR, show=False)
+        del_top_labels(self, label_G5)
+        trans_grid(self, grid_G5, grid_D5)
+        label_D5 = add_top_labels(self, grid_G5, ["", "", "D", "", ""], dy=grid_D5["params"]["sz"], color=D_COLOR)
         self.wait(9.5)
+        del_top_labels(self, label_D5)
         del_grids(self, [grid_D5])
 
         sz=SZ_SMALL
@@ -4691,17 +4702,16 @@ class LightsOut(Scene):
             my = -y*sz
             move_grid(self, G5D_[y], btn_x=mx, lgt_x=mx, btn_y=my, lgt_y=my)
         self.wait(5)
-        del_latex(self, LAT_D)
         del_grids(self, [[G5_[k][y] for y in (1,2)] for k in range(rows)])
 
         show_subtitle(self, "在生成第一个矩阵的过程中，", "每行乘以矩阵H的结果，就是刚才的矩阵K。")
-        LAT_DKG = show_latex(self, "<cD>d=<cK>K<cG>g", 0, 2.0)
+        LAT_DKG = show_latex(self, "<cD>d=<cK>K<cG>g", 0, 1.5)
         ctx = mul_vec_mat_begin(self, w=5, h=5, mat=MAT_K, vec=VEC_G5, mat_color=K_COLOR, vec_color=G_COLOR, res_color=D_COLOR, mat_label="K", vec_label="g", res_label="d")
         self.wait(6)
 
-        show_subtitle(self, "因此，只需要将g(x)和K直接相乘，", "即可得到第一个矩阵的最后一行，即矩阵D的第一行。")
+        show_subtitle(self, "因此，类似Q'(0)=Kq，只需要将g(x)和K直接相乘，", "即可得到第一个矩阵的最后一行，即矩阵D的第一行d。")
         mul_vec_mat_accumulate(self, ctx)
-        self.wait(5.5)
+        self.wait(8)
         grid_D = make_grid(self, 5, 1, mat_l=[VEC_D5], btn_y=-2+SZ_DEFAULT, lgt_y=-2+SZ_DEFAULT, btn_c=D_COLOR, lgt_c=D_COLOR)
         mul_vec_mat_cleanup(self, ctx)
 
@@ -4715,7 +4725,7 @@ class LightsOut(Scene):
         del_grids(self, [grid_D])
 
         show_subtitle(self, "由于矩阵D是由矩阵H生成的，因此具有以下这些性质。", "这里，n=5，r=3，r'=2。")
-        LAT_R = show_latex(self, "<cR>r'=n-r=deg(<cG>g(x)<cR>)", 0, 1.5)
+        LAT_R = show_latex(self, "<cR>r'=n-r=deg(<cG>g(x)<cR>)", 0, -1.5)
         grid_D5 = make_grid(self, 5, 5, mat_l=MAT_D5, lgt_c=D_COLOR)
         self.wait(10)
 
@@ -4743,7 +4753,7 @@ class LightsOut(Scene):
 
         show_subtitle(self, "这些性质都不难证明，有兴趣的小伙伴可以自行证明。")
         self.wait(7)
-        del_latex(self, LAT_DKG, LAT_R)
+        del_latex(self, LAT_D, LAT_DKG, LAT_R)
 
 #——————————————————————
 
@@ -4851,7 +4861,7 @@ class LightsOut(Scene):
 #——————————————————————
 
         show_subtitle(self, "细心的小伙伴会发现，这两个式子具有相同的形式。")
-        LAT_B = show_latex(self, "<cZ>y=<cB>B<cX>x<cZ>=<cP>p(H)<cX>x", 0, 2.0)
+        LAT_B = show_latex(self, "<cZ>y=<cP>p(H)<cX>x=<cB>B<cX>x<cZ>", 0, 2.0)
         self.wait(5)
 
         show_subtitle(self, "既然我们可以在第一个式子用反向叠加法求x，", "为什么不能用相同的方法在第二个式子求x呢？")
@@ -4861,7 +4871,7 @@ class LightsOut(Scene):
         show_subtitle(self, "这是因为矩阵D是由g(H)生成的，", "具有带状上三角的可回代结构，满足前面说到的四个性质。")
         grid_D = make_grid(self, 5, 5, mat_l=MAT_D5, lgt_c=D_COLOR)
         self.wait(9)
-        show_subtitle(self, "而B=p'(H)D破坏了这一结构，不满足这些性质。", "这里，D=g(H)不满秩，因此p'(H)不唯一。")
+        show_subtitle(self, "而B=p'(H)D破坏了这一结构，不满足这些性质。", "这里，D=g(H)不可逆，因此p'(H)不唯一。")
         grid_B = make_grid(self, 5, 5, mat_l=MAT_B5, lgt_c=B_COLOR, show=False)
         trans_grid(self, grid_D, grid_B)
         self.wait(10)
@@ -4901,9 +4911,8 @@ class LightsOut(Scene):
         show_center_latex(self, LATEX_LEFT,   shift_x=-4.5, shift_y=sy_l, replace_old=False)
         show_center_latex(self, LATEX_CENTER, shift_x= 0.25, shift_y=sy_c, replace_old=False)
         show_center_latex(self, LATEX_RIGHT,  shift_x= 4.5, shift_y=sy_r, replace_old=False)
-        self.wait(13)
+        self.wait(15)
         remove_center_latex(self)
 
         self.wait(2)
         show_subtitle(self, "")
-
