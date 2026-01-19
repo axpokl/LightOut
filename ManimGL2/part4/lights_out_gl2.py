@@ -4784,8 +4784,7 @@ class LightsOut(Scene):
         show_subtitle(self, "现在，z的第二个元素被消去了，", "同时，x的第四个元素被标记为1。")
         toggle_lgt(self, grid_X, 0, 3)
         add_grid(self, grid_D_[3], grid_Z, keep_from=True)
-
-        self.wait(5)
+        self.wait(5.5)
         del_cells(self, [grid_D_[3]], indices=[(1,0)])
         del_cells(self, [grid_Z], indices=[(1,0)])
 
@@ -4883,13 +4882,13 @@ class LightsOut(Scene):
         show_title(self, "算法总结")
 
         table = show_algo_table(self, x=0.0, y=0.0, font_size=20, row_gap=0.08, col_gap=0.5)
-        self.wait(1)
+        self.wait(2)
         show_subtitle(self, "向量和矩阵的乘法，欧几里得算法，逆向消元法，", "理论上通过卷积、FFT或牛顿迭代法，是有可能优化到O(n·log(n))的。")
-        self.wait(12)
+        self.wait(13)
         show_subtitle(self, "考虑到UP主《信号与系统》、《数字信号处理》、《数值分析》等课程较差，", "暂时就不研究了。有兴趣的小伙伴可自行研究并留言。")
-        self.wait(12)
+        self.wait(13)
         show_subtitle(self, "如果对视频中的内容有疑问，觉得视频内容表述不清，", "或者发现视频中的任何错误，也请小伙伴们多多留言和指证。谢谢观看！")
-        self.wait(12)
+        self.wait(13)
 
         hide_algo_table(self, table)
 
@@ -4902,9 +4901,9 @@ class LightsOut(Scene):
         show_center_latex(self, LATEX_LEFT,   shift_x=-4.5, shift_y=sy_l, replace_old=False)
         show_center_latex(self, LATEX_CENTER, shift_x= 0.25, shift_y=sy_c, replace_old=False)
         show_center_latex(self, LATEX_RIGHT,  shift_x= 4.5, shift_y=sy_r, replace_old=False)
-        self.wait(12)
+        self.wait(13)
         remove_center_latex(self)
 
-        self.wait(1)
+        self.wait(2)
         show_subtitle(self, "")
 
