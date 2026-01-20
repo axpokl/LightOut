@@ -132,11 +132,11 @@
 在上集视频《解的数量》章节中，我们提到了公式r撇(n)。<break time="1000ms" />
 这里，gcd表示最大公因子。不难发现，这里的gcd<mstts:ttsbreak strength="none"> f c</mstts:ttsbreak>就是前面扩展欧几里得算法中的g。<break time="1000ms" />
 同时，由于F=C加P，因此gcd<mstts:ttsbreak strength="none"> f c</mstts:ttsbreak>和gcd<mstts:ttsbreak strength="none"> f p</mstts:ttsbreak>是相等的。<break time="1000ms" />
-这里，<phoneme alphabet="sapi" ph="di 2">d</phoneme>eg表示最高次数，r撇代表矩阵B丢失的秩，也就是n减r。r撇的值决定<phoneme alphabet="sapi" ph="le 5">了</phoneme>解的数量，即2的r撇次方。<break time="1000ms" />
+这里，<phoneme alphabet="sapi" ph="di 2">d</phoneme>eg表示最高次数，r撇是静默操作数，也就是n减r。r撇的值决定<phoneme alphabet="sapi" ph="le 5">了</phoneme>解的数量，即2的r撇次方。<break time="1000ms" />
 将gx写成矩阵的形式，记为G。<break time="1000ms" />
 不难注意到，只有当矩阵B为可逆矩阵时，gx=1，并且gx的最高次数为r撇=n减r=0。<break time="1000ms" />
 例如，当n=5时，高斯消元后的B的伪逆矩阵Q撇和单位矩阵E撇是这样的。<break time="1000ms" />
-这里，矩阵B不可逆，其秩为r等于3。现在，我们以r乘r为界，将矩阵分为四块。<break time="1000ms" />
+这里，矩阵B不可逆，其秩为r等于3。现在，我们以r乘r为界，将矩阵分为四个部分。<break time="1000ms" />
 <break time="300ms" />一，矩阵B左上角r乘r的子矩阵可逆，并且和Q撇左上角r乘r的子矩阵互为逆矩阵。<break time="1000ms" />
 <break time="300ms" />二，Q撇右下角和E撇左上角为单位矩阵，Q撇右上角和E撇下方为零矩阵。<break time="1000ms" />
 <break time="300ms" />三，Q撇左下角Wr和E撇右上角的静默操作相同，并且其值等于Q撇左上角乘以B右上角，或者B左下角乘以Q撇左上角。<break time="1000ms" />
@@ -188,7 +188,7 @@
 这次，z被彻底消去了，变为了零，并且，x的第五个元素被标记为1。<break time="1000ms" />
 由此，我们通过依次叠加D的后三行，将z的元素依次消去。同时，将叠加的行标记为1，也就求得了最终的x。<break time="1000ms" />
 不难发现这里求得的x是一个特解。<break time="1000ms" />
-由于前r撇行可以表示为后r行的线性叠加，因此我们可以在操作y之前，先将其和前r撇的任意行叠加，然后再求解。<break time="1000ms" />
+由于前r撇行可以表示为后r行的线性叠加，因此我们可以在消去z之前，先将其和前r撇的任意行叠加，然后再求解。<break time="1000ms" />
 由于前r撇行共有2的r撇次方种，因此求得的解也有2的r撇次方种。<break time="1000ms" />
 另一方面，由于矩阵D满足十字偶校验约束，表现出高度的对称性。其中，行和列的坐标可以互换。<break time="1000ms" />
 因此，我们可以同样只叠加前r行，从右往左进行消去。由于结果是相同的，这里不再赘述。<break time="1000ms" />

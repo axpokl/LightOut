@@ -2613,7 +2613,7 @@ def get_case_params(n):
     ops = make_ops_euclid(vecF, vecP)
     return n, sz, szs, sx, matY, matD, matT, vecB, vecY, vecF, vecK, vecC, vecP, vecQ, vecG, vecE, vecO, vecD, vecZ, vecX, latex_x, latex_y, ops
 
-def run_case(scene, n, wait=2, rt=0.15):
+def run_case(scene, n, wait=2, rt=0.2):
     ctx = run_case_begin(scene, n, rt=rt)
     run_case_show_T(scene, ctx)
     scene.wait(wait)
@@ -4327,13 +4327,13 @@ class LightsOut(Scene):
             "<cQ>=q₀<cH>H⁰<cY>y<cQ>⊕q₁<cH>H¹<cY>y<cQ>⊕q₂<cH>H²<cY>y<cQ>⊕…<br>"
             "<cQ>=∑qᵢ<cH>Hⁱ<cY>y",
              0, 1.0)
-        self.wait(7.5)
+        self.wait(8)
 
         show_subtitle(self, "这里，我们将y不断乘以矩阵H进行左右扩散，", "再根据q(x)的值进行叠加，从而得到x。")
         LAT_Q4 = show_latex(self, "<cX>x=<cQ>q(<cH>H<cQ>)<cY>y<cX>=∑<cQ>qᵢ<cH>Hⁱ<cY>y", 0, 2.5, show=False)
         trans_latex(self, LAT_Q3, LAT_Q4)
         LAT_Y3 = show_latex(self, "<cY>Y''(n,x)=Y''(n-1,x-1)⊕Y''(n-1,x+1)", 0, 2.0)
-        mul_vec_mat(self, w=7, h=7, mat=MAT_Y7, vec=VEC_Q7, mat_color=Y_COLOR, vec_color=Q_COLOR, res_color=X_COLOR, mat_label="Y'", vec_label="q", res_label="x", wait=4.0)
+        mul_vec_mat(self, w=7, h=7, mat=MAT_Y7, vec=VEC_Q7, mat_color=Y_COLOR, vec_color=Q_COLOR, res_color=X_COLOR, mat_label="Y'", vec_label="q", res_label="x", wait=5.0)
         del_latex(self, LAT_Q4, LAT_Y3)
 
         show_subtitle(self, "另一方面，由于q(H)就是B的逆矩阵Q'，", "并且可以证明Q'也满足十字偶校验约束。")
@@ -4374,7 +4374,7 @@ class LightsOut(Scene):
         trans_latex(self, LAT_R2, LAT_R3)
         trans_latex(self, LAT_G, LAT_G2)
         self.wait(5.5)
-        show_subtitle(self, "这里，deg表示最高次数，r'代表矩阵B丢失的秩，也就是n-r。", "r'的值决定了解的数量，即2ʳ'。")
+        show_subtitle(self, "这里，deg表示最高次数，r'是静默操作数，也就是n-r。", "r'的值决定了解的数量，即2ʳ'。")
         self.wait(10)
         del_latex(self, [LAT_R3, LAT_F])
         LAT_G = show_latex(self, LATEX_G, 0, 2.0, show=False)
@@ -4405,7 +4405,7 @@ class LightsOut(Scene):
         topy_obj_E5 = add_top_labels(self, grid_E5, ["", "", "E'", "", ""], color=E_COLOR)
         self.wait(7)
 
-        show_subtitle(self, "这里，矩阵B不可逆，其秩为r=3。", "现在，我们以r×r为界，将矩阵分为四块。")
+        show_subtitle(self, "这里，矩阵B不可逆，其秩为r=3。", "现在，我们以r×r为界，将矩阵分为四个部分。")
         grid_B5_Br = make_grid(self, 3, 3, lgt_x=-3.4, btn_x=-3.4, lgt_y=0.4, btn_y=0.4, mat_l=[[0]*3 for _ in range(3)], btn_c=B_COLOR, lgt_c=B_COLOR, rt=0.01)
         grid_Q5_Qr = make_grid(self, 3, 3, lgt_x=-0.4, btn_x=-0.4, lgt_y=0.4, btn_y=0.4, mat_l=[[0]*3 for _ in range(3)], btn_c=Q_COLOR, lgt_c=Q_COLOR, rt=0.01)
         grid_E5_Ir = make_grid(self, 3, 3, lgt_x=2.6, btn_x=2.6, lgt_y=0.4, btn_y=0.4, mat_l=[[0]*3 for _ in range(3)], btn_c=E_COLOR, lgt_c=E_COLOR, rt=0.01)
@@ -4819,7 +4819,7 @@ class LightsOut(Scene):
         show_subtitle(self, "不难发现这里求得的x是一个特解。")
         self.wait(4)
 
-        show_subtitle(self, "由于前r'行可以表示为后r行的线性叠加，因此我们可以在操作y之前，", "先将其和前r'的任意行叠加，然后再求解。")
+        show_subtitle(self, "由于前r'行可以表示为后r行的线性叠加，因此我们可以在消去z之前，", "先将其和前r'的任意行叠加，然后再求解。")
         bd = hl_bd(self, grid_DR2)
         self.wait(11)
 
