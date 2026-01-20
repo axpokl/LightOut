@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 G:\Program Files\First Publisher\bin\i386-win32\pas\数学问题\diandeng\ManimGL2\part4 = 'G:\Program Files\First Publisher\bin\i386-win32\pas\数学问题\diandeng\ManimGL2\part4'
-G:\Program Files\First Publisher\bin\i386-win32\pas\数学问题\diandeng\ManimGL2\part4\1768834550162.mp3 = 'G:\Program Files\First Publisher\bin\i386-win32\pas\数学问题\diandeng\ManimGL2\part4\1768834550162.mp3'
+G:\Program Files\First Publisher\bin\i386-win32\pas\数学问题\diandeng\ManimGL2\part4\1768884034446.mp3 = 'G:\Program Files\First Publisher\bin\i386-win32\pas\数学问题\diandeng\ManimGL2\part4\1768884034446.mp3'
 G:\Program Files\First Publisher\bin\i386-win32\pas\数学问题\diandeng\ManimGL2\part4\videos\lights_out.mp4 = 'G:\Program Files\First Publisher\bin\i386-win32\pas\数学问题\diandeng\ManimGL2\part4\videos\lights_out.mp4'
 G:\Program Files\First Publisher\bin\i386-win32\pas\数学问题\diandeng\ManimGL2\part4\videos\subtitle.mp3 = 'G:\Program Files\First Publisher\bin\i386-win32\pas\数学问题\diandeng\ManimGL2\part4\videos\subtitle.mp3'
 G:\Program Files\First Publisher\bin\i386-win32\pas\数学问题\diandeng\ManimGL2\part4\videos\lights_out_audio.mp4 = 'G:\Program Files\First Publisher\bin\i386-win32\pas\数学问题\diandeng\ManimGL2\part4\videos\lights_out_audio.mp4'
