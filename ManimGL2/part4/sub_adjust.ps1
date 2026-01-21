@@ -155,24 +155,6 @@ Write-Host "Lines      : $N"
 Write-Host "Filter     : $filterScript"
 Write-Host "Output mp3 : $outMp3"
 
-& ffmpeg -hide_banner -y -i $inMp3 -/filter_complex $filterScript -map "[aout]" -c:a libmp3lame -b:a 192k $outMp3
+& ffmpeg -hide_banner -y -i $inMp3 -filter_complex_script $filterScript -map "[aout]" -c:a libmp3lame -b:a 192k $outMp3
 
-Write-Host "Merge video: $inVideo + subtitle.mp3 -> lights_out_audio.mp4"
-& ffmpeg -hide_banner -y -i $inVideo -i $outMp3 -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 192k -af "apad" -shortest $outVideo
-
-$esc = { param($s) ($s -replace "'", "''") }
-$helper = @()
-$helper += '$ErrorActionPreference = "Stop"'
-$helper += ("$workDir = '{0}'" -f (&$esc $workDir))
-$helper += ("$inMp3 = '{0}'" -f (&$esc $inMp3))
-$helper += ("$inVideo = '{0}'" -f (&$esc $inVideo))
-$helper += ("$outMp3 = '{0}'" -f (&$esc $outMp3))
-$helper += ("$outVideo = '{0}'" -f (&$esc $outVideo))
-$helper += ("$filterScript = '{0}'" -f (&$esc $filterScript))
-$helper += 'Set-Location $workDir'
-$helper += 'ffmpeg -hide_banner -y -i "$inMp3" -/filter_complex "$filterScript" -map "[aout]" -c:a libmp3lame -b:a 192k "$outMp3"'
-$helper += 'ffmpeg -hide_banner -y -i "$inVideo" -i "$outMp3" -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 192k -af "apad" -shortest "$outVideo"'
-WriteUtf8NoBom $helperPath ($helper -join "`r`n")
-
-Write-Host "Helper script generated: $helperPath"
 Write-Host 'Done.'

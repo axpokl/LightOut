@@ -8,10 +8,11 @@ subtitle_朗读.txt
 3. 语音网站导入subtitle_朗读.txt生成（音质）
 xxx.mp3
 xxx.srt
-5. 将subtitle.txt复制到字幕.xlsm
-4. 执行sub_sil.ps1生成
+4. 将subtitle.txt复制到字幕.xlsm
+5. 执行sub_sil.ps1生成
 sub_sil_pairs.csv
 6. 将sub_sil_pairs.csv复制到字幕.xlsm
-4. 将xxx.srt复制到字幕.xlsm
-7. 将字幕.xlsm复制到sub_adjust.txt
-8. 执行sub_adjust.ps1（调整静音）
+7. 将xxx.srt复制到字幕.xlsm
+8. 将字幕.xlsm复制到sub_adjust.txt
+9. 将字幕.xlsm复制到music\time.txt
+10. 执行sub_adjust.ps1（调整静音）

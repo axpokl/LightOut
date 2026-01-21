@@ -1,0 +1,1 @@
+ffmpeg -i 00.mp3 -vn -af "atempo=1.00" -c:a libmp3lame -q:a 0 00_.mp3
