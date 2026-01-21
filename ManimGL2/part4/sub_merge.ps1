@@ -28,7 +28,7 @@ if (-not (Test-Path -LiteralPath $outMp3)) { throw "Missing subtitle mp3: $outMp
 
 $combineMp3 = Join-Path $videosDir 'combine.mp3'
 Write-Host "Mix audio: bgm.mp3 + subtitle.mp3 -> combine.mp3"
-$bgmVolume = 0.5
+$bgmVolume = 0.3
 & ffmpeg -hide_banner -y -i $bgmMp3 -i $outMp3 -filter_complex "[0:a]volume=$bgmVolume[bgm];[1:a]volume=1.0[sub];[bgm][sub]amix=inputs=2:duration=longest:dropout_transition=0:normalize=0,alimiter=limit=0.98[a]" -map "[a]" -c:a libmp3lame -b:a 192k $combineMp3
 
 $outVideo = Join-Path $videosDir 'lights_out_audio.mp4'

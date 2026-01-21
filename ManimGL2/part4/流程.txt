@@ -15,4 +15,4 @@ sub_sil_pairs.csv
 7. 将xxx.srt复制到字幕.xlsm
 8. 将字幕.xlsm复制到sub_adjust.txt
 9. 将字幕.xlsm复制到music\time.txt
-10. 执行sub_adjust.ps1（调整静音）
+10. 执行sub_adjust.ps1
