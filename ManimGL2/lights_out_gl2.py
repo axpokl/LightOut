@@ -2422,6 +2422,153 @@ def hide_algo_table(scene, table=None, run_out=0.3, remove=True):
         scene._algo_table = None
     return table
 
+def show_algo_time_table(
+    scene,
+    x=0.0,
+    y=0.2,
+    run_in=0.3,
+    run_out=0.3,
+    font=FONT_LATEX,
+    font_size=16,
+    cell_pad_x=0.12,
+    cell_pad_y=0.06,
+    col_gap=0.24,
+    row_gap=0.12,
+    baseline=0.0,
+    auto_k=0.5,
+    ref_tex=REF_TEX,
+    show=True,
+    color_map=COLOR_MAP,
+    default_color=WHITE,
+    header_color=WHITE,
+    border_color=WHITE,
+    border_width=1.6,
+    outer_border_width=2.4,
+    text_buff=0.35,
+    max_width=13.6,
+    max_height=7.4,
+):
+    headers = ("n", "2ⁿˣⁿ", "2ⁿ", "n⁶", "n³", "n³/ω", "n²", "n²/ω")
+    data = [
+        ("4",     "42毫秒",   "-",     "-",      "-",      "-",       "-",       "-"),
+        ("5",     "42秒",     "-",     "-",      "-",      "-",       "-",       "-"),
+        ("6",     "2天",      "-",     "-",      "-",      "-",       "-",       "-"),
+        ("7",     "61年",     "-",     "-",      "-",      "-",       "-",       "-"),
+        ("8",     "300万年",  "1毫秒",  "-",      "-",      "-",       "-",       "-"),
+        ("9",     "-",        "3毫秒",  "-",      "-",      "-",       "-",       "-"),
+        ("10",    "-",        "10毫秒", "10毫秒", "-",      "-",       "-",       "-"),
+        ("20",    "-",        "84秒",   "640毫秒","-",      "-",       "-",       "-"),
+        ("40",    "-",        "22年",   "41秒",   "1毫秒",  "-",       "-",       "-"),
+        ("100",   "-",        "-",      "3小时",  "10毫秒", "-",       "-",       "-"),
+        ("200",   "-",        "-",      "7天",    "80毫秒", "3毫秒",   "-",       "-"),
+        ("400",   "-",        "-",      "1年",    "640毫秒","25毫秒",  "1毫秒",   "-"),
+        ("1000",  "-",        "-",      "300年",  "10秒",   "400毫秒", "10毫秒",  "-"),
+        ("2000",  "-",        "-",      "2万年",  "1分钟",  "3秒",     "40毫秒",  "2毫秒"),
+        ("4000",  "-",        "-",      "130万年","10分钟", "26秒",    "160毫秒", "6毫秒"),
+        ("10000", "-",        "-",      "3亿年",  "3小时",  "7分钟",   "1秒",     "40毫秒"),
+    ]
+
+    def make_cell(text, color, is_header=False):
+        if isinstance(text, str) and text.strip() == "-":
+            text = ""
+        c = header_color if is_header else color
+        m = show_latex(
+            scene,
+            text,
+            x=0,
+            y=0,
+            run_in=0.0,
+            run_out=0.0,
+            font=font,
+            font_size=font_size,
+            buff=text_buff,
+            line_gap=0.0,
+            baseline=baseline,
+            auto_k=auto_k,
+            ref_tex=ref_tex,
+            show=False,
+            color_map=color_map,
+            default_color=c,
+            add_tex="",
+        )
+        if m is None:
+            return VGroup()
+        if isinstance(m, VGroup) and len(m.submobjects) == 1:
+            m = m.submobjects[0]
+        m.move_to(ORIGIN)
+        return m
+
+    header_row = [make_cell(h, default_color, True) for h in headers]
+    data_rows = [[make_cell(v, default_color, False) for v in row] for row in data]
+    all_rows = [header_row] + data_rows
+
+    n_cols = len(headers)
+    col_widths = [0.0] * n_cols
+    row_heights = [0.0] * len(all_rows)
+
+    for i, row in enumerate(all_rows):
+        rh = 0.0
+        for j, cell in enumerate(row):
+            w = float(cell.get_width())
+            h = float(cell.get_height())
+            if w > col_widths[j]:
+                col_widths[j] = w
+            if h > rh:
+                rh = h
+        row_heights[i] = rh
+
+    table_rows = []
+    for row in all_rows:
+        for j, cell in enumerate(row):
+            x_left = sum(col_widths[:j]) + j * col_gap
+            cur_left = float(cell.get_left()[0])
+            cell.shift(RIGHT * (x_left - cur_left))
+        table_rows.append(VGroup(*row))
+
+    table = VGroup(*table_rows).arrange(DOWN, buff=row_gap, aligned_edge=LEFT)
+
+    frames = VGroup()
+    for i, row in enumerate(all_rows):
+        row_grp = table_rows[i]
+        y_c = float(row_grp.get_center()[1])
+        h_cell = row_heights[i] + 2 * cell_pad_y
+        for j, cell in enumerate(row):
+            x_l = float(cell.get_left()[0]) - cell_pad_x
+            w_cell = col_widths[j] + 2 * cell_pad_x
+            r = Rectangle(width=w_cell, height=h_cell).set_fill(opacity=0).set_stroke(border_color, border_width, 1)
+            r.move_to(np.array([x_l + w_cell / 2.0, y_c, 0.0]))
+            frames.add(r)
+
+    outer = SurroundingRectangle(frames, buff=0).set_fill(opacity=0).set_stroke(border_color, outer_border_width, 1)
+    group = VGroup(frames, table, outer)
+
+    if max_width and float(group.get_width()) > max_width:
+        group.scale(max_width / float(group.get_width()))
+    if max_height and float(group.get_height()) > max_height:
+        group.scale(max_height / float(group.get_height()))
+
+    group.move_to(ORIGIN).shift(RIGHT * x + UP * y)
+
+    if show:
+        scene.add(group)
+        scene.play(FadeIn(group, run_time=run_in))
+
+    scene._algo_time_table = group
+    return group
+
+def hide_algo_time_table(scene, table=None, run_out=0.3, remove=True):
+    if table is None:
+        table = getattr(scene, "_algo_time_table", None)
+    if table is None:
+        return None
+    if run_out > 0:
+        scene.play(FadeOut(table, run_time=run_out))
+    if remove:
+        scene.remove(table)
+    if getattr(scene, "_algo_time_table", None) is table:
+        scene._algo_time_table = None
+    return table
+
 def show_poly_mul(scene, vec_p, vec_q, vec_f, vec_g, sz=SZ_DEFAULT):
     n_p = len(vec_p)
     n_q = len(vec_q)
@@ -3826,7 +3973,7 @@ class LightsOut(Scene):
         self.wait(3)
         del_bd(self, bd)
         bd = hl_bd(self, [row[4] for row in G5_])
-        self.wait(5)
+        self.wait(7)
         del_latex(self, [LAT1_8, LAT2_1])
         del_bd(self, bd)
         del_top_labels(self, top_objs)
@@ -3914,7 +4061,7 @@ class LightsOut(Scene):
             "<cY>Y'(n,y)=¬(Y'(n-1,y-2)⊕Y'(n-1,y-1)⊕Y'(n-1,y)⊕Y'(n-2,y-2)<br>"
             "<cY>⊕Y0(n-1,y-1)⊕Y0(n-1,y)⊕Y0(n-1,y+1)⊕Y0(n-2,y-1)⊕Y0(n-2,y)),y<=n;0,y>n",
             0, -1.25, font_size=FONT_SIZE_SMALL)
-        self.wait(4)
+        self.wait(5)
         del_latex(self, [LAT_Y, LAT_Y1, LAT_Y2])
 
         show_subtitle(self, "为了不对整个矩阵进行操作，我们需要将矩阵B进行分解。", "这里介绍一个非常重要的矩阵H，称为邻接扩散矩阵。")
@@ -4729,23 +4876,23 @@ class LightsOut(Scene):
         grid_D5 = make_grid(self, 5, 5, mat_l=MAT_D5, lgt_c=D_COLOR)
         self.wait(10)
 
-        show_subtitle(self, "1. 后r=3行，第n行最左边的n-r'-1=n-3个元素为0。")
+        show_subtitle(self, "1. 后r行，第n行最左边的n-r'-1个元素为0。")
         hl_cells(self, [grid_D5], indices=[(0,3),(0,4),(1,4),(3,0),(4,0),(4,1)])
         self.wait(7)
         del_cells(self, [grid_D5], indices=[(0,3),(0,4),(1,4),(3,0),(4,0),(4,1)])
 
-        show_subtitle(self, "2. 后r=3行，第n行第n-r'=n-2个元素为1。")
+        show_subtitle(self, "2. 后r行，第n行的第n-r'个元素为1。")
         hl_cells(self, [grid_D5], indices=[(0,2),(1,3),(2,4),(2,0),(3,1),(4,2)])
         self.wait(7)
         del_cells(self, [grid_D5], indices=[(0,2),(1,3),(2,4),(2,0),(3,1),(4,2)])
 
-        show_subtitle(self, "3. 后r=3行，任意一行都不能由别的行叠加，即线性无关。")
+        show_subtitle(self, "3. 后r行，任意一行都不能由别的行叠加，即线性无关。")
         grid_DR1 = make_grid(self, 5, 3, lgt_c=D_COLOR, btn_y=-1*SZ_DEFAULT, lgt_y=-1*SZ_DEFAULT)
         bd = hl_bd(self, grid_DR1)
         self.wait(6)
         del_bd(self, bd)
 
-        show_subtitle(self, "4. 前r'=2行，任意一行都可以由后r=3行叠加。")
+        show_subtitle(self, "4. 前r'行，任意一行都可以由后r行叠加。")
         grid_DR2 = make_grid(self, 5, 2, lgt_c=D_COLOR, btn_y=1.5*SZ_DEFAULT, lgt_y=1.5*SZ_DEFAULT)
         bd = hl_bd(self, grid_DR2)
         self.wait(5.5)
@@ -4892,15 +5039,17 @@ class LightsOut(Scene):
         show_title(self, "算法总结")
 
         table = show_algo_table(self, x=0.0, y=0.0, font_size=20, row_gap=0.08, col_gap=0.5)
-        self.wait(2)
+        show_subtitle(self, "以上是O(n²)时间复杂度算法的总结。")
+        self.wait(6)
         show_subtitle(self, "向量和矩阵的乘法，欧几里得算法，逆向消元法，", "理论上通过卷积、FFT或牛顿迭代法，是有可能优化到O(n·log(n))的。")
         self.wait(13)
+        hide_algo_table(self, table)
+        show_algo_time_table(self)
         show_subtitle(self, "考虑到UP主《信号与系统》、《数字信号处理》、《数值分析》等课程较差，", "暂时就不研究了。有兴趣的小伙伴可自行研究并留言。")
         self.wait(13)
         show_subtitle(self, "如果对视频中的内容有疑问，觉得视频内容表述不清，", "或者发现视频中的任何错误，也请小伙伴们多多留言和指证。谢谢观看！")
         self.wait(13)
-
-        hide_algo_table(self, table)
+        hide_algo_time_table(self)
 
         show_title(self, "参考文献")
 
@@ -4911,8 +5060,6 @@ class LightsOut(Scene):
         show_center_latex(self, LATEX_LEFT,   shift_x=-4.5, shift_y=sy_l, replace_old=False)
         show_center_latex(self, LATEX_CENTER, shift_x= 0.25, shift_y=sy_c, replace_old=False)
         show_center_latex(self, LATEX_RIGHT,  shift_x= 4.5, shift_y=sy_r, replace_old=False)
-        self.wait(15)
+        self.wait(12)
         remove_center_latex(self)
-
-        self.wait(2)
-        show_subtitle(self, "")
+        self.wait(1)
