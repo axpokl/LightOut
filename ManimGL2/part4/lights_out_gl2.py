@@ -3780,7 +3780,7 @@ class LightsOut(Scene):
 #——————————————————————
 
         show_title(self, "优化生成矩阵（续上集）")
-        show_subtitle(self, "在《生成优化矩阵》章节中，我们将矩阵的行重排。", "其实是调换了n和y的位置，使原来从左到右的第y个矩阵变为了第n个矩阵。")
+        show_subtitle(self, "在《优化生成矩阵》章节中，我们将矩阵的行重排。", "其实是调换了n和y的位置，使原来从左到右的第y个矩阵变为了第n个矩阵。")
         sz=SZ_SMALL
         cols, rows = 5, 5
         G5_ = [[None] * cols for _ in range(rows)]
