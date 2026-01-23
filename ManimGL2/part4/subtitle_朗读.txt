@@ -175,7 +175,7 @@
 <break time="300ms" />一，后r行，第n行最左边的n减r撇-1个元素为0。<break time="1000ms" />
 <break time="300ms" />二，后r行，第n行的第n减r撇个元素为1。<break time="1000ms" />
 <break time="300ms" />三，后r行，任意一行都不能由别的行叠加，即线性无关。<break time="1000ms" />
-<break time="300ms" />四，前r撇行，任意一行都可以由后r行叠加。<break time="1000ms" />
+<break time="300ms" />四，前r撇<phoneme alphabet="sapi" ph="hang 2">行</phoneme>，任意一行都可以由后r行叠加。<break time="1000ms" />
 这些性质都不难证明，有兴趣的小伙伴可以自行证明。<break time="1000ms" />
 现在，我们有z=g(H)x=Dx。我们可以利用D的性质进行求解。接下来，我们需要将z拆解成矩阵D的若干行的叠加，从而表示出x。<break time="1000ms" />
 由于矩阵D后三行线性无关，因此我们只考虑把后三行叠加起来，不考虑前二行。<break time="1000ms" />
@@ -188,8 +188,8 @@
 这次，z被彻底消去了，变为了零，并且，x的第五个元素被标记为1。<break time="1000ms" />
 由此，我们通过依次叠加D的后三行，将z的元素依次消去。同时，将叠加的行标记为1，也就求得了最终的x。<break time="1000ms" />
 不难发现这里求得的x是一个特解。<break time="1000ms" />
-由于前r撇行可以表示为后r行的线性叠加，因此我们可以在消去z之前，先将其和前r撇的任意行叠加，然后再求解。<break time="1000ms" />
-由于前r撇行共有2的r撇次方种，因此求得的解也有2的r撇次方种。<break time="1000ms" />
+由于前r撇<phoneme alphabet="sapi" ph="hang 2">行</phoneme>可以表示为后r行的线性叠加，因此我们可以在消去z之前，先将其和前r撇的任意行叠加，然后再求解。<break time="1000ms" />
+由于前r撇<phoneme alphabet="sapi" ph="hang 2">行</phoneme>共有2的r撇次方种，因此求得的解也有2的r撇次方种。<break time="1000ms" />
 另一方面，由于矩阵D满足十字偶校验约束，表现出高度的对称性。其中，行和列的坐标可以互换。<break time="1000ms" />
 因此，我们可以同样只叠加前r行，从右往左进行消去。由于结果是相同的，这里不再赘述。<break time="1000ms" />
 细心的小伙伴会发现，这两个式子具有相同的形式。<break time="1000ms" />

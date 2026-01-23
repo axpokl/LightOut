@@ -75,3 +75,4 @@ q撇x就是刚才求得的qx。|q撇x就是刚才求得的qx<phoneme alphabet="s
 了解的数量|<phoneme alphabet="sapi" ph="le 5">了</phoneme>解的数量
 一起后的Y撇有|一起后的Y撇<break time="300ms" />有
 便有。<break time="50ms" />x=q(H)y。|便有，x=q(H)y。
+前r撇行|前r撇<phoneme alphabet="sapi" ph="hang 2">行</phoneme>
