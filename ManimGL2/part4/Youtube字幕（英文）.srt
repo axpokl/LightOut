@@ -1,0 +1,820 @@
+1
+00:00:29.233 --> 00:00:40.433
+In the last video, in the “First-Row Superposition Method”, some viewers still had questions about the row-by-row relation between buttons and lights. This time we will explain clearly where this relation formula comes from.
+
+2
+00:00:40.433 --> 00:00:47.533
+We use B for buttons, L for lights, ⊕ (plus) for superposition, and ¬ (NOT) for flip.
+
+3
+00:00:47.533 --> 00:00:57.233
+n means the n-th row (top to bottom) of buttons or lights. Because we derive row by row, n also means the n-th derivation step.
+
+4
+00:00:57.233 --> 00:01:08.933
+x means the x-th column (left to right) of buttons. We write each light as a superposition of some columns’ buttons in the first row. Here x is not only for the first row.
+
+5
+00:01:08.933 --> 00:01:18.733
+y means the y-th column (left to right) of lights. The formula works for any y-th light, so we omit y.
+
+6
+00:01:18.733 --> 00:01:26.533
+Here, pink dots mean “use buttons to represent buttons”, and light-blue squares mean “use buttons to represent lights”.
+
+7
+00:01:26.533 --> 00:01:38.433
+In the last video, because the final goal is to represent lights by buttons, we omitted “buttons represent buttons”, so the pink dots directly mean “buttons represent lights”.
+
+8
+00:01:38.433 --> 00:01:46.633
+Let’s use a concrete example. In a 5×5 grid, we number buttons and lights as 1—25.
+
+9
+00:01:46.633 --> 00:01:59.733
+In the “Superposition Method”, we represent each light as a superposition of all buttons. For example: L1=B1⊕B2⊕B6, L6=B1⊕B6⊕B7⊕B11.
+
+10
+00:01:59.733 --> 00:02:12.933
+With this, we get a linear system with 25 unknowns. We write it as an augmented matrix: the button matrix and the flip vector, that is, the light vector.
+
+11
+00:02:12.933 --> 00:02:19.367
+In the “First-Row Superposition Method”, we need to represent lights as a superposition of the first row’s buttons.
+
+12
+00:02:19.367 --> 00:02:25.967
+These five matrices each mean: for column y, which first-row buttons are added together.
+
+13
+00:02:25.967 --> 00:02:39.167
+Because pressing is dynamic, before we press row 2, we have L1=B1⊕B2, meaning light L1 is the superposition of B1 and B2 in row 1.
+
+14
+00:02:39.167 --> 00:02:53.867
+Then, B6=¬L1=¬(B1⊕B2), meaning button B6 is the flip of light L1. So row-2 button B6 and row-1 light L1 have the same superposition state.
+
+15
+00:02:53.867 --> 00:03:03.567
+The only difference is: B6 is the flipped version of L1. The flip vector beside it shows whether a button or light is flipped.
+
+16
+00:03:03.567 --> 00:03:14.167
+For example, when the first light L1 in the first vector is on, it means L1 needs an extra flip, besides the button superposition we just said.
+
+17
+00:03:14.167 --> 00:03:30.167
+Similarly, B7=¬L2=¬(B1⊕B2⊕B3), so button B7 is the flip of light L2. Again, row-2 button B7 and row-1 light L2 have the same superposition state.
+
+18
+00:03:30.167 --> 00:03:39.067
+Here we complete the state of button B1: when we write B1 using first-row buttons, we have B1=B1.
+
+19
+00:03:39.067 --> 00:03:51.867
+Next, look at light L6. L6=B1⊕B6⊕B7=B1⊕¬(B1⊕B2)⊕¬(B1⊕B2⊕B3)=B1⊕B3.
+
+20
+00:03:51.867 --> 00:04:05.467
+Another example: L7=B2⊕B6⊕B7⊕B8=B2⊕¬(B1⊕B2)⊕¬(B1⊕B2⊕B3)⊕¬(B2⊕B3⊕B4)=¬B4.
+
+21
+00:04:05.467 --> 00:04:16.400
+By continuing this derivation, we can represent any L as a superposition of B1—B5. After adding the flip part, we get the full matrix.
+
+22
+00:04:16.400 --> 00:04:29.867
+Now, if we write index 1—25 as coordinates x,y, then buttons and lights can be written as the formulas above. Let’s take L7(2)=L(2,2,2) as an example.
+
+23
+00:04:29.867 --> 00:04:36.967
+Here our matrices also satisfy another property. We call it the “cross even-check rule”.
+
+24
+00:04:36.967 --> 00:04:45.367
+For one element, add the element at the same spot in the left and right matrices, and also add the left and right neighbor elements in the current matrix, and you get zero.
+
+25
+00:04:45.367 --> 00:04:53.167
+This is the property in the last video, in the “Optimized Matrix Generation” part, and we will prove it later.
+
+26
+00:04:53.167 --> 00:05:02.167
+With this property, the relation formula can be changed to use only the current matrix’s elements, and no longer depends on the left and right matrices.
+
+27
+00:05:02.167 --> 00:05:11.567
+So we can remove y from the formula. Then each light can be written as the superposition of the upper-left, upper, upper-right, and itself (left/middle/right) buttons in the current matrix.
+
+28
+00:05:11.567 --> 00:05:21.267
+Also, the next row’s buttons are the flip of the previous row’s lights, and the next row’s lights are the superposition of flips of the upper-left, upper, upper-right, and itself lights.
+
+29
+00:05:21.267 --> 00:05:27.367
+So if we take out the flip ¬, we get the formula we derived at the start.
+
+30
+00:05:27.367 --> 00:05:39.267
+That is: buttons are the superposition of the previous row’s left/middle/right buttons and the row-before-previous buttons. And lights are the superposition of the previous row’s left/middle/right buttons and the row-before-previous lights.
+
+31
+00:05:39.267 --> 00:05:48.367
+You can see the button and light relation formulas have the same shape, because the previous row’s lights are exactly the next row’s buttons.
+
+32
+00:05:48.367 --> 00:05:59.567
+Because we finally need lights, we derive 5 rows of lights from the first row of buttons. Because the last derivation is lights, buttons also have 5 rows.
+
+33
+00:05:59.567 --> 00:06:06.667
+For the flip part, we can list it separately and derive it in a similar way, and write it as formula Y.
+
+34
+00:06:06.667 --> 00:06:13.267
+That is: the next row’s flip is the flip of (previous row’s left/middle/right plus row-before-previous) superposition.
+
+35
+00:06:13.267 --> 00:06:25.367
+You can see formula Y is like formula B. The difference is: Y starts from the zero vector, and we cannot drop the flip sign ¬.
+
+36
+00:06:25.367 --> 00:06:37.467
+1. Use the zero vector: the first flip happens when we derive from row 1 to row 2. Before that, there is no flip, so Y’s first row is all zeros.
+
+37
+00:06:37.467 --> 00:06:50.067
+2. The flip sign ¬ must stay: each derivation step needs a flip, so we cannot omit it. In the earlier formula we pulled the flip out, so we didn’t need ¬ there.
+
+38
+00:06:50.067 --> 00:07:03.700
+3. Use y instead of x: the flip part is pulled out from the flips of all previous buttons, so it represents flips of lights, not flips of one button.
+
+39
+00:07:03.700 --> 00:07:09.800
+In fact, the button matrix can also be derived in another, more direct way.
+
+40
+00:07:09.800 --> 00:07:19.800
+First, in the first matrix, we press the first button in row 1. Then press row-2 buttons to remove as many row-1 lights as possible.
+
+41
+00:07:19.800 --> 00:07:27.200
+Then press row-3 buttons to remove row-2 lights. Keep doing this until the last row.
+
+42
+00:07:27.200 --> 00:07:34.400
+In the end, the last row’s button and light states match the matrix we derived before.
+
+43
+00:07:34.400 --> 00:07:44.600
+Likewise, in the second matrix, press the second button in row 1, then derive downward, and we get the last row’s button and light states for the second matrix.
+
+44
+00:07:44.600 --> 00:07:52.033
+With this method, we can get the last row states for all matrices.
+
+45
+00:07:52.033 --> 00:07:57.133
+Also, the flip vector can be derived in a similar way.
+
+46
+00:07:57.133 --> 00:08:07.167
+We turn on all lights, then use the same method to try to remove all lights, and we can also get the last row state of the flip vector.
+
+47
+00:08:07.167 --> 00:08:21.167
+We call this the “remainder matrix method”. It is essentially the same as the first-row superposition method, and you can prove it if you like.
+
+48
+00:08:21.167 --> 00:08:34.600
+In the “Generate Optimized Matrix” part, we reorder the matrix rows. This actually swaps n and y, so the y-th matrix (left to right) becomes the n-th matrix.
+
+49
+00:08:34.600 --> 00:08:44.500
+These n matrices all satisfy the cross even-check rule: add the up/down/left/right four cells and get zero, so we omit n in the formula.
+
+50
+00:08:44.500 --> 00:08:52.300
+This is the same as before, only n and y are swapped, so positions change.
+
+51
+00:08:52.300 --> 00:08:59.900
+This is a very important property. With it, we can derive later lights from the first light.
+
+52
+00:08:59.900 --> 00:09:07.000
+In the later O(n²) algorithm, the core optimization is also based on this property.
+
+53
+00:09:07.000 --> 00:09:12.100
+Now let’s use math induction to prove this property.
+
+54
+00:09:12.100 --> 00:09:20.300
+Because the button matrix on the right is the same as the light matrix on the left, for simplicity we only look at the button matrix.
+
+55
+00:09:20.300 --> 00:09:31.000
+First, assume the previous two matrices B(n-1) and B(n-2) satisfy this property. Now we prove B(n) also satisfies it.
+
+56
+00:09:31.000 --> 00:09:36.400
+Add parameter y to the relation and rewrite it.
+
+57
+00:09:36.400 --> 00:09:43.600
+For B(n), we write the expression vertically as four terms, then plug the relation into it.
+
+58
+00:09:43.600 --> 00:09:55.200
+After plugging in, we get 16 terms. Now reorder the terms, swap y and n, like the swap in the “Optimized Matrix Generation” part.
+
+59
+00:09:55.200 --> 00:10:09.700
+It is easy to see these four terms belong to B(n-1) or B(n-2), and their element relations satisfy the cross even-check rule, so the whole expression becomes zero.
+
+60
+00:10:09.700 --> 00:10:20.300
+Now we only need to prove the leftmost two matrices also satisfy this property. The first matrix is the identity matrix, so it clearly satisfies it.
+
+61
+00:10:20.300 --> 00:10:30.400
+The second matrix can be written as the superposition of the two matrices to its left. Since the identity matrix has no matrix on its left, it is like adding a zero matrix.
+
+62
+00:10:30.400 --> 00:10:37.500
+The zero matrix clearly satisfies the property, so the second matrix also satisfies it.
+
+63
+00:10:37.500 --> 00:10:53.000
+Because B(n) has this property, we only need the first row of B(n), then we can use the formula to derive the later rows and get the full matrix B(n).
+
+64
+00:10:53.000 --> 00:11:05.067
+To make an O(n²) algorithm, we also need a similar idea: avoid working on the whole matrix, and use the first row to find an inverse or a solution.
+
+65
+00:11:05.067 --> 00:11:17.433
+Take n=7 as an example. Here B is the button matrix B(n) we talked about, and y is the last row of the flip vector, i.e. the augmented vector of B(n).
+
+66
+00:11:17.433 --> 00:11:26.367
+Our goal is: for Bx=y, given B’s first row and y, find x.
+
+67
+00:11:26.367 --> 00:11:33.600
+If we put together the first rows of B for different n, the matrix looks like this, call it B'.
+
+68
+00:11:33.600 --> 00:11:43.800
+Note: this B' is not the full matrix B for a fixed n, but the result of stacking the first rows of B(n).
+
+69
+00:11:43.800 --> 00:11:58.533
+Also, here we start from n=0 and derive n times. The last “1” is not included in the first row of matrix B. For example when n=7, the first row is 1011011, and we omit the last 1.
+
+70
+00:11:58.533 --> 00:12:03.367
+The rewritten matrix is B''=B'⊕I.
+
+71
+00:12:03.367 --> 00:12:08.533
+If we stack the first rows of Y, it looks like this, call it Y'.
+
+72
+00:12:08.533 --> 00:12:15.633
+After merging, Y' has the relation formula above.
+
+73
+00:12:15.633 --> 00:12:27.167
+To avoid operating on the whole matrix, we need to factor matrix B. Here we introduce an important matrix H, called the adjacency diffusion matrix.
+
+74
+00:12:27.167 --> 00:12:41.200
+For each element of H, if x and y differ by 1, it is 1, otherwise it is 0. If we multiply a vector v by H, it is the same as spreading each element of v to left and right, then adding them.
+
+75
+00:12:41.200 --> 00:12:47.367
+This is because each row of the matrix is exactly the left-right spread result of one element of the vector.
+
+76
+00:12:47.367 --> 00:12:55.167
+It is easy to see: each matrix B in the “First-Row Superposition Method” can be written using H as the formula above.
+
+77
+00:12:55.167 --> 00:13:02.067
+Here, B(0), B(1), B(2) are written as different superpositions of powers of H.
+
+78
+00:13:02.067 --> 00:13:14.200
+If we write the coefficients of these H terms as a polynomial c(n,x), we get a relation formula similar to matrix B. Also, write these coefficients as a matrix, call it C.
+
+79
+00:13:14.200 --> 00:13:25.633
+Note: multiplying by H in the coefficients means shifting right, not left-right spreading, so the expression has x-1 but not x+1.
+
+80
+00:13:25.633 --> 00:13:36.167
+Now, if we multiply H many times, that is Hⁿ, and stack the first rows Hⁿ(0), it looks like this.
+
+81
+00:13:36.167 --> 00:13:46.767
+We call this lower-triangular matrix K, also called the Krylov matrix or diffusion basis matrix. For the n-th row of K, we have the formula above.
+
+82
+00:13:46.767 --> 00:13:59.100
+Here each next row is the previous row times H, that is, the left-right spread of the previous row. So for each element in K, we have the relation formula above.
+
+83
+00:13:59.100 --> 00:14:07.000
+Now we define a polynomial p(x). Our goal is to break B into powers of Hⁿ.
+
+84
+00:14:07.000 --> 00:14:14.400
+Put matrix H into polynomial p(x), get p(H), and use it to represent matrix B.
+
+85
+00:14:14.400 --> 00:14:21.300
+Then the original problem Bx=y becomes p(H)x=y.
+
+86
+00:14:21.300 --> 00:14:30.200
+Now we need to compute the coefficients of polynomial p(H). We call the coefficient vector p.
+
+87
+00:14:30.200 --> 00:14:42.133
+To simplify, we only care about the first row B(0), call it b. By the definition of K, we have b=Kp.
+
+88
+00:14:42.133 --> 00:14:51.967
+To solve for p, we can multiply both sides by the inverse of K, call it F, also called the anti-Krylov matrix or decoupling matrix.
+
+89
+00:14:51.967 --> 00:15:03.933
+Matrix F is also lower-triangular, and looks similar to K, but it is not the same. In fact, F also satisfies similar properties.
+
+90
+00:15:03.933 --> 00:15:15.033
+Using these properties, we can prove S=KF is the identity matrix I. You can try to prove it if you like.
+
+91
+00:15:15.033 --> 00:15:23.600
+Hint: S=KF also satisfies the cross even-check rule, that is, it satisfies the relation formula above.
+
+92
+00:15:23.600 --> 00:15:35.267
+Also note: each row of F matches a polynomial f(n,x), which is the Fibonacci polynomial mentioned in the last video’s “Number of Solutions” part (in OEIS).
+
+93
+00:15:35.267 --> 00:15:45.767
+Also, the polynomial c(n,x) for matrix C we derived is equal to f(n,x+1) mentioned in that part.
+
+94
+00:15:45.767 --> 00:15:54.867
+This is not hard to prove: you can get the relation formulas for F and C from their relation, or work backward from the relation formulas.
+
+95
+00:15:54.867 --> 00:16:05.167
+Also, matrix B(n) can be written in the same form. Here H⊕I is the same as x+1.
+
+96
+00:16:05.167 --> 00:16:18.267
+Now continue to find p. Since F and K are inverses, we have Fb=FKp=p. Multiply vector b by matrix F, and we get p.
+
+97
+00:16:18.267 --> 00:16:32.800
+To match the video, because b is written vertically, we write p=Fb. For matrix multiplication, we have P=B''F. Here we omit the transpose symbol.
+
+98
+00:16:32.800 --> 00:16:39.967
+Write polynomial p(x) in matrix form, call it P.
+
+99
+00:16:39.967 --> 00:16:49.400
+After we get p=Fb, later computations do not need the full B, only B’s first row, that is vector b.
+
+100
+00:16:49.400 --> 00:17:03.033
+Because the problem changed from Bx=y to p(H)x=y. So when we build the “generation matrix”, we also only need vector b, that is matrix B'.
+
+101
+00:17:03.033 --> 00:17:12.500
+Because the formula for b is the same for different n, we can reuse b from n-1 to compute b for n.
+
+102
+00:17:12.500 --> 00:17:20.933
+So if we start from n=0, we only need O(n) time to get b.
+
+103
+00:17:20.933 --> 00:17:32.133
+The same is true for computing K and F. Since rows have relation formulas, starting from n=0 also lets us compute them in O(n) time.
+
+104
+00:17:32.133 --> 00:17:43.467
+If we need a specific n directly, we can optimize to O(n·log(n)) by other methods. This algorithm does not use that, so we won’t expand here.
+
+105
+00:17:43.467 --> 00:17:53.333
+To get p=Fb, we need vector-matrix multiplication, which usually costs O(n²).
+
+106
+00:17:53.333 --> 00:18:02.500
+Because F has a relation pattern, in theory we can use FFT and so on to optimize to O(n·log(n)).
+
+107
+00:18:02.500 --> 00:18:16.700
+On the other hand, when computing p here, we removed the diagonal of B'', that is P=B''F. If we keep the diagonal of B'', then we have C=B'F.
+
+108
+00:18:16.700 --> 00:18:32.400
+To show this, assume B'F=C', and we get the relation formula above. Since C' and C have the same relation formula, we get C'=C=B'F.
+
+109
+00:18:32.400 --> 00:18:44.800
+Since C=B'F, we get P=C⊕F. So we can compute C and F, then add them to get P directly, no matrix multiplication needed.
+
+110
+00:18:44.800 --> 00:18:58.000
+Also, since P=C⊕F, P can be written as a relation formula too, so we can avoid B, C, or F, and derive P directly in O(n) time.
+
+111
+00:18:58.000 --> 00:19:08.300
+This proof is long, so we do not show it here. If you like, you can prove it from the relation formulas of C and F.
+
+112
+00:19:08.300 --> 00:19:21.200
+Now we have many ways to get p, and we changed the original problem into p(H)x=y, but what is it good for?
+
+113
+00:19:21.200 --> 00:19:33.200
+Imagine there is a polynomial q(x) such that q(x)p(x)=1 mod f(x). Here f(x) is the polynomial f(n,x) mentioned earlier.
+
+114
+00:19:33.200 --> 00:19:44.233
+Then multiply both sides by q(H): we get x=q(H)y. Then we can get x right away.
+
+115
+00:19:44.233 --> 00:19:53.467
+We call such a polynomial q(x) the inverse polynomial of p(x). So how do we find q(x)?
+
+116
+00:19:53.467 --> 00:20:01.167
+We can use the extended Euclid algorithm, using f(x) and p(x) to find q(x).
+
+117
+00:20:01.167 --> 00:20:13.767
+Here we also define a zero polynomial o(x) and a unit polynomial e(x). While operating on f(x) and p(x), we do the same operations on o(x) and e(x).
+
+118
+00:20:13.767 --> 00:20:22.367
+Like matrix inversion, our goal is: turn f(x) into the zero polynomial, and turn p(x) into the unit polynomial.
+
+119
+00:20:22.367 --> 00:20:34.967
+We use the subtract-and-shift method: shift p(x) right so its highest term aligns with f(x), then add it to f(x) to cancel f(x)’s highest term.
+
+120
+00:20:34.967 --> 00:20:44.567
+After adding, if f(x)’s degree is still ≥ p(x)’s degree, keep shifting p(x) right and add it to f(x).
+
+121
+00:20:44.567 --> 00:20:58.167
+Otherwise, when f(x)’s degree is < p(x)’s degree, swap p(x) and f(x), so f(x)’s degree stays ≥ p(x)’s, and we can keep adding.
+
+122
+00:20:58.167 --> 00:21:06.267
+Repeat until f(x) becomes zero.
+
+123
+00:21:06.267 --> 00:21:17.933
+Finally, the remaining p(x) is the gcd of the two polynomials, call it g(x). Also, the remaining e(x) is the inverse of p(x), that is q(x).
+
+124
+00:21:17.933 --> 00:21:29.500
+Write q(x) as a matrix Q. Note: this Q is not the full inverse matrix Q' from before, but the result of stacking many q(x).
+
+125
+00:21:29.500 --> 00:21:38.400
+Now we have q(x). Next, by the meaning of q(H)y, we can use it to compute x.
+
+126
+00:21:38.400 --> 00:21:49.433
+Here we keep multiplying y by H to spread it left and right, then add according to q(x), and we get x.
+
+127
+00:21:49.433 --> 00:21:58.467
+On the other hand, since q(H) is the inverse matrix Q' of B, and we can prove Q' also satisfies the cross even-check rule.
+
+128
+00:21:58.467 --> 00:22:10.800
+So we can also compute the first row Q'(0) of Q' by Kq, then use the relation formula to get the full Q', and finally multiply it by y to get x.
+
+129
+00:22:10.800 --> 00:22:17.400
+The x from these two ways is the same, and you can prove it if you like.
+
+130
+00:22:17.400 --> 00:22:28.500
+But there is one issue: in the whole process we assumed the inverse polynomial q(x) that satisfies q(x)p(x)=1 mod f(x) exists.
+
+131
+00:22:28.500 --> 00:22:38.067
+If such q(x) does not exist, what should we do?
+
+132
+00:22:38.067 --> 00:22:44.467
+In the last video’s “Number of Solutions” part, we mentioned the formula r'(n).
+
+133
+00:22:44.467 --> 00:22:54.167
+Here gcd means greatest common divisor. It is easy to see gcd(f,c) here is the same g from the extended Euclid algorithm above.
+
+134
+00:22:54.167 --> 00:23:02.167
+Also, since F=C⊕P, gcd(f,c) and gcd(f,p) are the same.
+
+135
+00:23:02.167 --> 00:23:14.167
+Here deg means degree, r' is the number of silent moves, that is n-r. r' decides the number of solutions, which is 2^r'.
+
+136
+00:23:14.167 --> 00:23:19.700
+Write g(x) as a matrix, call it G.
+
+137
+00:23:19.700 --> 00:23:31.033
+Note that only when matrix B is invertible, we have g(x)=1, and deg(g)=r'=n-r=0.
+
+138
+00:23:31.033 --> 00:23:40.333
+For example, when n=5, the pseudo-inverse matrix Q' and the identity-like matrix E' after Gaussian elimination look like this.
+
+139
+00:23:40.333 --> 00:23:50.933
+Here B is not invertible, and its rank is r=3. Now we split the matrix into four blocks using r×r as the border.
+
+140
+00:23:50.933 --> 00:24:01.233
+1. The top-left r×r block of B is invertible, and it is the inverse of the top-left r×r block of Q'.
+
+141
+00:24:01.233 --> 00:24:10.667
+2. The bottom-right of Q' and the top-left of E' are identity matrices. The top-right of Q' and the bottom part of E' are zero matrices.
+
+142
+00:24:10.667 --> 00:24:24.733
+3. The bottom-left Wr of Q' and the top-right silent moves of E' are the same, and equal to (top-left of Q')(top-right of B), or (bottom-left of B)(top-left of Q').
+
+143
+00:24:24.733 --> 00:24:35.400
+These properties can be derived by block matrix multiplication, together with Gaussian elimination and the symmetry of B. You can prove it if you like.
+
+144
+00:24:35.400 --> 00:24:47.033
+We can see Q' does not satisfy the cross even-check rule, so we cannot derive it by the relation formula. Also, x computed from Q' first row is not a solution of the original equation.
+
+145
+00:24:47.033 --> 00:24:58.333
+If we take Q' first row as q(x), and multiply it with p(x), the resulting g(x) is not 1, and its degree is 4.
+
+146
+00:24:58.333 --> 00:25:08.367
+On the other hand, if we directly use extended Euclid on p(x) and f(x), the resulting g(x) is also not 1.
+
+147
+00:25:08.367 --> 00:25:17.767
+Multiply the q(x) we got with p(x), we get that g(x), and its degree is 2.
+
+148
+00:25:17.767 --> 00:25:25.200
+Here we compute q(H)y, and the x we get is still not correct.
+
+149
+00:25:25.200 --> 00:25:36.100
+The two methods give different q(x) and g(x), both g(x) are not 1, and both q(H)y are not correct solutions.
+
+150
+00:25:36.100 --> 00:25:49.167
+So if g(x) is not 1, then q(x) does not satisfy q(x)p(x)=1 mod f(x). In other words, such a q(x) does not exist.
+
+151
+00:25:49.167 --> 00:25:58.933
+So for a non-invertible matrix B, how can we get the correct solution?
+
+152
+00:25:58.933 --> 00:26:03.433
+In the “First-Row Inverse Method” above, we had these formulas.
+
+153
+00:26:03.433 --> 00:26:11.833
+Now we define polynomial q'(x) such that q'(x)p(x)=g(x) mod f(x).
+
+154
+00:26:11.833 --> 00:26:20.733
+Here g(x) is the gcd above, and q'(x) is the q(x) we just got.
+
+155
+00:26:20.733 --> 00:26:29.933
+Because the x we got before is not correct, we rename it as z, that is z=q'(H)y.
+
+156
+00:26:29.933 --> 00:26:39.833
+Also, we define the inverse polynomial of q'(x) as p'(x), that is q'(x)p'(x)=1 mod f(x).
+
+157
+00:26:39.833 --> 00:26:47.533
+It is easy to get these formulas. For simplicity we omit the “mod f(x)” part here.
+
+158
+00:26:47.533 --> 00:26:54.333
+After整理, we get these formulas.
+
+159
+00:26:54.333 --> 00:27:06.433
+Finally we get z=g(H)x. Here if g(x)=1, we get the formulas on the right side.
+
+160
+00:27:06.433 --> 00:27:18.333
+In the extended Euclid part, we already got q'(x) and g(x). So next we only need g(x) and z to get x.
+
+161
+00:27:18.333 --> 00:27:29.233
+Earlier we had z=q'(H)y. We keep multiplying y by H, then use vector-matrix multiplication to get z.
+
+162
+00:27:29.233 --> 00:27:41.333
+Now we have z=g(H)x. Since we want x, we cannot solve it with the same method.
+
+163
+00:27:41.333 --> 00:27:48.900
+This time we need a backward superposition method to get x. Take n=5 as an example.
+
+164
+00:27:48.900 --> 00:28:00.900
+First, we need to generate g(H) like how we generate matrix B. Call this matrix D. Its rank is the same as matrix B.
+
+165
+00:28:00.900 --> 00:28:10.500
+1. Create n unit vectors, that is the first row of matrix D. This is the same as matrix B, with n vectors.
+
+166
+00:28:10.500 --> 00:28:17.100
+2. Use matrix H to spread each first-row vector of D down to later rows.
+
+167
+00:28:17.100 --> 00:28:28.133
+3. Based on polynomial g(x), add the matching rows of each matrix D. After adding, these rows form a new matrix D.
+
+168
+00:28:28.133 --> 00:28:38.033
+You can see these steps are like the “First-Row Superposition Method”. We need to generate n matrices, so the time cost is O(n³).
+
+169
+00:28:38.033 --> 00:28:47.933
+But you can guess: after we swap matrix rows like in the “Matrix Generation Method”, these matrices also satisfy the cross even-check rule.
+
+170
+00:28:47.933 --> 00:28:58.133
+So we only need to generate the first matrix, then derive the rest, and the time cost drops to O(n²).
+
+171
+00:28:58.133 --> 00:29:05.667
+In generating the first matrix, each time we multiply a row by H, we get the matrix K we discussed.
+
+172
+00:29:05.667 --> 00:29:17.667
+So like Q'(0)=Kq, we can just multiply g(x) with K to get the last row of the first matrix, which is the first row d of matrix D.
+
+173
+00:29:17.667 --> 00:29:25.367
+Then we can use the cross even-check relation to derive the later rows.
+
+174
+00:29:25.367 --> 00:29:36.567
+Because D is generated from H, it has these properties. Here n=5, r=3, r'=2.
+
+175
+00:29:36.567 --> 00:29:44.767
+1. For the last r rows, in row n, the leftmost n-r'-1 elements are 0.
+
+176
+00:29:44.767 --> 00:29:52.967
+2. For the last r rows, in row n, the (n-r')-th element is 1.
+
+177
+00:29:52.967 --> 00:30:00.467
+3. For the last r rows, any row cannot be made by adding other rows, so they are linearly independent.
+
+178
+00:30:00.467 --> 00:30:07.467
+4. For the first r' rows, any row can be made by adding the last r rows.
+
+179
+00:30:07.467 --> 00:30:15.967
+These are not hard to prove, you can prove them if you like.
+
+180
+00:30:15.967 --> 00:30:30.433
+Now we have z=g(H)x=Dx. We can use D’s properties to solve. Next we need to break z into a superposition of some rows of D, and then we can write x.
+
+181
+00:30:30.433 --> 00:30:39.333
+Because the last 3 rows of D are independent, we only add rows from the last 3, and ignore the first 2.
+
+182
+00:30:39.333 --> 00:30:46.233
+Here we try to add some of the last 3 rows onto z, to cancel z out.
+
+183
+00:30:46.233 --> 00:30:56.433
+Look at the first element of z and the last 3 rows of D. In the last 3 rows, the third row’s first element is 1.
+
+184
+00:30:56.433 --> 00:31:07.633
+Since z’s first element is already 0, if we add the third row, z’s first element becomes 1, so we cannot add the third row.
+
+185
+00:31:07.633 --> 00:31:15.833
+Now look at z’s second element. It is 1, so we need to add row 4 to z.
+
+186
+00:31:15.833 --> 00:31:23.633
+Now z’s second element is canceled, and x’s 4th element is marked as 1.
+
+187
+00:31:23.633 --> 00:31:32.833
+Next look at z’s third element. Now it became 1, so we need to add row 5 of D.
+
+188
+00:31:32.833 --> 00:31:41.133
+This time, z is fully canceled to zero, and x’s 5th element is marked as 1.
+
+189
+00:31:41.133 --> 00:31:52.633
+So we cancel z element by element by adding the last 3 rows of D, and mark the added rows as 1, and we get the final x.
+
+190
+00:31:52.633 --> 00:31:57.233
+It is easy to see this x is one particular solution.
+
+191
+00:31:57.233 --> 00:32:09.133
+Since the first r' rows can be written as linear sums of the last r rows, before canceling z, we can first add z with any of the first r' rows, then solve.
+
+192
+00:32:09.133 --> 00:32:17.333
+Since there are 2^r' choices for the first r' rows, the number of solutions is also 2^r'.
+
+193
+00:32:17.333 --> 00:32:27.133
+On the other hand, because D satisfies the cross even-check rule, it is highly symmetric. The row and column coordinates can be swapped.
+
+194
+00:32:27.133 --> 00:32:39.100
+So we can also add only the first r rows and cancel from right to left. Since the result is the same, we omit it here.
+
+195
+00:32:39.100 --> 00:32:45.000
+Careful viewers may find these two formulas have the same shape.
+
+196
+00:32:45.000 --> 00:32:57.067
+Since we can solve x from the first formula by backward superposition, why can’t we use the same method to solve x from the second formula?
+
+197
+00:32:57.067 --> 00:33:06.967
+Because D is made from g(H). It has a banded upper-triangular back-substitution structure, and it satisfies the four properties above.
+
+198
+00:33:06.967 --> 00:33:18.667
+But B=p'(H)D breaks this structure, so it does not satisfy these properties. Here D=g(H) is not invertible, so p'(H) is not unique.
+
+199
+00:33:18.667 --> 00:33:27.567
+However, when g=1, this method works, although it first needs the full matrix B.
+
+200
+00:33:27.567 --> 00:33:39.067
+Also, because B is not triangular, we must mark where each row’s first 1 is, to choose rows. So directly computing q(H)y is easier.
+
+201
+00:33:39.067 --> 00:34:11.433
+In the end, we solved Bx=y using the Euclid method and backward superposition, and made an O(n²) algorithm for Lights Out.
+
+202
+00:34:11.433 --> 00:34:18.033
+Above is a summary of the O(n²) algorithm.
+
+203
+00:34:18.033 --> 00:34:32.233
+Vector-matrix multiplication, the Euclid algorithm, and backward elimination can, in theory, be improved to O(n·log(n)) using convolution, FFT, or Newton iteration.
+
+204
+00:34:32.233 --> 00:34:45.833
+But since the uploader is weak in “Signals and Systems”, “Digital Signal Processing”, “Numerical Analysis”, we won’t study it now. If you are interested, you can study it and leave comments.
+
+205
+00:34:45.833 --> 00:35:19.000
+If you have any questions about the video, feel the video is unclear, or find any mistakes, please leave comments and point them out. Thanks for watching!
+

@@ -1,0 +1,472 @@
+1
+00:00:19,000 --> 00:00:31,700
+Rules: In an N×N grid, click one button, and the light on that cell and the lights around it flip at the same time.
+
+2
+00:00:31,700 --> 00:00:38,900
+Goal: Start from all dark and turn on all lights (or start from all bright and turn off all lights).
+
+3
+00:00:38,900 --> 00:00:47,800
+Click the same button twice is the same as not clicking it.
+
+4
+00:00:47,800 --> 00:00:58,600
+If you click buttons in a different order, the final lights are the same.
+
+5
+00:00:58,600 --> 00:01:05,600
+So, for each button, we only care “press” or “not press”, and we don’t care about order.
+
+6
+00:01:05,600 --> 00:01:13,100
+We can show buttons and lights as two separate groups: one group is the button states, the other group is the light states.
+
+7
+00:01:13,100 --> 00:01:23,800
+Our goal is: find one set of buttons, so that the lights become all on. So how do we find such a button set?
+
+8
+00:01:23,800 --> 00:01:36,500
+There are 2^(N×N) button sets for N×N buttons, and each set gives one unique light state. We can just try all sets and see the light state.
+
+9
+00:01:36,500 --> 00:01:49,500
+For example, when N=2, the number is 2^(2×2)=2^4=16. We can list all cases fast and get the answer.
+
+10
+00:01:49,500 --> 00:02:02,033
+For example, when N=3, the number is 2^(3×3)=2^9=512. We can still brute force all cases and get the answer.
+
+11
+00:02:02,033 --> 00:02:15,633
+For N=5, the classic case, the number is 2^(5×5)=2^25=33,554,432, so we need a computer.
+
+12
+00:02:15,633 --> 00:02:29,033
+When N=6, the number is 2^36=68,719,476,736. It grows too fast, and even a computer is hard to use.
+
+13
+00:02:29,033 --> 00:02:38,433
+So what should we do? Is there a faster and smarter way?
+
+14
+00:02:38,433 --> 00:02:48,833
+If you look carefully, you will find: no matter the start, we can press buttons row by row, and light as many lights as we can.
+
+15
+00:02:48,833 --> 00:02:57,733
+For example, we press some buttons in row 1 at random. Now some lights in row 1 are on, some are off.
+
+16
+00:02:57,733 --> 00:03:05,333
+To make row 1 all on, we can press the matching buttons in row 2 under the lights that are off.
+
+17
+00:03:05,333 --> 00:03:14,433
+Now some lights in row 2 are off. Because pressing row 2 will change row 1, we instead press buttons in row 3.
+
+18
+00:03:14,433 --> 00:03:26,033
+Repeat this until we finish the last row. If the last row becomes all on, then we found a solution.
+
+19
+00:03:26,033 --> 00:03:30,933
+Here some lights are still off, so this is not a correct solution. Let’s try another one.
+
+20
+00:03:30,933 --> 00:03:38,033
+This time, let’s press the first two buttons in row 1.
+
+21
+00:03:38,033 --> 00:03:46,033
+After we keep going down, the last row becomes all on, so this is a correct solution.
+
+22
+00:03:46,033 --> 00:03:57,733
+From row 2 on, each row’s presses are decided by the row above. So we only need to try all press ways of row 1, and see the last row.
+
+23
+00:03:57,733 --> 00:04:10,900
+With this row link, we keep randomness only in row 1, and the search drops to 2^N. Here, among 32 ways, we found 4 solutions.
+
+24
+00:04:10,900 --> 00:04:20,633
+This is still exponential. So is there a faster and nicer way?
+
+25
+00:04:20,633 --> 00:04:29,633
+For an N×N grid, our basic moves are only N×N kinds: press or not press one button.
+
+26
+00:04:29,633 --> 00:04:40,033
+For one light, only a few nearby buttons can change it. For example, the top-left light is only changed by the three buttons near the top-left.
+
+27
+00:04:40,033 --> 00:04:49,433
+Pressing many buttons is like adding many moves together. We add these three moves to get the state of light 1.
+
+28
+00:04:49,433 --> 00:04:55,633
+Is there a way to add moves so that only one light changes?
+
+29
+00:04:55,633 --> 00:05:04,633
+If every light can be turned on alone, then we can add those moves and make all lights on.
+
+30
+00:05:04,633 --> 00:05:12,833
+Now, look again at a 3×3 grid. There are 9 moves, call them move 1 to move 9.
+
+31
+00:05:12,833 --> 00:05:20,233
+Look at light 1. Here, move 1 and move 2 both flip light 1.
+
+32
+00:05:20,233 --> 00:05:27,433
+Now we add move 1 onto move 2, then move 2 will not flip light 1 anymore.
+
+33
+00:05:27,433 --> 00:05:35,933
+Also, move 4 flips light 1, so we add move 1 onto move 4 too.
+
+34
+00:05:35,933 --> 00:05:41,633
+Now only move 1 can flip light 1.
+
+35
+00:05:41,633 --> 00:05:45,033
+Next, look at light 2.
+
+36
+00:05:45,033 --> 00:05:53,633
+In moves 2 to 9, find the moves that flip light 2, and add move 2 onto them.
+
+37
+00:05:53,633 --> 00:06:01,533
+Here, move 2 does not flip light 2, so we swap move 2 and move 3.
+
+38
+00:06:01,533 --> 00:06:08,533
+Then we add move 2 onto move 4 and move 5.
+
+39
+00:06:08,533 --> 00:06:18,033
+Repeat this, and we can make sure move n can only flip lights n to 9.
+
+40
+00:06:18,033 --> 00:06:27,733
+Since move 9 cannot flip lights 1 to 8, and can only flip light 9, we now have a move that flips only light 9.
+
+41
+00:06:27,733 --> 00:06:35,433
+Then we go back to move 8. Luckily, move 8 can flip only light 8.
+
+42
+00:06:35,433 --> 00:06:43,133
+Now look at move 7. Move 7 flips light 7 and light 9 together.
+
+43
+00:06:43,133 --> 00:06:50,133
+We can add move 9 onto it, so move 7 flips only light 7.
+
+44
+00:06:50,133 --> 00:07:00,833
+Let’s keep adding for the remaining moves.
+
+45
+00:07:00,833 --> 00:07:06,433
+In the end, we get moves that can flip only light 1 to only light 9, one by one.
+
+46
+00:07:06,433 --> 00:07:16,133
+Now we add these 9 moves together, and we get a solution for the game.
+
+47
+00:07:16,133 --> 00:07:22,333
+Let’s look again at the 3×3 grid.
+
+48
+00:07:22,333 --> 00:07:34,633
+In fact, we can put all buttons and lights into one long line. Then buttons and lights form a 9×9 big matrix.
+
+49
+00:07:34,633 --> 00:07:48,133
+It is easy to see: what we did is Gauss elimination on this matrix. By adding one row to another, or swapping two rows, we make it an upper triangle matrix.
+
+50
+00:07:48,133 --> 00:07:59,633
+Then we go backward and turn it into the identity matrix.
+
+51
+00:07:59,633 --> 00:08:13,433
+Finally, add all rows, and we get one full set of a solution.
+
+52
+00:08:13,433 --> 00:08:25,033
+For a 5×5 grid, we can do the same. We build the button-light matrix, then do elimination on it.
+
+53
+00:08:25,033 --> 00:08:31,067
+We add the 25 moves together, and this is one solution for 5×5.
+
+54
+00:08:31,067 --> 00:08:43,467
+You can see: in the eliminated matrix, in the last two rows, the light part is blank. That means these two moves flip no lights. We call them silent moves.
+
+55
+00:08:43,467 --> 00:08:50,767
+We combine them in pairs, and get 4 silent moves.
+
+56
+00:08:50,767 --> 00:09:02,667
+Silent moves do not change lights, so we can add them onto the solution we found. This matches the 4 solutions from the first-row brute force method.
+
+57
+00:09:02,667 --> 00:09:15,067
+Because silent moves exist, at least two press ways give the same light state. So some light states can never be made, like “flip only the first light”.
+
+58
+00:09:15,067 --> 00:09:27,000
+Buttons change nearby lights, and lights are changed only by nearby buttons too. So the final light state can be written as adding some buttons, that is, all on.
+
+59
+00:09:27,000 --> 00:09:39,767
+Before, we did elimination on the button-light matrix, which is like multiplying by an inverse matrix at the same time. Now we do the same row moves on the light vector, and we get the button states, that is the solution.
+
+60
+00:09:39,767 --> 00:09:52,667
+Since the light vector is all on, matrix times vector is the same as adding all press ways. With this, we do not need the inverse matrix; we can get the solution directly by elimination.
+
+61
+00:09:52,667 --> 00:10:04,267
+Because there are N×N lights and N×N buttons, and each row adds N×N buttons, the cost is (N×N)^3 = N^6.
+
+62
+00:10:04,267 --> 00:10:17,167
+This is polynomial time, but the N×N matrix is still big. Can we find an even faster and smarter way?
+
+63
+00:10:17,167 --> 00:10:29,367
+Just now, we added buttons and lights as a whole, not by rows. But from the first-row method, once we fix row 1 buttons, we can get the last row lights.
+
+64
+00:10:29,367 --> 00:10:37,600
+Can we mix the adding method and the first-row method, and use row 1 buttons to write the last row lights directly?
+
+65
+00:10:37,600 --> 00:10:49,200
+From the first-row method: lights are decided by nearby buttons, and the next row buttons are the flips of the lights. We list one row of lights alone, and write it by buttons.
+
+66
+00:10:49,200 --> 00:10:58,100
+For example here, the first row on the left means light 1 is decided by button 1 and 2, and the blue cells mean the button is the flip of the light.
+
+67
+00:10:58,100 --> 00:11:09,000
+Note: “add then flip” is the same as “flip one part then add”. So we can list the flip part alone.
+
+68
+00:11:09,000 --> 00:11:19,600
+Also, if one button is added twice, it is the same as not adding it. Same for lights: flip twice is the same as no flip.
+
+69
+00:11:19,600 --> 00:11:30,100
+Next, we derive row 2. It is decided by adding the button states from the row above. Since flips can be listed alone, it is also decided by adding the flip states of the lights.
+
+70
+00:11:30,100 --> 00:11:38,600
+Here we show the first button and the first light in row 2. Each is an add or a flip of the row above buttons or lights.
+
+71
+00:11:38,600 --> 00:11:43,200
+Then we derive the rest.
+
+72
+00:11:43,200 --> 00:11:52,300
+So, starting from row 1 button states, we can keep deriving, and get which row 1 buttons are added to make the last row lights.
+
+73
+00:11:52,300 --> 00:12:02,800
+At last, we get a matrix like the adding method. But now, both lights and buttons have only N items.
+
+74
+00:12:02,800 --> 00:12:10,500
+Because lights are flipped during the derivation, the final light vector is also a flipped state.
+
+75
+00:12:10,500 --> 00:12:21,800
+Now we do elimination on the matrix, and do the same row moves on the light vector, and we get the row 1 button states.
+
+76
+00:12:21,800 --> 00:12:32,500
+You can see: after elimination, it is like the 25×25 case: the last two rows are silent moves, and the light vector on the right is the solution.
+
+77
+00:12:32,500 --> 00:12:45,800
+To get silent moves, we need the inverse matrix. If you like, you can try it. In fact, because the matrix is very symmetric, the column vectors here are the same as the silent moves.
+
+78
+00:12:45,800 --> 00:12:56,400
+It is easy to see: like the adding method, the matrix size drops from N×N to N, so the cost is N^3.
+
+79
+00:12:56,400 --> 00:13:09,000
+In the first-row adding method, we need the matrix that links row 1 buttons and last row lights. We must derive it, and its cost is N^3.
+
+80
+00:13:09,000 --> 00:13:22,100
+We derived each light one by one, but these lights are linked. After we reorder the matrix, we can see it has strong symmetry.
+
+81
+00:13:22,100 --> 00:13:31,600
+If you look carefully, you can find: for each cell, the number of states in its up/down/left/right neighbors is always even.
+
+82
+00:13:31,600 --> 00:13:41,200
+Since we only need the last matrix, we only need the first row of the last matrix, and we can derive the rest.
+
+83
+00:13:41,200 --> 00:13:51,300
+So we only need to derive the first light’s state, and we can get all lights’ states, and lower the cost.
+
+84
+00:13:51,300 --> 00:14:03,900
+We found: for 5×5, because there are two silent moves, together with the earlier solution, we get 4 solutions.
+
+85
+00:14:03,900 --> 00:14:13,700
+For 3×3, because there are no silent moves, the solution is unique.
+
+86
+00:14:13,700 --> 00:14:24,900
+So for an N×N grid, what is the max number of silent moves? Now we look at 4×4, and use the first-row adding method.
+
+87
+00:14:24,900 --> 00:14:37,200
+This time we find, by surprise, all buttons are canceled, and we get a zero matrix. That means 4×4 has 4 independent silent moves, and together they give 16.
+
+88
+00:14:37,200 --> 00:14:52,733
+Because row 1 has only 16 states, all 16 are silent moves. Here, any row 1 press way can remove all lights by using the last three rows.
+
+89
+00:14:52,733 --> 00:15:03,967
+Also, these 16 silent moves match 16 solutions. Here too, from any row 1 press way, we can light all lights by using the last three rows.
+
+90
+00:15:03,967 --> 00:15:13,867
+Because row 1 has at most 2^N states, an N×N grid has at most 2^N solutions.
+
+91
+00:15:13,867 --> 00:15:27,100
+Here are the cases from N=1 to N=16. This list is in OEIS as A159257.
+
+92
+00:15:27,100 --> 00:15:37,500
+For the rank of this matrix, we can use the formula above.
+
+93
+00:15:37,500 --> 00:15:52,700
+We talked about how many solutions there are, but we did not prove a solution always exists. For a normal Lights Out game, does a solution always exist?
+
+94
+00:15:52,700 --> 00:16:05,100
+In fact, if the game meets two rules, then it is solvable.
+
+95
+00:16:05,100 --> 00:16:13,400
+This is not only for square grids. In fact, Lights Out with any shape and layout is solvable.
+
+96
+00:16:13,400 --> 00:16:23,000
+If the grid is not one connected piece, then separate parts do not affect each other. So we can solve each connected part on its own.
+
+97
+00:16:23,000 --> 00:16:30,900
+Next, I will use a simple way, with math induction, to prove all Lights Out games are solvable.
+
+98
+00:16:30,900 --> 00:16:41,500
+First, look at cases with only 1, 2, or 3 buttons. Here are all possible layouts, and they are clearly solvable.
+
+99
+00:16:41,500 --> 00:16:49,000
+Now, for a 2×2 grid, remove one cell each time, and we get 4 grids with 3 buttons.
+
+100
+00:16:49,000 --> 00:16:55,500
+Let’s solve these 3-button grids, then add the removed cell back.
+
+101
+00:16:55,500 --> 00:17:05,800
+If, for any added-back cell, the number of buttons around it is odd, it will be lit. Then this solution is a solution for 4 buttons.
+
+102
+00:17:05,800 --> 00:17:14,100
+Sadly, for all added-back cells, the number of buttons around them is even, so none of these cells are lit.
+
+103
+00:17:14,100 --> 00:17:23,000
+Now, let’s try to add these 4 states together. You can see all lights are lit this time.
+
+104
+00:17:23,000 --> 00:17:38,400
+This is because: in each of the 4 cases, 3 lights are flipped, so after adding, each of the 4 lights is flipped 3 times. Since 3 is odd, all lights flip to on.
+
+105
+00:17:38,400 --> 00:17:46,300
+This is the 2×2 solution, and this method works for any game with an even number of buttons.
+
+106
+00:17:46,300 --> 00:17:57,300
+Then what about a game with an odd number of buttons? Let’s look at 3×3, and assume we know solutions for all 8-button games.
+
+107
+00:17:57,300 --> 00:18:06,900
+Like before, we remove one cell, solve it, then add it back. Here, in all 9 cases, the added-back cell is still not on.
+
+108
+00:18:06,900 --> 00:18:16,600
+We add them together. Since each light is flipped an even number of times, all lights are off.
+
+109
+00:18:16,600 --> 00:18:23,000
+To fix this, we can first press the center button, and flip 5 lights.
+
+110
+00:18:23,000 --> 00:18:31,400
+Then we add the press ways of the four corners, one by one. Now all lights are flipped.
+
+111
+00:18:31,400 --> 00:18:42,300
+This is because: the corner press ways are like “flip all lights” first, then “flip one light”. Since the total flips are even, it is the same as flipping 4 single lights.
+
+112
+00:18:42,300 --> 00:18:49,200
+So we exactly make up the even number of lights we did not flip before, and we turn on all lights.
+
+113
+00:18:49,200 --> 00:19:02,100
+It is not hard to prove: in any Lights Out game, there is always some move that flips an odd number of lights, so we can use this idea to solve odd-button games.
+
+114
+00:19:02,100 --> 00:19:08,700
+So we proved: for any number of buttons, we can always find a solution.
+
+115
+00:19:08,700 --> 00:19:17,400
+In fact, this proof can be written in formal language.
+
+116
+00:19:17,400 --> 00:19:27,800
+Also, this proof is closely linked to graph theory.
+
+117
+00:19:27,800 --> 00:19:35,700
+To find faster solutions, we can try to think from these directions.
+
+118
+00:19:35,700 --> 00:20:00,000
+The creator is limited, so if you have better ideas or ways to do it, please share in the comments!
+
