@@ -11,7 +11,14 @@ type TMat=array[-2..m,-2..m]of Boolean;
 type TVec=array[-2..m]of boolean;
 
 var n:longword;
-var l,l0,t,f,d,c:TMat;
+var l,l0,f,c:TVec;
+var ll2,ll1,ll02,ll01,ff2,ff1,cc2,cc1:TVec;
+var lastLN,lastFN:longint;
+var matInit:boolean;
+{$ifdef disp}
+var t:TMat;
+{$endif}
+var x:TVec;
 var i,j:longint;
 
 {$ifdef disp}
@@ -53,22 +60,46 @@ end;
 {$endif}
 
 procedure MakeMat();
+var ln,l0n,fn,cn:TVec;
 begin
-for j:=1 to n do if l0[j,-2]=false then
+if (not matInit) or (longint(n)<lastLN) or (longint(n)<lastFN) then
   begin
-  for i:=1 to j-1 do l0[j,i]:=l0[j-1,i-1] xor l0[j-1,i] xor l0[j-1,i+1] xor l0[j-2,i];
-  for i:=0 to j-1 do l[j,i]:=not(l[j-1,i-2] xor l[j-1,i-1] xor l[j-1,i] xor l[j-2,i-2] xor l0[j-1,i-1] xor l0[j-1,i] xor l0[j-1,i+1] xor l0[j-2,i-1] xor l0[j-2,i]);
-  l0[j,0]:=l[j,0];
-  l0[j,-2]:=true;
+  for i:=-2 to m do
+    begin
+    ll2[i]:=false; ll1[i]:=false; ll02[i]:=false; ll01[i]:=false;
+    ff2[i]:=false; ff1[i]:=false; cc2[i]:=false; cc1[i]:=false;
+    end;
+  ff1[0]:=true; cc1[0]:=true;
+  lastLN:=0; lastFN:=0; matInit:=true;
   end;
-for j:=0 to n do if f[j,j]=false then
-  if f[0,0]=false then f[0,0]:=true
-  else for i:=0 to j do f[j,i]:=f[j-1,i-1] xor f[j-2,i];
-write('f ');for i:=0 to n do if f[n,i] then write(1) else write(0);writeln;
-for j:=0 to n do if c[j,j]=false then
-  if c[0,0]=false then c[0,0]:=true
-  else for i:=0 to j do c[j,i]:=c[j-1,i-1] xor c[j-2,i] xor c[j-1,i];
-write('c ');for i:=0 to n-1 do if c[n,i] then write(1) else write(0);writeln;
+for j:=lastLN+1 to n do
+  begin
+  for i:=-2 to m do begin l0n[i]:=false; ln[i]:=false; end;
+  for i:=1 to j-1 do l0n[i]:=ll01[i-1] xor ll01[i] xor ll01[i+1] xor ll02[i];
+  for i:=0 to j-1 do ln[i]:=not(ll1[i-2] xor ll1[i-1] xor ll1[i] xor ll2[i-2] xor ll01[i-1] xor ll01[i] xor ll01[i+1] xor ll02[i-1] xor ll02[i]);
+  l0n[0]:=ln[0];
+  l0n[-2]:=true;
+  ll02:=ll01; ll01:=l0n; ll2:=ll1; ll1:=ln;
+  end;
+lastLN:=n;
+for j:=lastFN+1 to n do
+  begin
+  for i:=-2 to m do fn[i]:=false;
+  if j=0 then fn[0]:=true
+  else for i:=0 to j do fn[i]:=ff1[i-1] xor ff2[i];
+  ff2:=ff1; ff1:=fn;
+  end;
+for j:=lastFN+1 to n do
+  begin
+  for i:=-2 to m do cn[i]:=false;
+  if j=0 then cn[0]:=true
+  else for i:=0 to j do cn[i]:=cc1[i-1] xor cc2[i] xor cc1[i];
+  cc2:=cc1; cc1:=cn;
+  end;
+lastFN:=n;
+l:=ll1; l0:=ll01; f:=ff1; c:=cc1;
+write('f ');for i:=0 to n do if f[i] then write(1) else write(0);writeln;
+write('c ');for i:=0 to n-1 do if c[i] then write(1) else write(0);writeln;
 end;
 
 function gcd(vf,vg:TVec; var vd,vr:TVec):longint;
@@ -93,15 +124,15 @@ until done;
 end;
 
 procedure CalcMat2;
-var q,x,y,z,y0,g:TVec;
-var i0,r0,kk:longint;
+var q,y,z,y0,g,d0,d1,d2:TVec;
+var i0,r0,kk,jmax:longint;
 begin
 
-r0:=gcd(f[n],c[n],g,q);
+r0:=gcd(f,c,g,q);
 writeln('gcd',#9,r0,#9);
 write('q ');for i:=0 to n-1 do if q[i] then write(1) else write(0);writeln;
 write('g ');for i:=0 to n do if g[i] then write(1) else write(0);writeln;
-for i:=-1 to n do y[i]:=l[n,i];
+for i:=-1 to n do y[i]:=l[i];
 write('y ');for i:=0 to n-1 do if y[i] then write(1) else write(0);writeln;
 for i:=0 to n do z[i]:=false;
 for j:=0 to n-1 do 
@@ -115,36 +146,59 @@ if r0=0 then
 else
 begin
 write('z ');for i:=0 to n-1 do if z[i] then write(1) else write(0);writeln;
-for i:=0 to n-1 do begin d[0,i]:=false; y[i]:=false; end;
+for i:=-2 to n do begin d0[i]:=false; d1[i]:=false; d2[i]:=false; y[i]:=false; y0[i]:=false; end;
 y[0]:=true;
 for j:=0 to r0 do 
   begin
-  if g[j] then for i:=0 to n-1 do d[0,i]:=d[0,i] xor y[i];
+  if g[j] then for i:=0 to n-1 do d0[i]:=d0[i] xor y[i];
   for i:=0 to n-1 do y0[i]:=y[i-1] xor y[i+1];
-  for i:=0 to n-1 do y[i]:=y0[i];
+  for i:=-2 to n do y[i]:=y0[i];
   end;
-//write('d0 ');for i:=0 to n-1 do if d[0,i] then write(1) else write(0);writeln;
-for j:=1 to n-r0-1 do for i:=0 to n-1 do d[j,i]:=d[j-1,i-1] xor d[j-1,i+1] xor d[j-2,i];
-//write('dn ');for i:=0 to n-1 do if d[n-1,i] then write(1) else write(0);writeln;
-writeln('d');for j:=0 to n-1 do begin write(j,#9);for i:=0 to n-1 do if d[j,i] then write(1) else write(0);writeln;end;
+if n-r0-1<0 then jmax:=0 else jmax:=n-r0-1;
+writeln('d');
+write(0,#9);for i:=0 to n-1 do if d0[i] then write(1) else write(0);writeln;
+if jmax=0 then d1:=d0
+else
+  begin
+  for j:=1 to jmax do
+    begin
+    for i:=-2 to n do d1[i]:=false;
+    for i:=0 to n-1 do d1[i]:=d0[i-1] xor d0[i+1] xor d2[i];
+    write(j,#9);for i:=0 to n-1 do if d1[i] then write(1) else write(0);writeln;
+    d2:=d0;
+    d0:=d1;
+    end;
+  d1:=d0;
+  end;
+for j:=jmax+1 to n-1 do begin write(j,#9);for i:=0 to n-1 do write(0);writeln; end;
 for i:=0 to n-1 do x[i]:=false;
+if r0<=n-1 then
 for i:=n-1 downto r0 do
+  begin
   if z[i] then
   begin
     i0:=i-r0;
 write(i,#9,i0,#9);
 for kk:=0 to n-1 do if z[kk] then write(1) else write(0);write(#9);
-    for j:=0 to n-1 do z[j]:=z[j] xor d[i0,j];
+    for j:=0 to n-1 do z[j]:=z[j] xor d1[j];
     x[i0]:=true;
-for kk:=0 to n-1 do if d[kk,i0] then write(1) else write(0);write(#9);
+for kk:=0 to n-1 do if d1[kk] then write(1) else write(0);write(#9);
 for kk:=0 to n-1 do if z[kk] then write(1) else write(0);write(#9);
 for kk:=0 to n-1 do if x[kk] then write(1) else write(0);write(#9);
 writeln();
   end;
+  if i>r0 then
+    begin
+    for j:=-2 to n do d0[j]:=false;
+    for j:=0 to n-1 do d0[j]:=d1[j] xor d2[j-1] xor d2[j+1];
+    d1:=d2;
+    d2:=d0;
+    end;
+  end;
 end;
 
 {
-for i:=-1 to n do y[i]:=l[n,i];
+for i:=-1 to n do y[i]:=l[i];
 write('y ');for i:=0 to n-1 do if y[i] then write(1) else write(0);writeln;
 
 for i:=0 to n-1 do b0[0,i]:=b[n,i];
@@ -173,16 +227,28 @@ writeln();
 }
 
 write('x ');for i:=0 to n-1 do if x[i] then write(1) else write(0);writeln;
-for i:=0 to n-1 do t[0,i]:=x[i];
 end;
 
 function GeneMat():boolean;
+var x2,x1,x0:TVec;
 begin
+for i:=-2 to n do begin x2[i]:=false; x1[i]:=false; end;
+for i:=0 to n-1 do x1[i]:=x[i];
+{$ifdef disp}
+for i:=0 to n-1 do t[0,i]:=x[i];
+{$endif}
 for j:=1 to n-1 do
-  for i:=0 to n-1 do
-    t[j,i]:=not(t[j-1,i-1] xor t[j-1,i] xor t[j-1,i+1] xor t[j-2,i]);
+  begin
+  for i:=-2 to n do x0[i]:=false;
+  for i:=0 to n-1 do x0[i]:=not(x1[i-1] xor x1[i] xor x1[i+1] xor x2[i]);
+  {$ifdef disp}
+  for i:=0 to n-1 do t[j,i]:=x0[i];
+  {$endif}
+  for i:=-2 to n do x2[i]:=x1[i];
+  for i:=-2 to n do x1[i]:=x0[i];
+  end;
 GeneMat:=true;
-for i:=0 to n-1 do GeneMat:=GeneMat and (t[n-1,i-1] xor t[n-1,i] xor t[n-1,i+1] xor t[n-2,i]);
+for i:=0 to n-1 do GeneMat:=GeneMat and (x1[i-1] xor x1[i] xor x1[i+1] xor x2[i]);
 writeln(GeneMat);
 end;
 

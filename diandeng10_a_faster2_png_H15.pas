@@ -13,7 +13,11 @@ type TMat=array[-2..m,-2..m]of Boolean;
 type TVec=array[-2..m]of boolean;
 
 var n:longword;
-var l,l0,t,f,d,c:TMat;
+var l,l0,f,c:TVec;
+var ll2,ll1,ll02,ll01,ff2,ff1,cc2,cc1:TVec;
+var lastLN,lastFN:longint;
+var matInit:boolean;
+var t,d:TMat;
 var i,j:longint;
 var lastTick:DWORD;
 var hasLastTick:boolean;
@@ -73,20 +77,44 @@ end;
 {$endif}
 
 procedure MakeMat();
+var ln,l0n,fn,cn:TVec;
 begin
-for j:=1 to n do if l0[j,-2]=false then
+if (not matInit) or (longint(n)<lastLN) or (longint(n)<lastFN) then
   begin
-  for i:=1 to j-1 do l0[j,i]:=l0[j-1,i-1] xor l0[j-1,i] xor l0[j-1,i+1] xor l0[j-2,i];
-  for i:=0 to j-1 do l[j,i]:=not(l[j-1,i-2] xor l[j-1,i-1] xor l[j-1,i] xor l[j-2,i-2] xor l0[j-1,i-1] xor l0[j-1,i] xor l0[j-1,i+1] xor l0[j-2,i-1] xor l0[j-2,i]);
-  l0[j,0]:=l[j,0];
-  l0[j,-2]:=true;
+  for i:=-2 to m do
+    begin
+    ll2[i]:=false; ll1[i]:=false; ll02[i]:=false; ll01[i]:=false;
+    ff2[i]:=false; ff1[i]:=false; cc2[i]:=false; cc1[i]:=false;
+    end;
+  ff1[0]:=true; cc1[0]:=true;
+  lastLN:=0; lastFN:=0; matInit:=true;
   end;
-for j:=0 to n do if f[j,j]=false then
-  if f[0,0]=false then f[0,0]:=true
-  else for i:=0 to j do f[j,i]:=f[j-1,i-1] xor f[j-2,i];
-for j:=0 to n do if c[j,j]=false then
-  if c[0,0]=false then c[0,0]:=true
-  else for i:=0 to j do c[j,i]:=c[j-1,i-1] xor c[j-2,i] xor c[j-1,i];
+for j:=lastLN+1 to n do
+  begin
+  for i:=-2 to m do begin l0n[i]:=false; ln[i]:=false; end;
+  for i:=1 to j-1 do l0n[i]:=ll01[i-1] xor ll01[i] xor ll01[i+1] xor ll02[i];
+  for i:=0 to j-1 do ln[i]:=not(ll1[i-2] xor ll1[i-1] xor ll1[i] xor ll2[i-2] xor ll01[i-1] xor ll01[i] xor ll01[i+1] xor ll02[i-1] xor ll02[i]);
+  l0n[0]:=ln[0];
+  l0n[-2]:=true;
+  ll02:=ll01; ll01:=l0n; ll2:=ll1; ll1:=ln;
+  end;
+lastLN:=n;
+for j:=lastFN+1 to n do
+  begin
+  for i:=-2 to m do fn[i]:=false;
+  if j=0 then fn[0]:=true
+  else for i:=0 to j do fn[i]:=ff1[i-1] xor ff2[i];
+  ff2:=ff1; ff1:=fn;
+  end;
+for j:=lastFN+1 to n do
+  begin
+  for i:=-2 to m do cn[i]:=false;
+  if j=0 then cn[0]:=true
+  else for i:=0 to j do cn[i]:=cc1[i-1] xor cc2[i] xor cc1[i];
+  cc2:=cc1; cc1:=cn;
+  end;
+lastFN:=n;
+l:=ll1; l0:=ll01; f:=ff1; c:=cc1;
 end;
 
 function gcd(vf,vg:TVec; var vd,vr:TVec):longint;
@@ -116,9 +144,9 @@ var i0,r0:longint;
 begin
 TimeMark('p');
 TimeMark('q');
-r0:=gcd(f[n],c[n],g,q);
+r0:=gcd(f,c,g,q);
 TimeMark('y');
-for i:=-1 to n do y[i]:=l[n,i];
+for i:=-1 to n do y[i]:=l[i];
 TimeMark('z');
 for i:=0 to n do z[i]:=false;
 for j:=0 to n-1 do 
