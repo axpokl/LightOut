@@ -319,7 +319,7 @@ for j:=0 to n-1 do
   VecXorEq(v,v2);
   MaskDeg(v,n-1);
   end;
-TimeMark('x');
+TimeMark('d');
 if r0=0 then
   begin
   x:=z;
@@ -338,6 +338,7 @@ for j:=0 to r0 do
   VecXorEq(v,v2);
   MaskDeg(v,n-1);
   end;
+TimeMark('x');
 MaskDeg(g0,n-1);
 if n-r0-1<0 then jmax:=0 else jmax:=n-r0-1;
 if jmax=0 then VecCopy(g1,g0)
@@ -463,7 +464,7 @@ hasLastCounter:=false;
 {$ifdef disp}
 for n:=1 to m do
 {$else}
-for n:=9000 to m do
+for n:=9900 to m do
 {$endif}
   begin
   PrepN;

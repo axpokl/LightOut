@@ -127,7 +127,7 @@ for j:=0 to n-1 do
   for i:=0 to n-1 do v0[i]:=v[i-1] xor v[i+1];
   for i:=0 to n-1 do v[i]:=v0[i];
   end;
-TimeMark('x');
+TimeMark('d');
 if r0=0 then
   begin
   for i:=0 to n-1 do x[i]:=z[i];
@@ -142,6 +142,7 @@ for j:=0 to r0 do
   for i:=0 to n-1 do v0[i]:=v[i-1] xor v[i+1];
   for i:=-2 to n do v[i]:=v0[i];
   end;
+TimeMark('x');
 if n-r0-1<0 then jmax:=0 else jmax:=n-r0-1;
 if jmax=0 then g1:=g0
 else if r0<jmax then

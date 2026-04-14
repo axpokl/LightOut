@@ -5,15 +5,18 @@ program diandeng;
 {$ifdef disp}
 uses Windows, display;
 const m=1000;
+const sosN=1024;
 {$else}
 uses Windows;
 const m=10000;
+const sosN=16384;
 {$endif}
 
 const wb=32;
 const mw=(m+wb-1)div wb;
 
 type TVec=array[-2..mw]of LongWord;
+     TSos=array[0..sosN-1]of byte;
 
 var n:longword;
 var i,j:longint;
@@ -161,6 +164,56 @@ begin
   write(ms:8:3,#9,ch);
 end;
 
+
+function VecIsZero(const a:TVec):boolean;
+var k2:longint;
+begin
+for k2:=0 to wn-1 do if a[k2]<>0 then begin VecIsZero:=false; exit; end;
+VecIsZero:=true;
+end;
+
+procedure VecXorRange(var a:TVec;const b:TVec;l,r:longint);
+var wl,wr,k2:longint;
+var ml,mr:LongWord;
+begin
+if l<0 then l:=0;
+if r>longint(n)-1 then r:=longint(n)-1;
+if l>r then exit;
+wl:=l shr 5; wr:=r shr 5;
+ml:=LongWord($FFFFFFFF) shl (l and 31);
+if (r and 31)=31 then mr:=$FFFFFFFF else mr:=(LongWord(1) shl ((r and 31)+1))-1;
+if wl=wr then
+  a[wl]:=a[wl] xor (b[wl] and (ml and mr))
+else
+  begin
+  a[wl]:=a[wl] xor (b[wl] and ml);
+  for k2:=wl+1 to wr-1 do a[k2]:=a[k2] xor b[k2];
+  a[wr]:=a[wr] xor (b[wr] and mr);
+  end;
+end;
+
+procedure BuildC(const vf:TVec; var vc:TVec);
+var tmp:TSos;
+var bit,base,t:longint;
+begin
+for base:=0 to sosN-1 do tmp[base]:=0;
+for base:=0 to n do if GetBit(vf,base)<>0 then tmp[base]:=1;
+bit:=1;
+while bit<sosN do
+  begin
+  base:=0;
+  while base<sosN do
+    begin
+    for t:=0 to bit-1 do tmp[base+t]:=tmp[base+t] xor tmp[base+t+bit];
+    inc(base,bit shl 1);
+    end;
+  bit:=bit shl 1;
+  end;
+VecZero(vc);
+for base:=0 to n do if tmp[base]<>0 then vc[base shr 5]:=vc[base shr 5] or (LongWord(1) shl (base and 31));
+VecNorm(vc);
+end;
+
 {$ifdef disp}
 procedure SaveMat(s:ansistring);
 begin
@@ -302,9 +355,7 @@ var g0,g1,g2:TVec;
 var i0,r0,jmax:longint;
 begin
 TimeMark('c');
-VecZero(c);
-for i:=0 to n do if GetBit(f,i)<>0 then
-  for j:=0 to i do if (j and i)=j then SetBit(c,j,GetBit(c,j) xor 1);
+BuildC(f,c);
 TimeMark('q');
 r0:=gcd(f,c,g,q);
 TimeMark('z');
@@ -318,8 +369,9 @@ for j:=0 to n-1 do
   VecCopy(v,v1);
   VecXorEq(v,v2);
   MaskDeg(v,n-1);
+  if VecIsZero(v) then break;
   end;
-TimeMark('x');
+TimeMark('d');
 if r0=0 then
   begin
   x:=z;
@@ -337,7 +389,9 @@ for j:=0 to r0 do
   VecCopy(v,v1);
   VecXorEq(v,v2);
   MaskDeg(v,n-1);
+  if VecIsZero(v) then break;
   end;
+TimeMark('x');
 MaskDeg(g0,n-1);
 if n-r0-1<0 then jmax:=0 else jmax:=n-r0-1;
 if jmax=0 then VecCopy(g1,g0)
@@ -387,7 +441,7 @@ for i:=n-1 downto r0 do
   if GetBit(z,i)<>0 then
   begin
     i0:=i-r0;
-    VecXorEq(z,g1);
+    VecXorRange(z,g1,i-r0-r0,i);
     SetBit(x,i0,1);
   end;
   if i>r0 then
@@ -463,7 +517,7 @@ hasLastCounter:=false;
 {$ifdef disp}
 for n:=1 to m do
 {$else}
-for n:=9000 to m do
+for n:=9900 to m do
 {$endif}
   begin
   PrepN;

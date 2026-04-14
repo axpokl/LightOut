@@ -6,8 +6,10 @@ uses display;
 {$endif}
 
 const m=2000;
+const sosN=2048;
 
 type TVec=array[-2..m]of boolean;
+     TSos=array[0..sosN-1]of byte;
 
 var n:longword;
 var i,j:longint;
@@ -31,6 +33,34 @@ SaveBMP(bp,'png'+s+'/'+i2s(n)+'.png');
 ReleaseBMP(bp);
 end;
 {$endif}
+
+
+function VecIsZero(const a:TVec;hi:longint):boolean;
+var k2:longint;
+begin
+for k2:=0 to hi do if a[k2] then begin VecIsZero:=false; exit; end;
+VecIsZero:=true;
+end;
+
+procedure BuildC(const vf:TVec; var vc:TVec);
+var tmp:TSos;
+var bit,base,t:longint;
+begin
+for base:=0 to sosN-1 do tmp[base]:=0;
+for base:=0 to n do if vf[base] then tmp[base]:=1;
+bit:=1;
+while bit<sosN do
+  begin
+  base:=0;
+  while base<sosN do
+    begin
+    for t:=0 to bit-1 do tmp[base+t]:=tmp[base+t] xor tmp[base+t+bit];
+    inc(base,bit shl 1);
+    end;
+  bit:=bit shl 1;
+  end;
+for base:=0 to n do vc[base]:=tmp[base]<>0;
+end;
 
 procedure MakeMat();
 var y2,y_2,f2:TVec;
@@ -91,9 +121,7 @@ var v,v0,z:TVec;
 var g0,g1,g2:TVec;
 var i0,r0,kk,jmax:longint;
 begin
-for i:=0 to n do c[i]:=false;
-for i:=0 to n do if f[i] then
-  for j:=0 to i do if (j and i)=j then c[j]:=c[j] xor true;
+BuildC(f,c);
 write('c ');for i:=0 to n-1 do if c[i] then write(1) else write(0);writeln;
 
 r0:=gcd(f,c,g,q);
@@ -108,6 +136,7 @@ for j:=0 to n-1 do
   if q[j] then for i:=0 to n-1 do z[i]:=z[i] xor v[i];
   for i:=0 to n-1 do v0[i]:=v[i-1] xor v[i+1];
   for i:=0 to n-1 do v[i]:=v0[i];
+  if VecIsZero(v,n-1) then break;
   end;
 if r0=0 then
   for i:=0 to n-1 do x[i]:=z[i]
@@ -121,6 +150,7 @@ for j:=0 to r0 do
   if g[j] then for i:=0 to n-1 do g0[i]:=g0[i] xor v[i];
   for i:=0 to n-1 do v0[i]:=v[i-1] xor v[i+1];
   for i:=-2 to n do v[i]:=v0[i];
+  if VecIsZero(v,n-1) then break;
   end;
 if n-r0-1<0 then jmax:=0 else jmax:=n-r0-1;
 for i:=-2 to n do v[i]:=g0[i];
@@ -164,7 +194,7 @@ for i:=n-1 downto r0 do
     i0:=i-r0;
 write(i,#9,i0,#9);
 for kk:=0 to n-1 do if z[kk] then write(1) else write(0);write(#9);
-    for j:=0 to n-1 do z[j]:=z[j] xor g1[j];
+    for j:=i-r0-r0 to i do if (j>=0) and (j<n) then z[j]:=z[j] xor g1[j];
     x[i0]:=true;
 for kk:=0 to n-1 do if g1[kk] then write(1) else write(0);write(#9);
 for kk:=0 to n-1 do if z[kk] then write(1) else write(0);write(#9);

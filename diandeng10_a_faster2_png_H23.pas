@@ -4,12 +4,15 @@ program diandeng;
 {$ifdef disp}
 uses Windows, display;
 const m=1000;
+const sosN=1024;
 {$else}
 uses Windows;
 const m=10000;
+const sosN=16384;
 {$endif}
 
 type TVec=array[-2..m]of boolean;
+     TSos=array[0..sosN-1]of byte;
 
 var n:longword;
 var i,j:longint;
@@ -52,6 +55,33 @@ SaveBMP(bp,'png'+s+'/'+i2s(n)+'.png');
 ReleaseBMP(bp);
 end;
 {$endif}
+
+function VecIsZero(const a:TVec;hi:longint):boolean;
+var k2:longint;
+begin
+for k2:=0 to hi do if a[k2] then begin VecIsZero:=false; exit; end;
+VecIsZero:=true;
+end;
+
+procedure BuildC(const vf:TVec; var vc:TVec);
+var tmp:TSos;
+var bit,base,t:longint;
+begin
+for base:=0 to sosN-1 do tmp[base]:=0;
+for base:=0 to n do if vf[base] then tmp[base]:=1;
+bit:=1;
+while bit<sosN do
+  begin
+  base:=0;
+  while base<sosN do
+    begin
+    for t:=0 to bit-1 do tmp[base+t]:=tmp[base+t] xor tmp[base+t+bit];
+    inc(base,bit shl 1);
+    end;
+  bit:=bit shl 1;
+  end;
+for base:=0 to n do vc[base]:=tmp[base]<>0;
+end;
 
 procedure MakeMat();
 var y2,y_2,f2:TVec;
@@ -106,16 +136,15 @@ if not(done) then
 until done;
 end;
 
+
 procedure CalcMat2;
 var c,q,g:TVec;
 var v,v0,z:TVec;
 var g0,g1,g2:TVec;
-var i0,r0,jmax:longint;
+var i0,r0,jmax,row1,row2,row3,l0,l1,l2,r1,r2:longint;
 begin
 TimeMark('c');
-for i:=0 to n do c[i]:=false;
-for i:=0 to n do if f[i] then
-  for j:=0 to i do if (j and i)=j then c[j]:=c[j] xor true;
+BuildC(f,c);
 TimeMark('q');
 r0:=gcd(f,c,g,q);
 TimeMark('z');
@@ -126,8 +155,9 @@ for j:=0 to n-1 do
   if q[j] then for i:=0 to n-1 do z[i]:=z[i] xor v[i];
   for i:=0 to n-1 do v0[i]:=v[i-1] xor v[i+1];
   for i:=0 to n-1 do v[i]:=v0[i];
+  if VecIsZero(v,n-1) then break;
   end;
-TimeMark('x');
+TimeMark('d');
 if r0=0 then
   begin
   for i:=0 to n-1 do x[i]:=z[i];
@@ -141,7 +171,9 @@ for j:=0 to r0 do
   if g[j] then for i:=0 to n-1 do g0[i]:=g0[i] xor v[i];
   for i:=0 to n-1 do v0[i]:=v[i-1] xor v[i+1];
   for i:=-2 to n do v[i]:=v0[i];
+  if VecIsZero(v,n-1) then break;
   end;
+TimeMark('x');
 if n-r0-1<0 then jmax:=0 else jmax:=n-r0-1;
 if jmax=0 then g1:=g0
 else if r0<jmax then
@@ -170,21 +202,31 @@ else
     end;
   end;
 for i:=0 to n-1 do x[i]:=false;
+row1:=n-1;
+row2:=n-2;
 if r0<=n-1 then
 for i:=n-1 downto r0 do
   begin
+  l1:=row1-(r0 shl 1); if l1<0 then l1:=0; r1:=row1; if r1>longint(n)-1 then r1:=longint(n)-1;
   if z[i] then
     begin
     i0:=i-r0;
-    for j:=0 to n-1 do z[j]:=z[j] xor g1[j];
+    for j:=l1 to r1 do z[j]:=z[j] xor g1[j];
     x[i0]:=true;
     end;
   if i>r0 then
     begin
-    for j:=-2 to n do g0[j]:=false;
-    for j:=0 to n-1 do g0[j]:=g1[j] xor g2[j-1] xor g2[j+1];
+    l2:=row2-(r0 shl 1); if l2<0 then l2:=0; r2:=row2;
+    row3:=row2-1;
+    l0:=row3-(r0 shl 1); if l0<0 then l0:=0;
+    for j:=l0 to row3 do
+      g0[j]:=(((j>=l1) and (j<=r1)) and g1[j]) xor
+             (((j-1>=l2) and (j-1<=r2)) and g2[j-1]) xor
+             (((j+1>=l2) and (j+1<=r2)) and g2[j+1]);
     g1:=g2;
     g2:=g0;
+    row1:=row2;
+    row2:=row3;
     end;
   end;
 end;
