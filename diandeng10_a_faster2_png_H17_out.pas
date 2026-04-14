@@ -160,15 +160,15 @@ write(0,#9);for i:=0 to n-1 do if d0[i] then write(1) else write(0);writeln;
 if jmax=0 then d1:=d0
 else
   begin
+  d1:=d0;
   for j:=1 to jmax do
     begin
-    for i:=-2 to n do d1[i]:=false;
-    for i:=0 to n-1 do d1[i]:=d0[i-1] xor d0[i+1] xor d2[i];
-    write(j,#9);for i:=0 to n-1 do if d1[i] then write(1) else write(0);writeln;
-    d2:=d0;
-    d0:=d1;
+    for i:=-2 to n do d0[i]:=false;
+    for i:=0 to n-1 do d0[i]:=d1[i-1] xor d1[i+1] xor d2[i];
+    write(j,#9);for i:=0 to n-1 do if d0[i] then write(1) else write(0);writeln;
+    d2:=d1;
+    d1:=d0;
     end;
-  d1:=d0;
   end;
 for j:=jmax+1 to n-1 do begin write(j,#9);for i:=0 to n-1 do write(0);writeln; end;
 for i:=0 to n-1 do x[i]:=false;

@@ -124,7 +124,6 @@ for i:=0 to n do c[i]:=false;
 for i:=0 to n do if f[i] then
   for j:=0 to i do if (j and i)=j then c[j]:=c[j] xor true;
 write('c ');for i:=0 to n-1 do if c[i] then write(1) else write(0);writeln;
-
 r0:=gcd(f,c,g,q);
 writeln('gcd',#9,r0,#9);
 write('q ');for i:=0 to n-1 do if q[i] then write(1) else write(0);writeln;
@@ -152,30 +151,15 @@ for j:=0 to r0 do
   for i:=-2 to n do v[i]:=v0[i];
   end;
 if n-r0-1<0 then jmax:=0 else jmax:=n-r0-1;
-for i:=-2 to n do v[i]:=g0[i];
 writeln('d');
 write(0,#9);for i:=0 to n-1 do if g0[i] then write(1) else write(0);writeln;
 if jmax=0 then g1:=g0
-else
+else if r0<jmax then
   begin
-  for j:=1 to jmax do
-    begin
-    for i:=-2 to n do g1[i]:=false;
-    for i:=0 to n-1 do g1[i]:=g0[i-1] xor g0[i+1] xor g2[i];
-    write(j,#9);for i:=0 to n-1 do if g1[i] then write(1) else write(0);writeln;
-    g2:=g0;
-    g0:=g1;
-    end;
-  g1:=g0;
-  end;
-for j:=jmax+1 to n-1 do begin write(j,#9);for i:=0 to n-1 do write(0);writeln; end;
-if (jmax>0) and (r0<jmax) then
-  begin
-  for i:=-2 to n do g0[i]:=v[i];
-  for i:=-2 to n do v0[i]:=false;
-  for i:=0 to n-1 do v0[i]:=g0[i-1] xor g0[i+1];
+  for i:=-2 to n do v[i]:=false;
+  for i:=0 to n-1 do v[i]:=g0[i-1] xor g0[i+1];
   for i:=-2 to n do begin g1[i]:=false; g2[i]:=false; end;
-  for i:=0 to n-1 do begin g1[i]:=g0[n-1-i]; g2[i]:=v0[n-1-i]; end;
+  for i:=0 to n-1 do begin g1[i]:=g0[n-1-i]; g2[i]:=v[n-1-i]; end;
   for j:=1 to r0 do
     begin
     for i:=-2 to n do g0[i]:=false;
@@ -183,6 +167,19 @@ if (jmax>0) and (r0<jmax) then
     g1:=g2;
     g2:=g0;
     end;
+  end
+else
+  begin
+  g1:=g0;
+  for j:=1 to jmax do
+    begin
+    for i:=-2 to n do g0[i]:=false;
+    for i:=0 to n-1 do g0[i]:=g1[i-1] xor g1[i+1] xor g2[i];
+    write(j,#9);for i:=0 to n-1 do if g0[i] then write(1) else write(0);writeln;
+    g2:=g1;
+    g1:=g0;
+    end;
+  for j:=jmax+1 to n-1 do begin write(j,#9);for i:=0 to n-1 do write(0);writeln; end;
   end;
 for i:=0 to n-1 do x[i]:=false;
 if r0<=n-1 then
