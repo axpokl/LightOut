@@ -352,7 +352,51 @@ procedure CalcMat2;
 var c,q,g:TVec;
 var v,z:TVec;
 var g0,g1,g2:TVec;
-var i0,r0,jmax:longint;
+var i0,r0,jmax,row1,row2,row3,l0,l1,l2,r1,r2,w,wl,wr:longint;
+var tm,val:LongWord;
+
+function RangeMask(w,l,r:longint):LongWord;
+var wl0,wr0:longint;
+var ml,mr:LongWord;
+begin
+if (l>r) or (w<0) or (w>=wn) then begin RangeMask:=0; exit; end;
+wl0:=l shr 5;
+wr0:=r shr 5;
+if (w<wl0) or (w>wr0) then begin RangeMask:=0; exit; end;
+if wl0=wr0 then
+  begin
+  ml:=LongWord($FFFFFFFF) shl (l and 31);
+  if (r and 31)=31 then mr:=$FFFFFFFF else mr:=(LongWord(1) shl ((r and 31)+1))-1;
+  RangeMask:=ml and mr;
+  end
+else if w=wl0 then
+  RangeMask:=LongWord($FFFFFFFF) shl (l and 31)
+else if w=wr0 then
+  begin
+  if (r and 31)=31 then RangeMask:=$FFFFFFFF else RangeMask:=(LongWord(1) shl ((r and 31)+1))-1;
+  end
+else
+  RangeMask:=$FFFFFFFF;
+end;
+
+function ShiftL1Range(const a:TVec;w,l,r:longint):LongWord;
+var s0,s1:LongWord;
+begin
+s0:=0; s1:=0;
+if (w>=0) and (w<wn) then s0:=a[w] and RangeMask(w,l,r);
+if (w-1>=0) and (w-1<wn) then s1:=a[w-1] and RangeMask(w-1,l,r);
+ShiftL1Range:=(s0 shl 1) or (s1 shr 31);
+end;
+
+function ShiftR1Range(const a:TVec;w,l,r:longint):LongWord;
+var s0,s1:LongWord;
+begin
+s0:=0; s1:=0;
+if (w>=0) and (w<wn) then s0:=a[w] and RangeMask(w,l,r);
+if (w+1>=0) and (w+1<wn) then s1:=a[w+1] and RangeMask(w+1,l,r);
+ShiftR1Range:=(s0 shr 1) or (s1 shl 31);
+end;
+
 begin
 TimeMark('c');
 BuildC(f,c);
@@ -380,7 +424,7 @@ if r0=0 then
 else
 begin
 VecZero(g0); VecZero(g1); VecZero(g2);
-VecZero(v); SetBit(v,0,1);
+VecZero(v); v[0]:=1; VecNorm(v);
 for j:=0 to r0 do 
   begin
   if GetBit(g,j)<>0 then VecXorEq(g0,v);
@@ -404,8 +448,8 @@ else if r0<jmax then
   VecXorEq(v,v2);
   MaskDeg(v,n-1);
   VecZero(g1); VecZero(g2);
-  for i:=0 to n-1 do if GetBit(g0,i)<>0 then SetBit(g1,n-1-i,1);
-  for i:=0 to n-1 do if GetBit(v,i)<>0 then SetBit(g2,n-1-i,1);
+  for i:=0 to n-1 do if ((g0[i shr 5] shr (i and 31)) and 1)<>0 then g1[(n-1-i) shr 5]:=g1[(n-1-i) shr 5] or (LongWord(1) shl ((n-1-i) and 31));
+  for i:=0 to n-1 do if ((v[i shr 5] shr (i and 31)) and 1)<>0 then g2[(n-1-i) shr 5]:=g2[(n-1-i) shr 5] or (LongWord(1) shl ((n-1-i) and 31));
   MaskDeg(g1,n-1); MaskDeg(g2,n-1);
   for j:=1 to r0 do
     begin
@@ -435,29 +479,41 @@ else
     end;
   end;
 VecZero(x); VecNorm(x);
+row1:=n-1;
+row2:=n-2;
 if r0<=n-1 then
 for i:=n-1 downto r0 do
   begin
-  if GetBit(z,i)<>0 then
+  l1:=row1-(r0 shl 1); if l1<0 then l1:=0; r1:=row1; if r1>longint(n)-1 then r1:=longint(n)-1;
+  if ((z[i shr 5] shr (i and 31)) and 1)<>0 then
   begin
     i0:=i-r0;
-    VecXorRange(z,g1,i-r0-r0,i);
-    SetBit(x,i0,1);
+    VecXorRange(z,g1,l1,r1);
+    x[i0 shr 5]:=x[i0 shr 5] or (LongWord(1) shl (i0 and 31));
   end;
   if i>r0 then
     begin
-    VecShiftL1(v1,g2);
-    VecShiftR1(v2,g2);
-    VecCopy(g0,v1);
-    VecXorEq(g0,v2);
-    VecXorEq(g0,g1);
-    MaskDeg(g0,n-1);
+    l2:=row2-(r0 shl 1); if l2<0 then l2:=0; r2:=row2;
+    row3:=row2-1;
+    l0:=row3-(r0 shl 1); if l0<0 then l0:=0;
+    wl:=l0 shr 5;
+    wr:=row3 shr 5;
+    for w:=wl to wr do
+      begin
+      tm:=RangeMask(w,l0,row3);
+      val:=(g1[w] and RangeMask(w,l1,r1)) xor ShiftL1Range(g2,w,l2,r2) xor ShiftR1Range(g2,w,l2,r2);
+      g0[w]:=(g0[w] and not(tm)) or (val and tm);
+      end;
     g1:=g2;
     g2:=g0;
+    row1:=row2;
+    row2:=row3;
     end;
   end;
+VecNorm(x);
 end;
 end;
+
 
 function GeneMat():boolean;
 var wn0:longint;
