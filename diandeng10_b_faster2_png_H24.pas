@@ -325,28 +325,79 @@ else
 VecNorm(a);
 end;
 
-function gcd(vf,vg:TVec; var vd,vr:TVec):longint;
-var vx,vy:TVec;
-var kf,kg:longint;
-var done:boolean;
+procedure PolyDivRem(const a,b:TVec; da,db:longint; var q,r:TVec; var dr:longint);
+var sh:longint;
 begin
-VecNorm(vf); VecNorm(vg);
-kf:=TopBit(vf);
-kg:=TopBit(vg);
-done:=false;
-VecZero(vx); VecZero(vy); SetBit(vy,0,1);
-repeat
-if kf<kg then begin v0:=vf; vf:=vg; vg:=v0; v0:=vx; vx:=vy; vy:=v0; j:=kf; kf:=kg; kg:=j; end;
-if kg<0 then begin vd:=vf; vr:=vx; gcd:=kf; done:=true; end;
-if not(done) then
+VecZero(q);
+VecCopy(r,a);
+dr:=da;
+if db<0 then exit;
+while dr>=db do
   begin
-  VecXorShift(vf,vg,kf-kg);
-  VecXorShift(vx,vy,kf-kg);
-  kf:=TopBit(vf);
-  kg:=TopBit(vg);
+  sh:=dr-db;
+  q[sh shr 5]:=q[sh shr 5] xor (LongWord(1) shl (sh and 31));
+  VecXorShift(r,b,sh);
+  dr:=TopBit(r);
   end;
-until done;
+VecNorm(q);
 end;
+
+procedure PolyMulXor(const a,b:TVec; da,db:longint; var dst:TVec);
+var w,bit,lim,sh:longint;
+var mask:LongWord;
+begin
+if (da<0) or (db<0) then exit;
+for w:=0 to (da shr 5) do
+  begin
+  lim:=31;
+  if w=(da shr 5) then lim:=da and 31;
+  mask:=a[w];
+  for bit:=0 to lim do
+    if (mask and (LongWord(1) shl bit))<>0 then
+      begin
+      sh:=(w shl 5)+bit;
+      if sh+db<=longint(n) then
+        VecXorShift(dst,b,sh)
+      else
+        begin
+        VecXorShift(dst,b,sh);
+        MaskDeg(dst,n);
+        end;
+      end;
+  end;
+end;
+
+function gcd(vf,vg:TVec; var vd,vr:TVec):longint;
+var r0,r1,r2:TVec;
+var t0,t1,t2:TVec;
+var qq:TVec;
+var d0,d1,d2,dt1,dt2,dq:longint;
+begin
+VecCopy(r0,vf);
+VecCopy(r1,vg);
+VecZero(t0);
+VecZero(t1);
+SetBit(t1,0,1);
+d0:=TopBit(r0);
+d1:=TopBit(r1);
+dt1:=0;
+while d1>=0 do
+  begin
+  PolyDivRem(r0,r1,d0,d1,qq,r2,d2);
+  VecCopy(t2,t0);
+  dq:=d0-d1;
+  PolyMulXor(qq,t1,dq,dt1,t2);
+  dt2:=TopBit(t2);
+  VecCopy(r0,r1); d0:=d1;
+  VecCopy(r1,r2); d1:=d2;
+  VecCopy(t0,t1);
+  VecCopy(t1,t2); dt1:=dt2;
+  end;
+VecCopy(vd,r0);
+VecCopy(vr,t0);
+gcd:=d0;
+end;
+
 
 procedure CalcMat2;
 var c,q,g:TVec;
