@@ -25,3 +25,4 @@ H23	使用SOS DP优化c生成，末尾行全0优化x和z，r带宽优化x
 H24	优化gcd，高位处理后只处理低位，使时间减半
 H25	使用统一的ApplyPoly，优化z和d，仅扩散扫描
 H26	优化g，利用ApplyPoly，使其验证更快
+H27	优化TVec，使其不受m和sosN的影响
