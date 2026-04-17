@@ -115,82 +115,56 @@ for j:=k+1 to n do
 k:=n;
 end;
 
-function PolyDeg(const a:TVec):longint;
-var d:longint;
+function gcd(const vf,vg:TVec; var vd,vr:TVec):longint;
+var f0,g0,vt,vx,vy:TVec;
+var kf,kg,kvx,kvy,shift,p,top,lim:longint;
 begin
-for d:=n downto 0 do if a[d] then begin PolyDeg:=d; exit; end;
-PolyDeg:=-1;
-end;
-
-procedure PolyZero(var a:TVec);
-var d:longint;
-begin
-for d:=0 to n do a[d]:=false;
-end;
-
-procedure PolyCopy(const src:TVec; var dst:TVec);
-var d:longint;
-begin
-for d:=0 to n do dst[d]:=src[d];
-end;
-
-procedure PolyDivRem(const a,b:TVec; da,db:longint; var q,r:TVec; var dr:longint);
-var sh,d:longint;
-begin
-for d:=0 to n do begin q[d]:=false; r[d]:=a[d]; end;
-dr:=da;
-if db<0 then exit;
-while dr>=db do
+for p:=0 to n do
   begin
-  sh:=dr-db;
-  q[sh]:=not q[sh];
-  for d:=0 to db do if b[d] then r[d+sh]:=not r[d+sh];
-  while (dr>=0) and (not r[dr]) do dec(dr);
+  f0[p]:=vf[p]; g0[p]:=vg[p];
+  vx[p]:=false; vy[p]:=false;
   end;
-end;
-
-procedure PolyMulXor(const a,b:TVec; da,db:longint; var dst:TVec);
-var i1,j1,hi:longint;
-begin
-if (da<0) or (db<0) then exit;
-for i1:=0 to da do
-  if a[i1] then
+kf:=n; while (kf>=0) and not(f0[kf]) do dec(kf);
+kg:=n; while (kg>=0) and not(g0[kg]) do dec(kg);
+kvx:=-1;
+kvy:=0;
+vy[0]:=true;
+while true do
+  begin
+  if kf<kg then
     begin
-    hi:=db;
-    if i1+hi>longint(n) then hi:=longint(n)-i1;
-    for j1:=0 to hi do if b[j1] then dst[i1+j1]:=not dst[i1+j1];
+    vt:=f0; f0:=g0; g0:=vt;
+    vt:=vx; vx:=vy; vy:=vt;
+    p:=kf; kf:=kg; kg:=p;
+    p:=kvx; kvx:=kvy; kvy:=p;
     end;
-end;
-
-function gcd(vf,vg:TVec; var vd,vr:TVec):longint;
-var r0,r1,r2:TVec;
-var t0,t1,t2:TVec;
-var qq:TVec;
-var d0,d1,d2,dt1,dt2,dq,ii:longint;
-begin
-PolyCopy(vf,r0);
-PolyCopy(vg,r1);
-PolyZero(t0);
-PolyZero(t1);
-t1[0]:=true;
-d0:=PolyDeg(r0);
-d1:=PolyDeg(r1);
-dt1:=0;
-while d1>=0 do
-  begin
-  PolyDivRem(r0,r1,d0,d1,qq,r2,d2);
-  for ii:=0 to n do t2[ii]:=t0[ii];
-  dq:=d0-d1;
-  PolyMulXor(qq,t1,dq,dt1,t2);
-  dt2:=PolyDeg(t2);
-  r0:=r1; d0:=d1;
-  r1:=r2; d1:=d2;
-  t0:=t1;
-  t1:=t2; dt1:=dt2;
+  if kg<0 then
+    begin
+    vd:=f0;
+    vr:=vx;
+    gcd:=kf;
+    exit;
+    end;
+  while kf>=kg do
+    begin
+    shift:=kf-kg;
+    for p:=0 to kg do if g0[p] then f0[p+shift]:=f0[p+shift] xor true;
+    top:=kf-1;
+    while (top>=0) and not(f0[top]) do dec(top);
+    kf:=top;
+    if kvy>=0 then
+      begin
+      top:=kvx;
+      if kvy+shift>longint(n) then top:=longint(n)
+      else if kvy+shift>top then top:=kvy+shift;
+      lim:=kvy;
+      if lim>longint(n)-shift then lim:=longint(n)-shift;
+      for p:=0 to lim do if vy[p] then vx[p+shift]:=vx[p+shift] xor true;
+      while (top>=0) and not(vx[top]) do dec(top);
+      kvx:=top;
+      end;
+    end;
   end;
-vd:=r0;
-vr:=t0;
-gcd:=d0;
 end;
 
 

@@ -300,6 +300,30 @@ for w:=wn-1 downto 0 do
 TopBit:=-1;
 end;
 
+function TopBitLE(const v:TVec;hi:longint):longint;
+var w,h:longint;
+var x:LongWord;
+begin
+if hi<0 then begin TopBitLE:=-1; exit; end;
+if hi>longint(n) then hi:=longint(n);
+w:=hi shr 5;
+if (hi and 31)=31 then x:=v[w]
+else x:=v[w] and ((LongWord(1) shl ((hi and 31)+1))-1);
+while w>=0 do
+  begin
+  if x<>0 then
+    begin
+    h:=HighBit32(x);
+    TopBitLE:=(w shl 5)+h;
+    exit;
+    end;
+  dec(w);
+  if w>=0 then x:=v[w];
+  end;
+TopBitLE:=-1;
+end;
+
+
 procedure VecXorShift(var a:TVec;const b:TVec;sh:longint);
 var ws,bs:longint;
 var x0,x1:LongWord;
@@ -325,79 +349,74 @@ else
 VecNorm(a);
 end;
 
-procedure PolyDivRem(const a,b:TVec; da,db:longint; var q,r:TVec; var dr:longint);
-var sh:longint;
+procedure VecXorShiftRange(var a:TVec;const b:TVec;sh,r:longint);
+var ws,bs,wl,wr,k2:longint;
+var x0,x1,ml,mr,msk:LongWord;
 begin
-VecZero(q);
-VecCopy(r,a);
-dr:=da;
-if db<0 then exit;
-while dr>=db do
+if sh<0 then exit;
+if r<0 then exit;
+if sh>longint(n) then exit;
+if r>longint(n)-sh then r:=longint(n)-sh;
+ws:=sh shr 5;
+bs:=sh and 31;
+wl:=sh shr 5;
+wr:=(sh+r) shr 5;
+ml:=LongWord($FFFFFFFF) shl (sh and 31);
+if ((sh+r) and 31)=31 then mr:=$FFFFFFFF else mr:=(LongWord(1) shl (((sh+r) and 31)+1))-1;
+for k2:=wl to wr do
   begin
-  sh:=dr-db;
-  q[sh shr 5]:=q[sh shr 5] xor (LongWord(1) shl (sh and 31));
-  VecXorShift(r,b,sh);
-  dr:=TopBit(r);
+  if bs=0 then
+    begin
+    x0:=b[k2-ws];
+    x1:=0;
+    end
+  else
+    begin
+    x0:=b[k2-ws] shl bs;
+    x1:=0;
+    if k2-ws-1>=0 then x1:=b[k2-ws-1] shr (32-bs);
+    end;
+  msk:=$FFFFFFFF;
+  if k2=wl then msk:=msk and ml;
+  if k2=wr then msk:=msk and mr;
+  a[k2]:=a[k2] xor ((x0 or x1) and msk);
   end;
-VecNorm(q);
+VecNorm(a);
 end;
 
-procedure PolyMulXor(const a,b:TVec; da,db:longint; var dst:TVec);
-var w,bit,lim,sh:longint;
-var mask:LongWord;
+function gcd(const vf,vg:TVec; var vd,vr:TVec):longint;
+var f0,g0,vx,vy:TVec;
+var kf,kg,kvx,kvy,shift,p,top,lim:longint;
 begin
-if (da<0) or (db<0) then exit;
-for w:=0 to (da shr 5) do
+f0:=vf; g0:=vg;
+VecNorm(f0); VecNorm(g0);
+kf:=TopBit(f0);
+kg:=TopBit(g0);
+kvx:=-1;
+kvy:=0;
+VecZero(vx); VecZero(vy); SetBit(vy,0,1);
+while true do
   begin
-  lim:=31;
-  if w=(da shr 5) then lim:=da and 31;
-  mask:=a[w];
-  for bit:=0 to lim do
-    if (mask and (LongWord(1) shl bit))<>0 then
+  if kf<kg then begin v0:=f0; f0:=g0; g0:=v0; v0:=vx; vx:=vy; vy:=v0; p:=kf; kf:=kg; kg:=p; p:=kvx; kvx:=kvy; kvy:=p; end;
+  if kg<0 then begin vd:=f0; vr:=vx; gcd:=kf; exit; end;
+  while kf>=kg do
+    begin
+    shift:=kf-kg;
+    VecXorShift(f0,g0,shift);
+    kf:=TopBitLE(f0,kf-1);
+    if kvy>=0 then
       begin
-      sh:=(w shl 5)+bit;
-      if sh+db<=longint(n) then
-        VecXorShift(dst,b,sh)
-      else
-        begin
-        VecXorShift(dst,b,sh);
-        MaskDeg(dst,n);
-        end;
+      top:=kvx;
+      if kvy+shift>longint(n) then top:=longint(n)
+      else if kvy+shift>top then top:=kvy+shift;
+      lim:=kvy;
+      if lim>longint(n)-shift then lim:=longint(n)-shift;
+      VecXorShiftRange(vx,vy,shift,lim);
+      kvx:=TopBitLE(vx,top);
       end;
+    end;
   end;
 end;
-
-function gcd(vf,vg:TVec; var vd,vr:TVec):longint;
-var r0,r1,r2:TVec;
-var t0,t1,t2:TVec;
-var qq:TVec;
-var d0,d1,d2,dt1,dt2,dq:longint;
-begin
-VecCopy(r0,vf);
-VecCopy(r1,vg);
-VecZero(t0);
-VecZero(t1);
-SetBit(t1,0,1);
-d0:=TopBit(r0);
-d1:=TopBit(r1);
-dt1:=0;
-while d1>=0 do
-  begin
-  PolyDivRem(r0,r1,d0,d1,qq,r2,d2);
-  VecCopy(t2,t0);
-  dq:=d0-d1;
-  PolyMulXor(qq,t1,dq,dt1,t2);
-  dt2:=TopBit(t2);
-  VecCopy(r0,r1); d0:=d1;
-  VecCopy(r1,r2); d1:=d2;
-  VecCopy(t0,t1);
-  VecCopy(t1,t2); dt1:=dt2;
-  end;
-VecCopy(vd,r0);
-VecCopy(vr,t0);
-gcd:=d0;
-end;
-
 
 procedure CalcMat2;
 var c,q,g:TVec;
