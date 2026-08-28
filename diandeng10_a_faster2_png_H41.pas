@@ -3,6 +3,9 @@ program diandeng;
 
 {$mode objfpc}{$H+}
 
+{ H41: build the combined Laurent kernel in one recursion. }
+{ A and B use the same 8-coefficient leaves and 128-bit Karatsuba cutoff. }
+
 {$ifdef disp}
 uses Windows, display;
 const m=1000;
@@ -514,7 +517,7 @@ type TDynBool=array of boolean;
 
 procedure KarRec(const a:TDynBool; ao:longint; const b:TDynBool; bo:longint;
                  var r:TDynBool; ro,len:longint; var work:TDynBool; wo:longint);
-const cut=256;
+const cut=128;
 var i0,j0,h,ax0,bx0,z10,save0,rec0:longint;
 var s2:boolean;
 begin
@@ -670,6 +673,67 @@ BuildUKernelRecFast(coeff,0,count,degmax,r,0,work,0);
 center:=(count shl 1)-2;
 end;
 
+procedure BuildUComboRecFast(const va,vb:TVec; first,count,degmax,mode:longint;
+                             var dst:TDynBool; dst0:longint;
+                             var work:TDynBool; work0:longint);
+var h,childBits,j0,p0,aa,bb:longint;
+begin
+ClearBoolRange(dst,dst0,(count shl 2)-1);
+if count=8 then
+  begin
+  aa:=0; bb:=0;
+  for j0:=0 to 7 do if first+j0<=degmax then
+    begin
+    if va[first+j0] then aa:=aa or (1 shl j0);
+    if vb[first+j0] then bb:=bb or (1 shl j0);
+    end;
+  if mode=0 then
+    for p0:=0 to 28 do
+      begin
+      if uKernel8[bb,p0] then dst[dst0+p0+1]:=not dst[dst0+p0+1];
+      if uKernel8[aa,p0] then
+        begin
+        dst[dst0+p0]:=not dst[dst0+p0];
+        dst[dst0+p0+2]:=not dst[dst0+p0+2];
+        end;
+      end
+  else
+    for p0:=0 to 28 do
+      begin
+      if uKernel8[aa,p0] then dst[dst0+p0+1]:=not dst[dst0+p0+1];
+      if uKernel8[bb,p0] then
+        begin
+        dst[dst0+p0]:=not dst[dst0+p0];
+        dst[dst0+p0+1]:=not dst[dst0+p0+1];
+        dst[dst0+p0+2]:=not dst[dst0+p0+2];
+        end;
+      end;
+  exit;
+  end;
+h:=count shr 1;
+childBits:=(h shl 2)-1;
+BuildUComboRecFast(va,vb,first,h,degmax,mode,dst,dst0+(h shl 1),work,work0);
+BuildUComboRecFast(va,vb,first+h,h,degmax,mode,work,work0,work,work0+childBits);
+XorBoolRange(dst,dst0,work,work0,childBits);
+XorBoolRange(dst,dst0+h,work,work0,childBits);
+XorBoolRange(dst,dst0+h*3,work,work0,childBits);
+XorBoolRange(dst,dst0+(h shl 2),work,work0,childBits);
+end;
+
+procedure BuildUComboKernelFast(const va,vb:TVec; degmax,mode:longint;
+                                var r:TDynBool; var center:longint);
+var count,bits:longint;
+var work:TDynBool;
+begin
+count:=8;
+while count<=degmax do count:=count shl 1;
+bits:=(count shl 2)-1;
+SetLength(r,bits);
+SetLength(work,(count shl 2)+64);
+BuildUComboRecFast(va,vb,0,count,degmax,mode,r,0,work,0);
+center:=(count shl 1)-1;
+end;
+
 
 procedure AddCircularKernel(var dst:TDynBool; const src:TDynBool; center,shift,period:longint);
 var i0,p:longint;
@@ -684,27 +748,14 @@ end;
 
 procedure ApplyFastUCombo(const va,vb,vsrc:TVec; var vdst:TVec; hi,degmax,mode:longint);
 var period,pad,i0,p,center:longint;
-var ka,kb,kernel,src,prod:TDynBool;
+var combo,kernel,src,prod:TDynBool;
 begin
 period:=(hi+2) shl 1;
 pad:=1;
 while pad<period do pad:=pad shl 1;
-BuildUKernelFast(va,degmax,ka,center);
-BuildUKernelFast(vb,degmax,kb,center);
+BuildUComboKernelFast(va,vb,degmax,mode,combo,center);
 SetLength(kernel,pad);
-if mode=0 then
-  begin
-  AddCircularKernel(kernel,kb,center,0,period);
-  AddCircularKernel(kernel,ka,center,-1,period);
-  AddCircularKernel(kernel,ka,center,1,period);
-  end
-else
-  begin
-  AddCircularKernel(kernel,ka,center,0,period);
-  AddCircularKernel(kernel,kb,center,0,period);
-  AddCircularKernel(kernel,kb,center,-1,period);
-  AddCircularKernel(kernel,kb,center,1,period);
-  end;
+AddCircularKernel(kernel,combo,center,0,period);
 SetLength(src,pad);
 for i0:=0 to hi do if vsrc[i0] then
   begin

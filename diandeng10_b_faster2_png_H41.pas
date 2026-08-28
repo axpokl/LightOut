@@ -2,6 +2,9 @@
 program diandeng;
 {$mode objfpc}{$H+}
 
+{ H41: build the combined Laurent kernel in one recursion. }
+{ A and B use the same 8-coefficient leaves and 128-bit Karatsuba cutoff. }
+
 {$ifdef disp}
 uses Windows, display;
 const m=1000;
@@ -828,6 +831,34 @@ for j2:=0 to d do
 MaskDeg(vdst,hi);
 end;
 
+procedure ApplyPolyU0(const va:TVec; var vdst:TVec; hi,degmax:longint);
+var cur0,cur1:TVec;
+var pcur,pnxt,pt:PVec;
+var d,j2,k2,curHi,nextHi,curWord:longint;
+begin
+VecZero(cur0); VecZero(cur1); VecZero(vdst);
+d:=TopBitLE(va,degmax);
+if d<0 then exit;
+cur0[0]:=1;
+pcur:=@cur0;
+pnxt:=@cur1;
+curHi:=0;
+for j2:=0 to d do
+  begin
+  if GetBit(va,j2)<>0 then
+    begin
+    curWord:=curHi shr 5;
+    for k2:=0 to curWord do vdst[k2]:=vdst[k2] xor pcur^[k2];
+    end;
+  if j2>=d then break;
+  nextHi:=curHi+2; if nextHi>hi then nextHi:=hi;
+  VecStepJHi(pnxt^,pcur^,nextHi);
+  pt:=pcur; pcur:=pnxt; pnxt:=pt;
+  curHi:=nextHi;
+  end;
+MaskDeg(vdst,hi);
+end;
+
 function CLMul8(a,b:LongWord):LongWord; inline;
 begin
 CLMul8:=mul8[(a shl 8) or b];
@@ -881,7 +912,7 @@ end;
 
 procedure KarRecW(const a:TWordArray; ao:longint; const b:TWordArray; bo:longint;
                   var r:TWordArray; ro,len:longint; var work:TWordArray; wo:longint);
-const cut=8;
+const cut=4;
 var i0,j0,h,ax0,bx0,z10,save0,rec0:longint;
 var p0:QWord;
 var s2:LongWord;
@@ -1035,6 +1066,60 @@ BuildUKernelRec(coeff,0,count,degmax,r,0,work,0);
 center:=(count shl 1)-2;
 end;
 
+procedure BuildUComboRecW(const va,vb:TVec; first,count,degmax,mode:longint;
+                          var dst:TWordArray; dstBit:longint;
+                          var work:TWordArray; workWord:longint);
+var h,childBits,childWords,workBit:longint;
+var aa,bb:LongWord;
+begin
+ClearDynBits(dst,dstBit,(count shl 2)-1);
+if count=8 then
+  begin
+  aa:=uKernel8[CoeffByte(va,first,degmax)];
+  bb:=uKernel8[CoeffByte(vb,first,degmax)];
+  if mode=0 then
+    begin
+    XorDyn32(dst,dstBit+1,bb);
+    XorDyn32(dst,dstBit,aa);
+    XorDyn32(dst,dstBit+2,aa);
+    end
+  else
+    begin
+    XorDyn32(dst,dstBit+1,aa);
+    XorDyn32(dst,dstBit,bb);
+    XorDyn32(dst,dstBit+1,bb);
+    XorDyn32(dst,dstBit+2,bb);
+    end;
+  exit;
+  end;
+h:=count shr 1;
+childBits:=(h shl 2)-1;
+childWords:=(childBits+31) shr 5;
+BuildUComboRecW(va,vb,first,h,degmax,mode,dst,dstBit+(h shl 1),work,workWord);
+workBit:=workWord shl 5;
+BuildUComboRecW(va,vb,first+h,h,degmax,mode,work,workBit,work,workWord+childWords);
+XorDynBits(dst,dstBit,work,workBit,childBits);
+XorDynBits(dst,dstBit+h,work,workBit,childBits);
+XorDynBits(dst,dstBit+h*3,work,workBit,childBits);
+XorDynBits(dst,dstBit+(h shl 2),work,workBit,childBits);
+end;
+
+procedure BuildUComboKernelFastW(const va,vb:TVec; degmax,mode:longint;
+                                 var r:TWordArray; var center:longint);
+var count,bits,k0:longint;
+var work:TWordArray;
+begin
+count:=8;
+while count<=degmax do count:=count shl 1;
+bits:=(count shl 2)-1;
+SetLength(r,(bits+31) shr 5);
+for k0:=0 to High(r) do r[k0]:=0;
+SetLength(work,count div 8+64);
+for k0:=0 to High(work) do work[k0]:=0;
+BuildUComboRecW(va,vb,0,count,degmax,mode,r,0,work,0);
+center:=(count shl 1)-1;
+end;
+
 procedure AddCircularKernelW(var dst:TWordArray; const src:TWordArray; center,shift,period:longint);
 var w0,b0,p0,i0:longint;
 var q0:LongWord;
@@ -1062,28 +1147,15 @@ end;
 procedure ApplyFastUComboW(const va,vb,vsrc:TVec; var vdst:TVec; hi,degmax,mode:longint);
 var period,pad,padw,i0,p0,w0,b0,center:longint;
 var q0,bit0:LongWord;
-var ka,kb,kernel,src,prod:TWordArray;
+var combo,kernel,src,prod:TWordArray;
 begin
 period:=(hi+2) shl 1;
 pad:=32;
 while pad<period do pad:=pad shl 1;
 padw:=pad shr 5;
-BuildUKernelFastW(va,degmax,ka,center);
-BuildUKernelFastW(vb,degmax,kb,center);
+BuildUComboKernelFastW(va,vb,degmax,mode,combo,center);
 SetLength(kernel,padw);
-if mode=0 then
-  begin
-  AddCircularKernelW(kernel,kb,center,0,period);
-  AddCircularKernelW(kernel,ka,center,-1,period);
-  AddCircularKernelW(kernel,ka,center,1,period);
-  end
-else
-  begin
-  AddCircularKernelW(kernel,ka,center,0,period);
-  AddCircularKernelW(kernel,kb,center,0,period);
-  AddCircularKernelW(kernel,kb,center,-1,period);
-  AddCircularKernelW(kernel,kb,center,1,period);
-  end;
+AddCircularKernelW(kernel,combo,center,0,period);
 SetLength(src,padw);
 for w0:=0 to wn-1 do
   begin
@@ -1118,34 +1190,6 @@ for i0:=0 to hi do
 MaskDeg(vdst,hi);
 end;
 
-
-procedure ApplyPolyU0(const va:TVec; var vdst:TVec; hi,degmax:longint);
-var cur0,cur1:TVec;
-var pcur,pnxt,pt:PVec;
-var d,j2,k2,curHi,nextHi,curWord:longint;
-begin
-VecZero(cur0); VecZero(cur1); VecZero(vdst);
-d:=TopBitLE(va,degmax);
-if d<0 then exit;
-cur0[0]:=1;
-pcur:=@cur0;
-pnxt:=@cur1;
-curHi:=0;
-for j2:=0 to d do
-  begin
-  if GetBit(va,j2)<>0 then
-    begin
-    curWord:=curHi shr 5;
-    for k2:=0 to curWord do vdst[k2]:=vdst[k2] xor pcur^[k2];
-    end;
-  if j2>=d then break;
-  nextHi:=curHi+2; if nextHi>hi then nextHi:=hi;
-  VecStepJHi(pnxt^,pcur^,nextHi);
-  pt:=pcur; pcur:=pnxt; pnxt:=pt;
-  curHi:=nextHi;
-  end;
-MaskDeg(vdst,hi);
-end;
 
 procedure ApplyBezoutU(const vu,vv,vsrc:TVec; var vdst:TVec; hi,degmax:longint);
 var cur0,cur1:TVec;
