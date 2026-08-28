@@ -17,6 +17,8 @@ const mw=(m+wb-1)div wb;
 
 type TVec=array[-2..mw]of LongWord;
      PVec=^TVec;
+     TWordArray=array of LongWord;
+     TMul8Table=array[0..65535] of Word;
 
 var n:longword;
 var i,j:longint;
@@ -33,6 +35,8 @@ var nMask:LongWord;
 var nWord:longint;
 var ones:TVec;
 var v1,v2:TVec;
+var mul8:TMul8Table;
+var uKernel8:array[0..255] of LongWord;
 
 {$ifdef disp}
 var bb:pbitbuf;
@@ -826,6 +830,297 @@ for j2:=0 to d do
 MaskDeg(vdst,hi);
 end;
 
+function CLMul8(a,b:LongWord):LongWord; inline;
+begin
+CLMul8:=mul8[(a shl 8) or b];
+end;
+
+function CLMul16(a,b:LongWord):LongWord; inline;
+var z0,z1,z2:LongWord;
+begin
+z0:=CLMul8(a and $FF,b and $FF);
+z2:=CLMul8(a shr 8,b shr 8);
+z1:=CLMul8((a xor (a shr 8)) and $FF,(b xor (b shr 8)) and $FF);
+CLMul16:=z0 xor ((z0 xor z1 xor z2) shl 8) xor (z2 shl 16);
+end;
+
+function CLMul32(a,b:LongWord):QWord; inline;
+var z0,z1,z2:LongWord;
+begin
+z0:=CLMul16(a and $FFFF,b and $FFFF);
+z2:=CLMul16(a shr 16,b shr 16);
+z1:=CLMul16((a xor (a shr 16)) and $FFFF,(b xor (b shr 16)) and $FFFF);
+CLMul32:=QWord(z0) xor (QWord(z0 xor z1 xor z2) shl 16) xor (QWord(z2) shl 32);
+end;
+
+procedure InitMul8;
+var a0,b0,k0,r0:longint;
+begin
+for a0:=0 to 255 do for b0:=0 to 255 do
+  begin
+  r0:=0;
+  for k0:=0 to 7 do if ((b0 shr k0) and 1)<>0 then r0:=r0 xor (a0 shl k0);
+  mul8[(a0 shl 8) or b0]:=r0;
+  end;
+end;
+
+procedure InitUKernel8;
+var a0,j0:longint;
+var p0,k0:QWord;
+begin
+for a0:=0 to 255 do
+  begin
+  p0:=QWord(1) shl 14;
+  k0:=0;
+  for j0:=0 to 7 do
+    begin
+    if ((a0 shr j0) and 1)<>0 then k0:=k0 xor p0;
+    if j0<7 then p0:=(p0 shl 2) xor (p0 shl 1) xor (p0 shr 1) xor (p0 shr 2);
+    end;
+  uKernel8[a0]:=LongWord(k0);
+  end;
+end;
+
+procedure KarRecW(const a:TWordArray; ao:longint; const b:TWordArray; bo:longint;
+                  var r:TWordArray; ro,len:longint; var work:TWordArray; wo:longint);
+const cut=8;
+var i0,j0,h,ax0,bx0,z10,save0,rec0:longint;
+var p0:QWord;
+var s2:LongWord;
+begin
+if len<=cut then
+  begin
+  for i0:=0 to len-1 do if a[ao+i0]<>0 then
+    for j0:=0 to len-1 do if b[bo+j0]<>0 then
+      begin
+      p0:=CLMul32(a[ao+i0],b[bo+j0]);
+      r[ro+i0+j0]:=r[ro+i0+j0] xor LongWord(p0);
+      r[ro+i0+j0+1]:=r[ro+i0+j0+1] xor LongWord(p0 shr 32);
+      end;
+  exit;
+  end;
+h:=len shr 1;
+KarRecW(a,ao,b,bo,r,ro,h,work,wo);
+KarRecW(a,ao+h,b,bo+h,r,ro+(h shl 1),h,work,wo);
+ax0:=wo; bx0:=wo+h; z10:=wo+(h shl 1); save0:=wo+(h shl 2); rec0:=save0+h;
+for i0:=0 to h-1 do
+  begin
+  work[ax0+i0]:=a[ao+i0] xor a[ao+h+i0];
+  work[bx0+i0]:=b[bo+i0] xor b[bo+h+i0];
+  end;
+for i0:=0 to (h shl 1)-1 do work[z10+i0]:=0;
+KarRecW(work,ax0,work,bx0,work,z10,h,work,rec0);
+for i0:=0 to h-1 do work[save0+i0]:=r[ro+(h shl 1)+i0];
+for i0:=(h shl 1)-1 downto 0 do r[ro+h+i0]:=r[ro+h+i0] xor r[ro+i0];
+for i0:=0 to (h shl 1)-1 do
+  begin
+  if i0<h then s2:=work[save0+i0] else s2:=r[ro+(h shl 1)+i0];
+  r[ro+h+i0]:=r[ro+h+i0] xor s2 xor work[z10+i0];
+  end;
+end;
+
+procedure KarMulFastW(const a,b:TWordArray; var r:TWordArray; len:longint);
+var work:TWordArray;
+var i0:longint;
+begin
+SetLength(r,len shl 1);
+for i0:=0 to High(r) do r[i0]:=0;
+SetLength(work,len*6);
+KarRecW(a,0,b,0,r,0,len,work,0);
+end;
+
+function LowMask32(bits:longint):LongWord; inline;
+begin
+if bits<=0 then LowMask32:=0
+else if bits>=32 then LowMask32:=$FFFFFFFF
+else LowMask32:=(LongWord(1) shl bits)-1;
+end;
+
+procedure ClearDynBits(var a:TWordArray; bit0,len:longint);
+var w0,w1,b0,b1,k0:longint;
+var mask0:LongWord;
+begin
+if len<=0 then exit;
+w0:=bit0 shr 5; b0:=bit0 and 31;
+w1:=(bit0+len-1) shr 5; b1:=(bit0+len-1) and 31;
+if w0=w1 then
+  begin
+  mask0:=LowMask32(len) shl b0;
+  a[w0]:=a[w0] and not mask0;
+  exit;
+  end;
+a[w0]:=a[w0] and LowMask32(b0);
+for k0:=w0+1 to w1-1 do a[k0]:=0;
+a[w1]:=a[w1] and not LowMask32(b1+1);
+end;
+
+function ReadDyn32(const a:TWordArray; bit0:longint):LongWord; inline;
+var w0,b0:longint;
+var r0:LongWord;
+begin
+w0:=bit0 shr 5; b0:=bit0 and 31;
+if (w0<0) or (w0>High(a)) then begin ReadDyn32:=0; exit; end;
+r0:=a[w0] shr b0;
+if (b0<>0) and (w0<High(a)) then r0:=r0 xor (a[w0+1] shl (32-b0));
+ReadDyn32:=r0;
+end;
+
+procedure XorDyn32(var a:TWordArray; bit0:longint; v0:LongWord); inline;
+var w0,b0:longint;
+begin
+if v0=0 then exit;
+w0:=bit0 shr 5; b0:=bit0 and 31;
+if (w0<0) or (w0>High(a)) then exit;
+a[w0]:=a[w0] xor (v0 shl b0);
+if (b0<>0) and (w0<High(a)) then a[w0+1]:=a[w0+1] xor (v0 shr (32-b0));
+end;
+
+procedure XorDynBits(var dst:TWordArray; dstBit:longint;
+                     const src:TWordArray; srcBit,len:longint);
+var take:longint;
+var q0:LongWord;
+begin
+while len>0 do
+  begin
+  if len>32 then take:=32 else take:=len;
+  q0:=ReadDyn32(src,srcBit) and LowMask32(take);
+  XorDyn32(dst,dstBit,q0);
+  inc(srcBit,take); inc(dstBit,take); dec(len,take);
+  end;
+end;
+
+function CoeffByte(const coeff:TVec; first,degmax:longint):LongWord; inline;
+var keep:longint;
+begin
+if first>degmax then begin CoeffByte:=0; exit; end;
+keep:=degmax-first+1;
+if keep>8 then keep:=8;
+CoeffByte:=((coeff[first shr 5] shr (first and 31)) and $FF) and LowMask32(keep);
+end;
+
+procedure BuildUKernelRec(const coeff:TVec; first,count,degmax:longint;
+                          var dst:TWordArray; dstBit:longint;
+                          var work:TWordArray; workWord:longint);
+var h,childBits,childWords,workBit:longint;
+begin
+ClearDynBits(dst,dstBit,(count shl 2)-3);
+if count=8 then
+  begin
+  XorDyn32(dst,dstBit,uKernel8[CoeffByte(coeff,first,degmax)]);
+  exit;
+  end;
+h:=count shr 1;
+childBits:=(h shl 2)-3;
+childWords:=(childBits+31) shr 5;
+BuildUKernelRec(coeff,first,h,degmax,dst,dstBit+(h shl 1),work,workWord);
+workBit:=workWord shl 5;
+BuildUKernelRec(coeff,first+h,h,degmax,work,workBit,work,workWord+childWords);
+XorDynBits(dst,dstBit,work,workBit,childBits);
+XorDynBits(dst,dstBit+h,work,workBit,childBits);
+XorDynBits(dst,dstBit+h*3,work,workBit,childBits);
+XorDynBits(dst,dstBit+(h shl 2),work,workBit,childBits);
+end;
+
+procedure BuildUKernelFastW(const coeff:TVec; degmax:longint;
+                            var r:TWordArray; var center:longint);
+var count,bits,k0:longint;
+var work:TWordArray;
+begin
+count:=8;
+while count<=degmax do count:=count shl 1;
+bits:=(count shl 2)-3;
+SetLength(r,(bits+31) shr 5);
+for k0:=0 to High(r) do r[k0]:=0;
+SetLength(work,count div 8+64);
+for k0:=0 to High(work) do work[k0]:=0;
+BuildUKernelRec(coeff,0,count,degmax,r,0,work,0);
+center:=(count shl 1)-2;
+end;
+
+procedure AddCircularKernelW(var dst:TWordArray; const src:TWordArray; center,shift,period:longint);
+var w0,b0,p0,i0:longint;
+var q0:LongWord;
+begin
+for w0:=0 to High(src) do
+  begin
+  q0:=src[w0];
+  while q0<>0 do
+    begin
+    b0:=LowBit32(q0);
+    i0:=(w0 shl 5)+b0;
+    p0:=(i0-center+shift) mod period;
+    if p0<0 then inc(p0,period);
+    dst[p0 shr 5]:=dst[p0 shr 5] xor (LongWord(1) shl (p0 and 31));
+    q0:=q0 and (q0-1);
+    end;
+  end;
+end;
+
+function DynBit(const a:TWordArray; p0:longint):LongWord; inline;
+begin
+DynBit:=(a[p0 shr 5] shr (p0 and 31)) and 1;
+end;
+
+procedure ApplyFastUComboW(const va,vb,vsrc:TVec; var vdst:TVec; hi,degmax,mode:longint);
+var period,pad,padw,i0,p0,w0,b0,center:longint;
+var q0,bit0:LongWord;
+var ka,kb,kernel,src,prod:TWordArray;
+begin
+period:=(hi+2) shl 1;
+pad:=32;
+while pad<period do pad:=pad shl 1;
+padw:=pad shr 5;
+BuildUKernelFastW(va,degmax,ka,center);
+BuildUKernelFastW(vb,degmax,kb,center);
+SetLength(kernel,padw);
+if mode=0 then
+  begin
+  AddCircularKernelW(kernel,kb,center,0,period);
+  AddCircularKernelW(kernel,ka,center,-1,period);
+  AddCircularKernelW(kernel,ka,center,1,period);
+  end
+else
+  begin
+  AddCircularKernelW(kernel,ka,center,0,period);
+  AddCircularKernelW(kernel,kb,center,0,period);
+  AddCircularKernelW(kernel,kb,center,-1,period);
+  AddCircularKernelW(kernel,kb,center,1,period);
+  end;
+SetLength(src,padw);
+for w0:=0 to wn-1 do
+  begin
+  q0:=vsrc[w0];
+  while q0<>0 do
+    begin
+    b0:=LowBit32(q0);
+    i0:=(w0 shl 5)+b0;
+    if i0<=hi then
+      begin
+      p0:=i0+1;
+      src[p0 shr 5]:=src[p0 shr 5] xor (LongWord(1) shl (p0 and 31));
+      p0:=period-i0-1;
+      src[p0 shr 5]:=src[p0 shr 5] xor (LongWord(1) shl (p0 and 31));
+      end;
+    q0:=q0 and (q0-1);
+    end;
+  end;
+KarMulFastW(kernel,src,prod,padw);
+VecZero(vdst);
+for i0:=0 to hi do
+  begin
+  bit0:=0;
+  p0:=i0+1;
+  while p0<(pad shl 1) do
+    begin
+    bit0:=bit0 xor DynBit(prod,p0);
+    inc(p0,period);
+    end;
+  if bit0<>0 then vdst[i0 shr 5]:=vdst[i0 shr 5] or (LongWord(1) shl (i0 and 31));
+  end;
+MaskDeg(vdst,hi);
+end;
+
+
 procedure ApplyPolyU0(const va:TVec; var vdst:TVec; hi,degmax:longint);
 var cur0,cur1:TVec;
 var pcur,pnxt,pt:PVec;
@@ -1105,7 +1400,7 @@ else
   end;
 r0:=rU*2;
 TimeMark('z');
-ApplyBezoutU(qu,qv,y,z,n-1,longint(n div 2));
+ApplyFastUComboW(qu,qv,y,z,n-1,longint(n div 2),0);
 TimeMark('d');
 if r0=0 then
   begin
@@ -1204,7 +1499,7 @@ var mask0:LongWord;
 var k2:longint;
 begin
 TimeMark('g');
-ApplyCU(f,c,x,t,n-1,longint(n div 2));
+ApplyFastUComboW(f,c,x,t,n-1,longint(n div 2),1);
 wn0:=(longint(n)+31) shr 5;
 if (longint(n) and 31)=0 then mask0:=$FFFFFFFF else mask0:=(LongWord(1) shl (longint(n) and 31))-1;
 GeneMat:=true;
@@ -1222,6 +1517,8 @@ bp:=CreateBMP(m,m);
 QueryPerformanceFrequency(perfFreq);
 QueryPerformanceCounter(lastCounter);
 hasLastCounter:=false;
+InitMul8;
+InitUKernel8;
 {$ifdef disp}
 for n:=1 to m do
 {$else}

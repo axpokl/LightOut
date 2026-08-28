@@ -5,8 +5,8 @@ program diandeng;
 {$optimization on}
 {$inline on}
 
-{ H42: convert A(U)+H*B(U) to a Laurent kernel, then use exact fast convolution. }
-{ NTT gives O(n log n); small Boolean products retain Karatsuba to reduce constants. }
+{ H42: fast Laurent-kernel construction followed by exact GF(2) Karatsuba. }
+{ A and B use the same 256-bit leaf size and the same three-product recursion. }
 
 {$ifdef disp}
 uses Windows, display;
@@ -16,17 +16,9 @@ uses Windows;
 const m=100000;
 {$endif}
 
-const nttMod:LongWord=998244353;
-const nttRoot:LongWord=3;
-const nttR:LongWord=301989884;
-const nttR2:LongWord=932051910;
-const nttSwitch=4096;
-
 type TVec=array[-2..m]of boolean;
      PVec=^TVec;
      TDynBool=array of boolean;
-     TModArray=array of LongWord;
-     TIntArray=array of longint;
 
 var n:longword;
 var i,j:longint;
@@ -37,12 +29,7 @@ var hk:longint;
 var o,ho:boolean;
 var perfFreq,lastCounter:Int64;
 var hasLastCounter:boolean;
-var uBasis8:array[0..7,0..28] of boolean;
-var nttPrime:LongWord;
-var nttRoots:TModArray;
-var nttRev:TIntArray;
-var nttA,nttB:TModArray;
-var nttCacheN:longint;
+var uKernel8:array[0..255,0..28] of boolean;
 
 {$ifdef disp}
 var bb:pbitbuf;
@@ -529,37 +516,48 @@ while true do
   end;
 end;
 
-procedure KarMul(const a,b:TDynBool; var r:TDynBool; len:longint);
+procedure KarRec(const a:TDynBool; ao:longint; const b:TDynBool; bo:longint;
+                 var r:TDynBool; ro,len:longint; var work:TDynBool; wo:longint);
 const cut=256;
-var i0,j0,h:longint;
-var a0,a1,b0,b1,ax,bx,z0,z1,z2:TDynBool;
+var i0,j0,h,ax0,bx0,z10,save0,rec0:longint;
+var s2:boolean;
 begin
-SetLength(r,len shl 1);
 if len<=cut then
   begin
-  for i0:=0 to len-1 do if a[i0] then
-    for j0:=0 to len-1 do if b[j0] then r[i0+j0]:=not r[i0+j0];
+  for i0:=0 to len-1 do if a[ao+i0] then
+    for j0:=0 to len-1 do if b[bo+j0] then
+      r[ro+i0+j0]:=not r[ro+i0+j0];
   exit;
   end;
 h:=len shr 1;
-SetLength(a0,h); SetLength(a1,h); SetLength(b0,h); SetLength(b1,h);
-SetLength(ax,h); SetLength(bx,h);
+KarRec(a,ao,b,bo,r,ro,h,work,wo);
+KarRec(a,ao+h,b,bo+h,r,ro+(h shl 1),h,work,wo);
+ax0:=wo; bx0:=wo+h; z10:=wo+(h shl 1); save0:=wo+(h shl 2); rec0:=save0+h;
 for i0:=0 to h-1 do
   begin
-  a0[i0]:=a[i0]; a1[i0]:=a[i0+h]; ax[i0]:=a0[i0] xor a1[i0];
-  b0[i0]:=b[i0]; b1[i0]:=b[i0+h]; bx[i0]:=b0[i0] xor b1[i0];
+  work[ax0+i0]:=a[ao+i0] xor a[ao+h+i0];
+  work[bx0+i0]:=b[bo+i0] xor b[bo+h+i0];
   end;
-KarMul(a0,b0,z0,h);
-KarMul(a1,b1,z2,h);
-KarMul(ax,bx,z1,h);
+for i0:=0 to (h shl 1)-1 do work[z10+i0]:=false;
+KarRec(work,ax0,work,bx0,work,z10,h,work,rec0);
+for i0:=0 to h-1 do work[save0+i0]:=r[ro+(h shl 1)+i0];
+for i0:=(h shl 1)-1 downto 0 do r[ro+h+i0]:=r[ro+h+i0] xor r[ro+i0];
 for i0:=0 to (h shl 1)-1 do
   begin
-  r[i0]:=r[i0] xor z0[i0];
-  r[i0+h]:=r[i0+h] xor z0[i0] xor z1[i0] xor z2[i0];
-  r[i0+(h shl 1)]:=r[i0+(h shl 1)] xor z2[i0];
+  if i0<h then s2:=work[save0+i0] else s2:=r[ro+(h shl 1)+i0];
+  r[ro+h+i0]:=r[ro+h+i0] xor s2 xor work[z10+i0];
   end;
 end;
 
+procedure KarMul(const a,b:TDynBool; var r:TDynBool; len:longint);
+var work:TDynBool;
+var i0:longint;
+begin
+SetLength(r,len shl 1);
+for i0:=0 to High(r) do r[i0]:=false;
+SetLength(work,len*6);
+KarRec(a,0,b,0,r,0,len,work,0);
+end;
 procedure BuildUKernel(const coeff:TVec; first,count,degmax:longint; var r:TDynBool);
 var h,i0,center,subcenter:longint;
 var lo,hi:TDynBool;
@@ -592,18 +590,36 @@ ToggleShift(h shl 1);
 end;
 
 procedure InitUKernel8;
-var j0,p0:longint;
+var a0,j0,p0:longint;
+var basis,nextBasis:array[0..28] of boolean;
 begin
-for j0:=0 to 7 do for p0:=0 to 28 do uBasis8[j0,p0]:=false;
-uBasis8[0,14]:=true;
-for j0:=1 to 7 do
-  for p0:=0 to 28 do if uBasis8[j0-1,p0] then
+for a0:=0 to 255 do
+  begin
+  for p0:=0 to 28 do
     begin
-    if p0>=2 then uBasis8[j0,p0-2]:=not uBasis8[j0,p0-2];
-    if p0>=1 then uBasis8[j0,p0-1]:=not uBasis8[j0,p0-1];
-    if p0<=27 then uBasis8[j0,p0+1]:=not uBasis8[j0,p0+1];
-    if p0<=26 then uBasis8[j0,p0+2]:=not uBasis8[j0,p0+2];
+    uKernel8[a0,p0]:=false;
+    basis[p0]:=false;
     end;
+  basis[14]:=true;
+  for j0:=0 to 7 do
+    begin
+    if ((a0 shr j0) and 1)<>0 then
+      for p0:=0 to 28 do if basis[p0] then
+        uKernel8[a0,p0]:=not uKernel8[a0,p0];
+    if j0<7 then
+      begin
+      for p0:=0 to 28 do nextBasis[p0]:=false;
+      for p0:=0 to 28 do if basis[p0] then
+        begin
+        if p0>=2 then nextBasis[p0-2]:=not nextBasis[p0-2];
+        if p0>=1 then nextBasis[p0-1]:=not nextBasis[p0-1];
+        if p0<=27 then nextBasis[p0+1]:=not nextBasis[p0+1];
+        if p0<=26 then nextBasis[p0+2]:=not nextBasis[p0+2];
+        end;
+      for p0:=0 to 28 do basis[p0]:=nextBasis[p0];
+      end;
+    end;
+  end;
 end;
 
 procedure ClearBoolRange(var a:TDynBool; p0,len:longint); inline;
@@ -622,14 +638,16 @@ end;
 procedure BuildUKernelRecFast(const coeff:TVec; first,count,degmax:longint;
                               var dst:TDynBool; dst0:longint;
                               var work:TDynBool; work0:longint);
-var h,childBits,j0,p0:longint;
+var h,childBits,j0,p0,a0:longint;
 begin
 ClearBoolRange(dst,dst0,(count shl 2)-3);
 if count=8 then
   begin
+  a0:=0;
   for j0:=0 to 7 do if (first+j0<=degmax) and coeff[first+j0] then
-    for p0:=0 to 28 do if uBasis8[j0,p0] then
-      dst[dst0+p0]:=not dst[dst0+p0];
+    a0:=a0 or (1 shl j0);
+  for p0:=0 to 28 do if uKernel8[a0,p0] then
+    dst[dst0+p0]:=not dst[dst0+p0];
   exit;
   end;
 h:=count shr 1;
@@ -654,119 +672,6 @@ SetLength(r,bits);
 SetLength(work,count shl 2);
 BuildUKernelRecFast(coeff,0,count,degmax,r,0,work,0);
 center:=(count shl 1)-2;
-end;
-
-function NTTMontMul(a,b:LongWord):LongWord; inline;
-var t,mn,sl,u:QWord;
-var mm:LongWord;
-begin
-t:=QWord(a)*b;
-mm:=LongWord(QWord(LongWord(t))*nttPrime);
-mn:=QWord(mm)*nttMod;
-sl:=QWord(LongWord(t))+LongWord(mn);
-u:=(t shr 32)+(mn shr 32)+(sl shr 32);
-if u>=nttMod then u:=u-nttMod;
-NTTMontMul:=LongWord(u);
-end;
-
-function NTTModPow(a,e:LongWord):LongWord;
-var r0:QWord;
-begin
-r0:=1;
-while e<>0 do
-  begin
-  if (e and 1)<>0 then r0:=(r0*a) mod nttMod;
-  a:=(QWord(a)*a) mod nttMod;
-  e:=e shr 1;
-  end;
-NTTModPow:=LongWord(r0);
-end;
-
-function NTTToMont(a:LongWord):LongWord; inline;
-begin
-NTTToMont:=NTTMontMul(a,nttR2);
-end;
-
-procedure InitNTT;
-var x0:LongWord;
-var k0:longint;
-begin
-x0:=nttMod;
-for k0:=1 to 5 do x0:=LongWord(QWord(x0)*(2-LongWord(QWord(nttMod)*x0)));
-nttPrime:=0-x0;
-nttCacheN:=0;
-end;
-
-procedure PrepareNTT(nn:longint);
-var i0,j0:longint;
-var base:LongWord;
-begin
-if nttCacheN=nn then exit;
-nttCacheN:=nn;
-SetLength(nttRoots,nn); SetLength(nttRev,nn);
-base:=NTTToMont(NTTModPow(nttRoot,(nttMod-1) div nn));
-nttRoots[0]:=nttR;
-for i0:=1 to nn-1 do nttRoots[i0]:=NTTMontMul(nttRoots[i0-1],base);
-nttRev[0]:=0;
-for i0:=1 to nn-1 do
-  begin
-  j0:=nttRev[i0 shr 1] shr 1;
-  if (i0 and 1)<>0 then j0:=j0 or (nn shr 1);
-  nttRev[i0]:=j0;
-  end;
-end;
-
-procedure NTTTransform(var a:TModArray; invert:boolean);
-var nn,i0,j0,len0,half,k0,step,ri:longint;
-var u0,v0,tmp,invn:LongWord;
-begin
-nn:=Length(a); PrepareNTT(nn);
-for i0:=1 to nn-1 do
-  begin
-  j0:=nttRev[i0];
-  if i0<j0 then begin tmp:=a[i0]; a[i0]:=a[j0]; a[j0]:=tmp; end;
-  end;
-len0:=2;
-while len0<=nn do
-  begin
-  half:=len0 shr 1; step:=nn div len0; i0:=0;
-  while i0<nn do
-    begin
-    for k0:=0 to half-1 do
-      begin
-      u0:=a[i0+k0]; ri:=k0*step;
-      if invert and (ri<>0) then ri:=nn-ri;
-      v0:=NTTMontMul(a[i0+k0+half],nttRoots[ri]);
-      if u0+v0>=nttMod then a[i0+k0]:=u0+v0-nttMod else a[i0+k0]:=u0+v0;
-      if u0>=v0 then a[i0+k0+half]:=u0-v0 else a[i0+k0+half]:=u0+nttMod-v0;
-      end;
-    inc(i0,len0);
-    end;
-  len0:=len0 shl 1;
-  end;
-if invert then
-  begin
-  invn:=NTTToMont(NTTModPow(nn,nttMod-2));
-  for i0:=0 to nn-1 do a[i0]:=NTTMontMul(a[i0],invn);
-  end;
-end;
-
-procedure NTTMulBool(const a,b:TDynBool; var r:TDynBool; bitLen:longint);
-var nn,i0:longint;
-begin
-nn:=bitLen shl 1;
-PrepareNTT(nn);
-SetLength(nttA,nn); SetLength(nttB,nn);
-for i0:=0 to nn-1 do
-  begin
-  if (i0<Length(a)) and a[i0] then nttA[i0]:=nttR else nttA[i0]:=0;
-  if (i0<Length(b)) and b[i0] then nttB[i0]:=nttR else nttB[i0]:=0;
-  end;
-NTTTransform(nttA,false); NTTTransform(nttB,false);
-for i0:=0 to nn-1 do nttA[i0]:=NTTMontMul(nttA[i0],nttB[i0]);
-NTTTransform(nttA,true);
-SetLength(r,nn);
-for i0:=0 to nn-1 do r[i0]:=(NTTMontMul(nttA[i0],1) and 1)<>0;
 end;
 
 procedure AddCircularKernel(var dst:TDynBool; const src:TDynBool; center,shift,period:longint);
@@ -809,8 +714,7 @@ for i0:=0 to hi do if vsrc[i0] then
   src[i0+1]:=not src[i0+1];
   src[period-i0-1]:=not src[period-i0-1];
   end;
-if pad>=nttSwitch then NTTMulBool(kernel,src,prod,pad)
-else KarMul(kernel,src,prod,pad);
+KarMul(kernel,src,prod,pad);
 for i0:=0 to hi do
   begin
   p:=i0+1;
@@ -1062,13 +966,6 @@ else
 r0:=rU*2;
 TimeMark('z');
 ApplyFastUCombo(qu,qv,y,z,n-1,longint(n div 2),0);
-{$ifdef verifyfast}
-if n=9900 then
-  begin
-  ApplyBezoutU(qu,qv,y,v,n-1,longint(n div 2));
-  for i:=0 to n-1 do if z[i]<>v[i] then halt(42);
-  end;
-{$endif}
 TimeMark('d');
 if r0=0 then
   begin
@@ -1137,17 +1034,9 @@ end;
 
 function GeneMat():boolean;
 var t:TVec;
-{$ifdef verifyfast}var told:TVec;{$endif}
 begin
 TimeMark('g');
 ApplyFastUCombo(f,c,x,t,n-1,longint(n div 2),1);
-{$ifdef verifyfast}
-if n=9900 then
-  begin
-  ApplyCU(f,c,x,told,n-1,longint(n div 2));
-  for i:=0 to n-1 do if t[i]<>told[i] then halt(43);
-  end;
-{$endif}
 GeneMat:=true;
 for i:=0 to n-1 do GeneMat:=GeneMat and (t[i]=y[i]);
 write(GeneMat);
@@ -1163,7 +1052,6 @@ QueryPerformanceFrequency(perfFreq);
 QueryPerformanceCounter(lastCounter);
 hasLastCounter:=false;
 InitUKernel8;
-InitNTT;
 {$ifdef disp}
 for n:=1 to m do
 {$else}

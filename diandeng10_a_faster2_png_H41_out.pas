@@ -21,6 +21,7 @@ var hf,hf1,hc,hc1:TVec;
 var k:longint;
 var hk:longint;
 var o,ho:boolean;
+var uKernel8:array[0..255,0..28] of boolean;
 
 {$ifdef disp}
 var bb:pbitbuf;
@@ -548,6 +549,222 @@ while true do
   end;
 end;
 
+type TDynBool=array of boolean;
+
+procedure KarRec(const a:TDynBool; ao:longint; const b:TDynBool; bo:longint;
+                 var r:TDynBool; ro,len:longint; var work:TDynBool; wo:longint);
+const cut=256;
+var i0,j0,h,ax0,bx0,z10,save0,rec0:longint;
+var s2:boolean;
+begin
+if len<=cut then
+  begin
+  for i0:=0 to len-1 do if a[ao+i0] then
+    for j0:=0 to len-1 do if b[bo+j0] then
+      r[ro+i0+j0]:=not r[ro+i0+j0];
+  exit;
+  end;
+h:=len shr 1;
+KarRec(a,ao,b,bo,r,ro,h,work,wo);
+KarRec(a,ao+h,b,bo+h,r,ro+(h shl 1),h,work,wo);
+ax0:=wo; bx0:=wo+h; z10:=wo+(h shl 1); save0:=wo+(h shl 2); rec0:=save0+h;
+for i0:=0 to h-1 do
+  begin
+  work[ax0+i0]:=a[ao+i0] xor a[ao+h+i0];
+  work[bx0+i0]:=b[bo+i0] xor b[bo+h+i0];
+  end;
+for i0:=0 to (h shl 1)-1 do work[z10+i0]:=false;
+KarRec(work,ax0,work,bx0,work,z10,h,work,rec0);
+for i0:=0 to h-1 do work[save0+i0]:=r[ro+(h shl 1)+i0];
+for i0:=(h shl 1)-1 downto 0 do r[ro+h+i0]:=r[ro+h+i0] xor r[ro+i0];
+for i0:=0 to (h shl 1)-1 do
+  begin
+  if i0<h then s2:=work[save0+i0] else s2:=r[ro+(h shl 1)+i0];
+  r[ro+h+i0]:=r[ro+h+i0] xor s2 xor work[z10+i0];
+  end;
+end;
+
+procedure KarMul(const a,b:TDynBool; var r:TDynBool; len:longint);
+var work:TDynBool;
+var i0:longint;
+begin
+SetLength(r,len shl 1);
+for i0:=0 to High(r) do r[i0]:=false;
+SetLength(work,len*6);
+KarRec(a,0,b,0,r,0,len,work,0);
+end;
+procedure BuildUKernel(const coeff:TVec; first,count,degmax:longint; var r:TDynBool);
+var h,i0,center,subcenter:longint;
+var lo,hi:TDynBool;
+
+procedure ToggleShift(shift:longint);
+var p:longint;
+begin
+for p:=0 to High(hi) do if hi[p] then
+  r[center+(p-subcenter)+shift]:=not r[center+(p-subcenter)+shift];
+end;
+
+begin
+if count=1 then
+  begin
+  SetLength(r,1);
+  if first<=degmax then r[0]:=coeff[first];
+  exit;
+  end;
+h:=count shr 1;
+BuildUKernel(coeff,first,h,degmax,lo);
+BuildUKernel(coeff,first+h,h,degmax,hi);
+SetLength(r,(count shl 2)-3);
+center:=(count shl 1)-2;
+subcenter:=(h shl 1)-2;
+for i0:=0 to High(lo) do if lo[i0] then r[center+(i0-subcenter)]:=true;
+ToggleShift(-(h shl 1));
+ToggleShift(-h);
+ToggleShift(h);
+ToggleShift(h shl 1);
+end;
+
+procedure InitUKernel8;
+var a0,j0,p0:longint;
+var basis,nextBasis:array[0..28] of boolean;
+begin
+for a0:=0 to 255 do
+  begin
+  for p0:=0 to 28 do
+    begin
+    uKernel8[a0,p0]:=false;
+    basis[p0]:=false;
+    end;
+  basis[14]:=true;
+  for j0:=0 to 7 do
+    begin
+    if ((a0 shr j0) and 1)<>0 then
+      for p0:=0 to 28 do if basis[p0] then
+        uKernel8[a0,p0]:=not uKernel8[a0,p0];
+    if j0<7 then
+      begin
+      for p0:=0 to 28 do nextBasis[p0]:=false;
+      for p0:=0 to 28 do if basis[p0] then
+        begin
+        if p0>=2 then nextBasis[p0-2]:=not nextBasis[p0-2];
+        if p0>=1 then nextBasis[p0-1]:=not nextBasis[p0-1];
+        if p0<=27 then nextBasis[p0+1]:=not nextBasis[p0+1];
+        if p0<=26 then nextBasis[p0+2]:=not nextBasis[p0+2];
+        end;
+      for p0:=0 to 28 do basis[p0]:=nextBasis[p0];
+      end;
+    end;
+  end;
+end;
+
+procedure ClearBoolRange(var a:TDynBool; p0,len:longint); inline;
+var k0:longint;
+begin
+for k0:=p0 to p0+len-1 do a[k0]:=false;
+end;
+
+procedure XorBoolRange(var dst:TDynBool; dst0:longint;
+                       const src:TDynBool; src0,len:longint); inline;
+var k0:longint;
+begin
+for k0:=0 to len-1 do if src[src0+k0] then dst[dst0+k0]:=not dst[dst0+k0];
+end;
+
+procedure BuildUKernelRecFast(const coeff:TVec; first,count,degmax:longint;
+                              var dst:TDynBool; dst0:longint;
+                              var work:TDynBool; work0:longint);
+var h,childBits,j0,p0,a0:longint;
+begin
+ClearBoolRange(dst,dst0,(count shl 2)-3);
+if count=8 then
+  begin
+  a0:=0;
+  for j0:=0 to 7 do if (first+j0<=degmax) and coeff[first+j0] then
+    a0:=a0 or (1 shl j0);
+  for p0:=0 to 28 do if uKernel8[a0,p0] then
+    dst[dst0+p0]:=not dst[dst0+p0];
+  exit;
+  end;
+h:=count shr 1;
+childBits:=(h shl 2)-3;
+BuildUKernelRecFast(coeff,first,h,degmax,dst,dst0+(h shl 1),work,work0);
+BuildUKernelRecFast(coeff,first+h,h,degmax,work,work0,work,work0+childBits);
+XorBoolRange(dst,dst0,work,work0,childBits);
+XorBoolRange(dst,dst0+h,work,work0,childBits);
+XorBoolRange(dst,dst0+h*3,work,work0,childBits);
+XorBoolRange(dst,dst0+(h shl 2),work,work0,childBits);
+end;
+
+procedure BuildUKernelFast(const coeff:TVec; degmax:longint;
+                           var r:TDynBool; var center:longint);
+var count,bits:longint;
+var work:TDynBool;
+begin
+count:=8;
+while count<=degmax do count:=count shl 1;
+bits:=(count shl 2)-3;
+SetLength(r,bits);
+SetLength(work,count shl 2);
+BuildUKernelRecFast(coeff,0,count,degmax,r,0,work,0);
+center:=(count shl 1)-2;
+end;
+
+
+procedure AddCircularKernel(var dst:TDynBool; const src:TDynBool; center,shift,period:longint);
+var i0,p:longint;
+begin
+for i0:=0 to High(src) do if src[i0] then
+  begin
+  p:=(i0-center+shift) mod period;
+  if p<0 then inc(p,period);
+  dst[p]:=not dst[p];
+  end;
+end;
+
+procedure ApplyFastUCombo(const va,vb,vsrc:TVec; var vdst:TVec; hi,degmax,mode:longint);
+var period,pad,i0,p,center:longint;
+var ka,kb,kernel,src,prod:TDynBool;
+begin
+period:=(hi+2) shl 1;
+pad:=1;
+while pad<period do pad:=pad shl 1;
+BuildUKernelFast(va,degmax,ka,center);
+BuildUKernelFast(vb,degmax,kb,center);
+SetLength(kernel,pad);
+if mode=0 then
+  begin
+  AddCircularKernel(kernel,kb,center,0,period);
+  AddCircularKernel(kernel,ka,center,-1,period);
+  AddCircularKernel(kernel,ka,center,1,period);
+  end
+else
+  begin
+  AddCircularKernel(kernel,ka,center,0,period);
+  AddCircularKernel(kernel,kb,center,0,period);
+  AddCircularKernel(kernel,kb,center,-1,period);
+  AddCircularKernel(kernel,kb,center,1,period);
+  end;
+SetLength(src,pad);
+for i0:=0 to hi do if vsrc[i0] then
+  begin
+  src[i0+1]:=not src[i0+1];
+  src[period-i0-1]:=not src[period-i0-1];
+  end;
+KarMul(kernel,src,prod,pad);
+for i0:=0 to hi do
+  begin
+  p:=i0+1;
+  vdst[i0]:=false;
+  while p<=High(prod) do
+    begin
+    vdst[i0]:=vdst[i0] xor prod[p];
+    inc(p,period);
+    end;
+  end;
+vdst[-2]:=false; vdst[-1]:=false; vdst[hi+1]:=false;
+end;
+
+
 procedure ApplyPolyU(const va,vsrc:TVec; var vdst:TVec; hi,degmax:longint);
 var cur0,cur1:TVec;
 var pcur,pnxt,pt:PVec;
@@ -788,7 +1005,7 @@ write('V ');for i:=0 to n div 2 do if qv[i] then write(1) else write(0);writeln;
 write('G ');for i:=0 to n div 2 do if gu[i] then write(1) else write(0);writeln;
 for i:=-1 to n do v[i]:=y[i];
 write('y ');for i:=0 to n-1 do if v[i] then write(1) else write(0);writeln;
-ApplyBezoutU(qu,qv,y,z,n-1,longint(n div 2));
+ApplyFastUCombo(qu,qv,y,z,n-1,longint(n div 2),0);
 if r0=0 then
   for i:=0 to n-1 do x[i]:=z[i]
 else
@@ -896,6 +1113,7 @@ CreateWin(m,m);
 bb:=CreateBB(GetWin());
 bp:=CreateBMP(m,m);
 {$endif}
+InitUKernel8;
 for n:=1 to 20 do
   begin
   writeln('#',n);

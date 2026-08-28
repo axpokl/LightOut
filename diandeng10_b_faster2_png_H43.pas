@@ -4,8 +4,8 @@ program diandeng;
 {$optimization on}
 {$inline on}
 
-{ H43: the same Laurent-kernel and exact NTT algorithm as A for every n. }
-{ Only GF(2) storage and access are packed into LongWord. }
+{ H43: the same Laurent-kernel and Karatsuba algorithm as A. }
+{ LongWord storage changes only the representation of each 256-bit leaf. }
 
 {$ifdef disp}
 uses Windows, display;
@@ -17,16 +17,11 @@ const m=100000;
 
 const wb=32;
 const mw=(m+wb-1)div wb;
-const nttMod:LongWord=998244353;
-const nttRoot:LongWord=3;
-const nttR:LongWord=301989884;
-const nttR2:LongWord=932051910;
 
 type TVec=array[-2..mw]of LongWord;
      PVec=^TVec;
      TWordArray=array of LongWord;
-     TModArray=array of LongWord;
-     TIntArray=array of longint;
+     TMul8Table=array[0..65535] of Word;
 
 var n:longword;
 var i,j:longint;
@@ -43,12 +38,8 @@ var nMask:LongWord;
 var nWord:longint;
 var ones:TVec;
 var v1,v2:TVec;
+var mul8:TMul8Table;
 var uKernel8:array[0..255] of LongWord;
-var nttPrime:LongWord;
-var nttRoots:TModArray;
-var nttRev:TIntArray;
-var nttA,nttB:TModArray;
-var nttCacheN:longint;
 
 {$ifdef disp}
 var bb:pbitbuf;
@@ -870,6 +861,40 @@ for j2:=0 to d do
 MaskDeg(vdst,hi);
 end;
 
+function CLMul8(a,b:LongWord):LongWord; inline;
+begin
+CLMul8:=mul8[(a shl 8) or b];
+end;
+
+function CLMul16(a,b:LongWord):LongWord; inline;
+var z0,z1,z2:LongWord;
+begin
+z0:=CLMul8(a and $FF,b and $FF);
+z2:=CLMul8(a shr 8,b shr 8);
+z1:=CLMul8((a xor (a shr 8)) and $FF,(b xor (b shr 8)) and $FF);
+CLMul16:=z0 xor ((z0 xor z1 xor z2) shl 8) xor (z2 shl 16);
+end;
+
+function CLMul32(a,b:LongWord):QWord; inline;
+var z0,z1,z2:LongWord;
+begin
+z0:=CLMul16(a and $FFFF,b and $FFFF);
+z2:=CLMul16(a shr 16,b shr 16);
+z1:=CLMul16((a xor (a shr 16)) and $FFFF,(b xor (b shr 16)) and $FFFF);
+CLMul32:=QWord(z0) xor (QWord(z0 xor z1 xor z2) shl 16) xor (QWord(z2) shl 32);
+end;
+
+procedure InitMul8;
+var a0,b0,k0,r0:longint;
+begin
+for a0:=0 to 255 do for b0:=0 to 255 do
+  begin
+  r0:=0;
+  for k0:=0 to 7 do if ((b0 shr k0) and 1)<>0 then r0:=r0 xor (a0 shl k0);
+  mul8[(a0 shl 8) or b0]:=r0;
+  end;
+end;
+
 procedure InitUKernel8;
 var a0,j0:longint;
 var p0,k0:QWord;
@@ -887,137 +912,52 @@ for a0:=0 to 255 do
   end;
 end;
 
-function NTTMontMul(a,b:LongWord):LongWord; inline;
-var t,mn,sl,u:QWord;
-var mm:LongWord;
+procedure KarRecW(const a:TWordArray; ao:longint; const b:TWordArray; bo:longint;
+                  var r:TWordArray; ro,len:longint; var work:TWordArray; wo:longint);
+const cut=8;
+var i0,j0,h,ax0,bx0,z10,save0,rec0:longint;
+var p0:QWord;
+var s2:LongWord;
 begin
-t:=QWord(a)*b;
-mm:=LongWord(QWord(LongWord(t))*nttPrime);
-mn:=QWord(mm)*nttMod;
-sl:=QWord(LongWord(t))+LongWord(mn);
-u:=(t shr 32)+(mn shr 32)+(sl shr 32);
-if u>=nttMod then u:=u-nttMod;
-NTTMontMul:=LongWord(u);
-end;
-
-function NTTModPow(a,e:LongWord):LongWord;
-var r0:QWord;
-begin
-r0:=1;
-while e<>0 do
+if len<=cut then
   begin
-  if (e and 1)<>0 then r0:=(r0*a) mod nttMod;
-  a:=(QWord(a)*a) mod nttMod;
-  e:=e shr 1;
-  end;
-NTTModPow:=LongWord(r0);
-end;
-
-function NTTToMont(a:LongWord):LongWord; inline;
-begin
-NTTToMont:=NTTMontMul(a,nttR2);
-end;
-
-procedure InitNTT;
-var x0:LongWord;
-var k0:longint;
-begin
-x0:=nttMod;
-for k0:=1 to 5 do x0:=LongWord(QWord(x0)*(2-LongWord(QWord(nttMod)*x0)));
-nttPrime:=0-x0;
-nttCacheN:=0;
-end;
-
-procedure PrepareNTT(nn:longint);
-var i0,j0,bits:longint;
-var base:LongWord;
-begin
-if nttCacheN=nn then exit;
-nttCacheN:=nn;
-SetLength(nttRoots,nn); SetLength(nttRev,nn);
-base:=NTTToMont(NTTModPow(nttRoot,(nttMod-1) div nn));
-nttRoots[0]:=nttR;
-for i0:=1 to nn-1 do nttRoots[i0]:=NTTMontMul(nttRoots[i0-1],base);
-bits:=0; i0:=nn;
-while i0>1 do begin inc(bits); i0:=i0 shr 1; end;
-nttRev[0]:=0;
-for i0:=1 to nn-1 do
-  begin
-  j0:=nttRev[i0 shr 1] shr 1;
-  if (i0 and 1)<>0 then j0:=j0 or (nn shr 1);
-  nttRev[i0]:=j0;
-  end;
-end;
-
-procedure NTTTransform(var a:TModArray; invert:boolean);
-var nn,i0,j0,len0,half,k0,step,ri:longint;
-var u0,v0,tmp,invn:LongWord;
-begin
-nn:=Length(a); PrepareNTT(nn);
-for i0:=1 to nn-1 do
-  begin
-  j0:=nttRev[i0];
-  if i0<j0 then begin tmp:=a[i0]; a[i0]:=a[j0]; a[j0]:=tmp; end;
-  end;
-len0:=2;
-while len0<=nn do
-  begin
-  half:=len0 shr 1;
-  step:=nn div len0;
-  i0:=0;
-  while i0<nn do
-    begin
-    for k0:=0 to half-1 do
+  for i0:=0 to len-1 do if a[ao+i0]<>0 then
+    for j0:=0 to len-1 do if b[bo+j0]<>0 then
       begin
-      u0:=a[i0+k0];
-      ri:=k0*step;
-      if invert and (ri<>0) then ri:=nn-ri;
-      v0:=NTTMontMul(a[i0+k0+half],nttRoots[ri]);
-      if u0+v0>=nttMod then a[i0+k0]:=u0+v0-nttMod else a[i0+k0]:=u0+v0;
-      if u0>=v0 then a[i0+k0+half]:=u0-v0 else a[i0+k0+half]:=u0+nttMod-v0;
+      p0:=CLMul32(a[ao+i0],b[bo+j0]);
+      r[ro+i0+j0]:=r[ro+i0+j0] xor LongWord(p0);
+      r[ro+i0+j0+1]:=r[ro+i0+j0+1] xor LongWord(p0 shr 32);
       end;
-    inc(i0,len0);
-    end;
-  len0:=len0 shl 1;
+  exit;
   end;
-if invert then
+h:=len shr 1;
+KarRecW(a,ao,b,bo,r,ro,h,work,wo);
+KarRecW(a,ao+h,b,bo+h,r,ro+(h shl 1),h,work,wo);
+ax0:=wo; bx0:=wo+h; z10:=wo+(h shl 1); save0:=wo+(h shl 2); rec0:=save0+h;
+for i0:=0 to h-1 do
   begin
-  invn:=NTTToMont(NTTModPow(nn,nttMod-2));
-  for i0:=0 to nn-1 do a[i0]:=NTTMontMul(a[i0],invn);
+  work[ax0+i0]:=a[ao+i0] xor a[ao+h+i0];
+  work[bx0+i0]:=b[bo+i0] xor b[bo+h+i0];
+  end;
+for i0:=0 to (h shl 1)-1 do work[z10+i0]:=0;
+KarRecW(work,ax0,work,bx0,work,z10,h,work,rec0);
+for i0:=0 to h-1 do work[save0+i0]:=r[ro+(h shl 1)+i0];
+for i0:=(h shl 1)-1 downto 0 do r[ro+h+i0]:=r[ro+h+i0] xor r[ro+i0];
+for i0:=0 to (h shl 1)-1 do
+  begin
+  if i0<h then s2:=work[save0+i0] else s2:=r[ro+(h shl 1)+i0];
+  r[ro+h+i0]:=r[ro+h+i0] xor s2 xor work[z10+i0];
   end;
 end;
 
-procedure NTTMulW(const a,b:TWordArray; var r:TWordArray; bitLen:longint);
-var nn,i0,w0,b0:longint;
-var q0:LongWord;
+procedure KarMulFastW(const a,b:TWordArray; var r:TWordArray; len:longint);
+var work:TWordArray;
+var i0:longint;
 begin
-nn:=bitLen shl 1;
-PrepareNTT(nn);
-SetLength(nttA,nn); SetLength(nttB,nn);
-for i0:=0 to nn-1 do begin nttA[i0]:=0; nttB[i0]:=0; end;
-for w0:=0 to High(a) do
-  begin
-  q0:=a[w0];
-  while q0<>0 do
-    begin
-    b0:=LowBit32(q0); nttA[(w0 shl 5)+b0]:=nttR; q0:=q0 and (q0-1);
-    end;
-  end;
-for w0:=0 to High(b) do
-  begin
-  q0:=b[w0];
-  while q0<>0 do
-    begin
-    b0:=LowBit32(q0); nttB[(w0 shl 5)+b0]:=nttR; q0:=q0 and (q0-1);
-    end;
-  end;
-NTTTransform(nttA,false); NTTTransform(nttB,false);
-for i0:=0 to nn-1 do nttA[i0]:=NTTMontMul(nttA[i0],nttB[i0]);
-NTTTransform(nttA,true);
-SetLength(r,(nn+31) shr 5);
-for w0:=0 to High(r) do r[w0]:=0;
-for i0:=0 to nn-1 do if (NTTMontMul(nttA[i0],1) and 1)<>0 then
-  r[i0 shr 5]:=r[i0 shr 5] or (LongWord(1) shl (i0 and 31));
+SetLength(r,len shl 1);
+for i0:=0 to High(r) do r[i0]:=0;
+SetLength(work,len*6);
+KarRecW(a,0,b,0,r,0,len,work,0);
 end;
 
 function LowMask32(bits:longint):LongWord; inline;
@@ -1158,9 +1098,9 @@ var q0,bit0:LongWord;
 var ka,kb,kernel,src,prod:TWordArray;
 begin
 period:=(hi+2) shl 1;
-pad:=1;
+pad:=32;
 while pad<period do pad:=pad shl 1;
-padw:=(pad+31) shr 5;
+padw:=pad shr 5;
 BuildUKernelFastW(va,degmax,ka,center);
 BuildUKernelFastW(vb,degmax,kb,center);
 SetLength(kernel,padw);
@@ -1195,7 +1135,7 @@ for w0:=0 to wn-1 do
     q0:=q0 and (q0-1);
     end;
   end;
-NTTMulW(kernel,src,prod,pad);
+KarMulFastW(kernel,src,prod,padw);
 VecZero(vdst);
 for i0:=0 to hi do
   begin
@@ -1579,8 +1519,8 @@ bp:=CreateBMP(m,m);
 QueryPerformanceFrequency(perfFreq);
 QueryPerformanceCounter(lastCounter);
 hasLastCounter:=false;
+InitMul8;
 InitUKernel8;
-InitNTT;
 {$ifdef disp}
 for n:=1 to m do
 {$else}
