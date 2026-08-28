@@ -2,8 +2,6 @@
 program diandeng;
 
 {$mode objfpc}{$H+}
-{$optimization on}
-{$inline on}
 
 { H42: fast Laurent-kernel construction followed by exact GF(2) Karatsuba. }
 { A and B use the same 256-bit leaf size and the same three-product recursion. }

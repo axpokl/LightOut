@@ -1,8 +1,6 @@
 //{$define disp}
 program diandeng;
 {$mode objfpc}{$H+}
-{$optimization on}
-{$inline on}
 
 { H42: the same Laurent-kernel and Karatsuba algorithm as A. }
 { LongWord storage changes only the representation of each 256-bit leaf. }

@@ -1,8 +1,6 @@
 //{$define disp}
 program diandeng;
 {$mode objfpc}{$H+}
-{$optimization on}
-{$inline on}
 
 {$ifdef disp}
 uses Windows, display;

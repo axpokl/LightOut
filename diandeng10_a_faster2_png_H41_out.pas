@@ -2,8 +2,6 @@
 program diandeng;
 
 {$mode objfpc}{$H+}
-{$optimization on}
-{$inline on}
 
 {$ifdef disp}
 uses display;

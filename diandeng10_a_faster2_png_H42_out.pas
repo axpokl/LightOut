@@ -2,8 +2,6 @@
 program diandeng;
 
 {$mode objfpc}{$H+}
-{$optimization on}
-{$inline on}
 
 { H42 debug/output build: fast Laurent kernel plus exact GF(2) Karatsuba. }
 
