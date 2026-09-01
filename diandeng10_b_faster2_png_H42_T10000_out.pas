@@ -1059,7 +1059,7 @@ begin
 if first>degmax then begin CoeffByte:=0; exit; end;
 keep:=degmax-first+1;
 if keep>8 then keep:=8;
-CoeffByte:=((coeff[first shr 5] shr (first and 31)) and $FF) and LowMask32(keep);
+CoeffByte:=((coeff[first shr 5] shr (first and 31)) and $FF) and ((LongWord(1) shl keep)-1);
 end;
 
 procedure BuildUKernelRec(const coeff:TVec; first,count,degmax:longint;

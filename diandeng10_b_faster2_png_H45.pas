@@ -1114,7 +1114,7 @@ if (b0<>0) and (w0<High(a)) then r0:=r0 xor (a[w0+1] shl (32-b0));
 ReadDyn32:=r0;
 end;
 
-function ReadDyn32Any(const a:TWordArray; bit0:longint):LongWord; inline;
+function ReadDyn32Any(const a:TWordArray; bit0:longint):LongWord;
 begin
 if bit0>=0 then ReadDyn32Any:=ReadDyn32(a,bit0)
 else if bit0<=-32 then ReadDyn32Any:=0
@@ -1156,7 +1156,7 @@ begin
 if first>degmax then begin CoeffByte:=0; exit; end;
 keep:=degmax-first+1;
 if keep>8 then keep:=8;
-CoeffByte:=((coeff[first shr 5] shr (first and 31)) and $FF) and LowMask32(keep);
+CoeffByte:=((coeff[first shr 5] shr (first and 31)) and $FF) and ((LongWord(1) shl keep)-1);
 end;
 
 procedure BuildUKernelRec(const coeff:TVec; first,count,degmax:longint;
