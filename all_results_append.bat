@@ -1,2 +1,2 @@
-for /L %%i in (50,1,54) do @(echo ===== diandeng10_b_faster2_png_H%%i.exe ===== & ".\diandeng10_b_faster2_png_H%%i.exe" & echo.) >> all_results_b.txt 2>&1
-for /L %%i in (50,1,54) do @(echo ===== diandeng10_a_faster2_png_H%%i.exe ===== & ".\diandeng10_a_faster2_png_H%%i.exe" & echo.) >> all_results_a.txt 2>&1
+for /L %%i in (54,1,55) do @(echo ===== diandeng10_b_faster2_png_H%%i.exe ===== & ".\diandeng10_b_faster2_png_H%%i.exe" & echo.) >> all_results_b.txt 2>&1
+for /L %%i in (54,1,55) do @(echo ===== diandeng10_a_faster2_png_H%%i.exe ===== & ".\diandeng10_a_faster2_png_H%%i.exe" & echo.) >> all_results_a.txt 2>&1
