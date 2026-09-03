@@ -348,12 +348,15 @@ procedure BuildYFast(var dy_,dy:TVec; const sy_,sy_1,sy,sy1:TVec; deg:longint); 
 var ii:longint;
 begin
 dy_[-2]:=false; dy_[-1]:=false; dy[-2]:=false; dy[-1]:=false;
-for ii:=0 to deg do
+for ii:=0 to deg-1 do
   begin
   dy_[ii]:=sy_[ii-1] xor sy_[ii] xor sy_[ii+1] xor sy_1[ii];
   dy[ii]:=not(sy[ii-2] xor sy[ii-1] xor sy[ii] xor sy1[ii-2] xor
               dy_[ii] xor sy_1[ii-1]);
   end;
+dy_[deg]:=sy_[deg-1] xor sy_[deg];
+dy[deg]:=not(sy[deg-2] xor sy[deg-1] xor sy[deg] xor sy1[deg-2] xor
+             dy_[deg] xor sy_1[deg-1]);
 dy_[deg+1]:=false;
 dy[deg+1]:=false;
 end;

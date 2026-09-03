@@ -348,8 +348,9 @@ procedure BuildYFast(var dy_,dy:TVec; const sy_,sy_1,sy,sy1:TVec; deg:longint); 
 var ii,half:longint;
 begin
 dy_[-2]:=false; dy_[-1]:=false; dy[-2]:=false; dy[-1]:=false;
-for ii:=0 to deg do
+for ii:=0 to deg-1 do
   dy_[ii]:=sy_[ii-1] xor sy_[ii] xor sy_[ii+1] xor sy_1[ii];
+dy_[deg]:=sy_[deg-1] xor sy_[deg];
 half:=deg div 2;
 for ii:=0 to half do
   begin
