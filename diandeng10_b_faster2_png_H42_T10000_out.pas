@@ -1672,27 +1672,40 @@ WriteFullBMPAndCheck:=GeneMatCheckOnly();
 end;
 
 var ok:boolean;
-var bw:TBmp1Writer;
+var bw,bw1000:TBmp1Writer;
+var progress:Text;
+var outDir:ansistring;
 begin
-ForceDirectories('png_b_T10000');
+outDir:=IncludeTrailingPathDelimiter(ExtractFilePath(ExpandFileName(ParamStr(0)))+'png_b_H42_T10000');
+ForceDirectories(outDir);
+Assign(progress,'CON'); Rewrite(progress);
+Assign(Output,'NUL'); Rewrite(Output);
 QueryPerformanceFrequency(perfFreq);
 QueryPerformanceCounter(lastCounter);
 hasLastCounter:=false;
 InitMul8;
 InitUKernel8;
 
-BMP1Open(bw,'png_b_T10000/1-10000.bmp',summaryN,summaryN);
+BMP1Open(bw,outDir+'1-10000.bmp',summaryN,summaryN);
+BMP1Open(bw1000,outDir+'1-1000.bmp',1000,1000);
 for n:=1 to summaryN do
   begin
   PrepN;
-  write(n,#9);
+  writeln(progress,n); Flush(progress);
   MakeMat();
   CalcMat2();
   BMP1WriteVecRow(bw,x,n);
+  if n<=1000 then BMP1WriteVecRow(bw1000,x,n);
   ok:=GeneMatCheckOnly();
   writeln(ok);
+  if n=1000 then
+    begin
+    BMP1Close(bw1000);
+    ok:=WriteFullBMPAndCheck(outDir+'1000.bmp');
+    writeln(n,#9,'full',#9,ok);
+    end;
   end;
 BMP1Close(bw);
-ok:=WriteFullBMPAndCheck('png_b_T10000/10000.bmp');
+ok:=WriteFullBMPAndCheck(outDir+'10000.bmp');
 writeln(fullN,#9,'full',#9,ok);
 end.
