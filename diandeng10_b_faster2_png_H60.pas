@@ -2,8 +2,8 @@
 program diandeng;
 {$mode objfpc}{$H+}
 
-{ H60: lift GCD/Bezout through every consecutive odd Fibonacci level. }
-{ A and B use the same operations; only Boolean/LongWord storage differs. }
+{ H60: use allocation-free iterative Fibonacci doubling for F/C. }
+{ A and B use the same recurrences; B evaluates Y prefix windows wordwise. }
 
 {$ifdef disp}
 uses Windows, display;
@@ -393,6 +393,103 @@ CopyFCDynW(hf0,dhf,hhi); CopyFCDynW(hc0,dhc,hhi);
 CopyFCDynW(hf10,dhf1,hhi); CopyFCDynW(hc10,dhc1,hhi);
 end;
 
+procedure DoubleFCVecW(nn:longword; const af,ac,af1,ac1:TVec;
+                       var nf,nc,nf1,nc1:TVec; srcHi:longint);
+var w0,ow,hi0,srcWords,outWords:longint;
+var saf,sac,saf1,sac1,sef,soc,vf,vc,vf1,vc1:QWord;
+var mask0:LongWord;
+begin
+hi0:=longint(nn div 2);
+srcWords:=(srcHi shr 5)+1;
+outWords:=(hi0 shr 5)+1;
+for w0:=0 to srcWords-1 do
+  begin
+  ow:=w0 shl 1;
+  saf:=SpreadBits32(af[w0]); sac:=SpreadBits32(ac[w0]);
+  saf1:=SpreadBits32(af1[w0]); sac1:=SpreadBits32(ac1[w0]);
+  if (nn and 1)=0 then
+    begin
+    sef:=saf xor saf1; soc:=sac xor sac1;
+    vf:=sef xor (soc shl 1);
+    vc:=soc;
+    vf1:=sac1 shl 1;
+    vc1:=(saf1 xor sac1) xor (sac1 shl 1);
+    end
+  else
+    begin
+    vf:=sac shl 1;
+    vc:=(saf xor sac) xor (sac shl 1);
+    vf1:=(saf xor saf1) xor ((sac xor sac1) shl 1);
+    vc1:=sac xor sac1;
+    end;
+  if ow<outWords then
+    begin
+    nf[ow]:=LongWord(vf); nc[ow]:=LongWord(vc);
+    nf1[ow]:=LongWord(vf1); nc1[ow]:=LongWord(vc1);
+    end;
+  if ow+1<outWords then
+    begin
+    nf[ow+1]:=LongWord(vf shr 32); nc[ow+1]:=LongWord(vc shr 32);
+    nf1[ow+1]:=LongWord(vf1 shr 32); nc1[ow+1]:=LongWord(vc1 shr 32);
+    end;
+  end;
+mask0:=DegMask(hi0);
+nf[outWords-1]:=nf[outWords-1] and mask0;
+nc[outWords-1]:=nc[outWords-1] and mask0;
+nf1[outWords-1]:=nf1[outWords-1] and mask0;
+nc1[outWords-1]:=nc1[outWords-1] and mask0;
+nf[-2]:=0; nf[-1]:=0; if outWords<=mw then nf[outWords]:=0;
+nc[-2]:=0; nc[-1]:=0; if outWords<=mw then nc[outWords]:=0;
+nf1[-2]:=0; nf1[-1]:=0; if outWords<=mw then nf1[outWords]:=0;
+nc1[-2]:=0; nc1[-1]:=0; if outWords<=mw then nc1[outWords]:=0;
+end;
+
+procedure BuildFCPairsIterW(nn:longword; var nf,nc,nf1,nc1,hf0,hc0,hf10,hc10:TVec);
+var pf,pc,pf1,pc1,pnf,pnc,pnf1,pnc1,pt:PVec;
+var halfN,curN,targetN,bitMask,t0:longword;
+var levels,curHi:longint;
+begin
+halfN:=nn div 2;
+levels:=0; t0:=halfN;
+while t0<>0 do
+  begin
+  inc(levels);
+  t0:=t0 shr 1;
+  end;
+if (levels and 1)=0 then
+  begin
+  pf:=@hf0; pc:=@hc0; pf1:=@hf10; pc1:=@hc10;
+  pnf:=@nf; pnc:=@nc; pnf1:=@nf1; pnc1:=@nc1;
+  end
+else
+  begin
+  pf:=@nf; pc:=@nc; pf1:=@nf1; pc1:=@nc1;
+  pnf:=@hf0; pnc:=@hc0; pnf1:=@hf10; pnc1:=@hc10;
+  end;
+pf^[0]:=1; pc^[0]:=0; pf1^[0]:=0; pc1^[0]:=0;
+curN:=0; curHi:=0;
+if halfN=0 then bitMask:=0
+else
+  begin
+  bitMask:=1;
+  while bitMask<=(halfN shr 1) do bitMask:=bitMask shl 1;
+  end;
+while bitMask<>0 do
+  begin
+  targetN:=curN shl 1;
+  if (halfN and bitMask)<>0 then inc(targetN);
+  DoubleFCVecW(targetN,pf^,pc^,pf1^,pc1^,pnf^,pnc^,pnf1^,pnc1^,curHi);
+  pt:=pf; pf:=pnf; pnf:=pt;
+  pt:=pc; pc:=pnc; pnc:=pt;
+  pt:=pf1; pf1:=pnf1; pnf1:=pt;
+  pt:=pc1; pc1:=pnc1; pnc1:=pt;
+  curN:=targetN;
+  curHi:=longint(curN div 2);
+  bitMask:=bitMask shr 1;
+  end;
+DoubleFCVecW(nn,pf^,pc^,pf1^,pc1^,pnf^,pnc^,pnf1^,pnc1^,curHi);
+end;
+
 {$ifdef disp}
 procedure SaveMat(s:ansistring);
 begin
@@ -412,7 +509,7 @@ var yp,yq:TVec;
 var w0,lastW:longint;
 begin
 if not warming then TimeMark('m');
-BuildFCPairsFastW(n,f,c,f1,c1,hf,hc,hf1,hc1);
+BuildFCPairsIterW(n,f,c,f1,c1,hf,hc,hf1,hc1);
 VecZero(yp); VecZero(yq);
 lastW:=longint(n div 2) shr 5;
 for w0:=0 to lastW do
@@ -1518,7 +1615,7 @@ end;
 
 { Mode-1 action on an all-one source: interval prefix XOR replaces Karatsuba. }
 procedure ApplyUComboOnesW(const va,vb:TVec; var vdst:TVec; hi,degmax:longint);
-var halfLen,period,convWords,lastWord,center,keep,p,i0,w0,lo,hi0:longint;
+var halfLen,period,convWords,lastWord,center,keep,p,w0,take:longint;
 var combo,ha,prod,prefix:TWordArray;
 var bit0,q0,carry:LongWord;
 begin
@@ -1547,25 +1644,37 @@ for w0:=0 to lastWord do
   end;
 if keep<32 then prefix[lastWord]:=prefix[lastWord] and LowMask32(keep);
 SetLength(prod,(period shr 5)+1);
-for p:=0 to period do
+p:=0;
+while p<halfLen-1 do
   begin
-  lo:=p-(halfLen-1); if lo<0 then lo:=0;
-  hi0:=p-1; if hi0>halfLen then hi0:=halfLen;
-  if lo<=hi0 then
-    begin
-    bit0:=DynBit(prefix,hi0);
-    if lo>0 then bit0:=bit0 xor DynBit(prefix,lo-1);
-    if bit0<>0 then prod[p shr 5]:=prod[p shr 5] or (LongWord(1) shl (p and 31));
-    end;
+  take:=halfLen-1-p; if take>32 then take:=32;
+  q0:=ReadDyn32(prefix,p) and LowMask32(take);
+  XorDyn32(prod,p+1,q0);
+  inc(p,take);
   end;
-VecZero(vdst);
-for i0:=0 to hi do
+bit0:=DynBit(prefix,halfLen-1) xor DynBit(prefix,0);
+if bit0<>0 then XorDyn32(prod,halfLen,1);
+bit0:=DynBit(prefix,halfLen);
+p:=0;
+while p<halfLen-1 do
   begin
-  p:=i0+1;
-  bit0:=DynBit(prod,p) xor DynBit(prod,period-p) xor
-        DynBit(prod,halfLen-p) xor DynBit(prod,halfLen+p) xor
-        DynBit(ha,0) xor DynBit(ha,halfLen);
-  if bit0<>0 then vdst[i0 shr 5]:=vdst[i0 shr 5] or (LongWord(1) shl (i0 and 31));
+  take:=halfLen-1-p; if take>32 then take:=32;
+  q0:=ReadDyn32(prefix,p+1) and LowMask32(take);
+  if bit0<>0 then q0:=q0 xor LowMask32(take);
+  XorDyn32(prod,halfLen+1+p,q0);
+  inc(p,take);
+  end;
+lastWord:=hi shr 5;
+bit0:=DynBit(ha,0) xor DynBit(ha,halfLen);
+for w0:=0 to lastWord do
+  begin
+  p:=w0 shl 5;
+  q0:=ReadDyn32(prod,p+1) xor
+      ReadDyn32Reverse(prod,period-p-1) xor
+      ReadDyn32Reverse(prod,halfLen-p-1) xor
+      ReadDyn32(prod,halfLen+p+1);
+  if bit0<>0 then q0:=not q0;
+  vdst[w0]:=q0;
   end;
 MaskDeg(vdst,hi);
 end;
@@ -1705,154 +1814,82 @@ end;
 
 function BuildOddGUV(const ma,mb,mg,mu,mv:TVec; var gu,qu,qv:TVec; hi,srcHi:longint; extra:boolean):boolean;
 var tu,tv:TVec;
-var w0,ow,srcWords,outWords:longint;
-var smg,stu,stv,vg,vu,vv:QWord;
+var p,dg,du,dv,s:longint;
 begin
 VecZero(gu);
 VecZero(qu);
 VecZero(qv);
-VecCopyDeg(tu,mu,srcHi); MaskDeg(tu,srcHi);
-VecCopyDeg(tv,mv,srcHi); MaskDeg(tv,srcHi);
-srcWords:=(srcHi shr 5)+1;
-if (not extra) and (((tu[0] xor tv[0]) and 1)<>0) then
+VecCopy(tu,mu); MaskDeg(tu,srcHi);
+VecCopy(tv,mv); MaskDeg(tv,srcHi);
+if (not extra) and ((GetBit(tu,0) xor GetBit(tv,0))<>0) then
   begin
-  for w0:=0 to srcWords-1 do
-    begin
-    tu[w0]:=tu[w0] xor mb[w0];
-    tv[w0]:=tv[w0] xor ma[w0];
-    end;
-  MaskDeg(tu,srcHi);
-  MaskDeg(tv,srcHi);
+  VecXorEq(tu,mb); MaskDeg(tu,srcHi);
+  VecXorEq(tv,ma); MaskDeg(tv,srcHi);
   end;
-if (not extra) and (((tu[0] xor tv[0]) and 1)<>0) then
+if (not extra) and ((GetBit(tu,0) xor GetBit(tv,0))<>0) then
   begin
   BuildOddGUV:=false;
   exit;
   end;
-for w0:=0 to srcWords-1 do
-  begin
-  ow:=w0 shl 1;
-  smg:=SpreadBits32(mg[w0]);
-  stu:=SpreadBits32(tu[w0]);
-  stv:=SpreadBits32(tv[w0]);
-  if extra then
+dg:=TopBitLE(mg,srcHi);
+if dg>=0 then
+  for p:=0 to dg do if GetBit(mg,p)<>0 then
     begin
-    vg:=smg shl 1;
-    vu:=(stu xor stv) xor (stu shl 1);
-    vv:=stu shl 1;
-    end
-  else
-    begin
-    vg:=smg;
-    vu:=(stu xor stv) xor (stu shl 1);
-    vv:=stu;
+    s:=p shl 1;
+    if extra then inc(s);
+    if s<=hi then SetBit(gu,s,GetBit(gu,s) xor 1);
     end;
-  gu[ow]:=LongWord(vg);
-  qu[ow]:=LongWord(vu);
-  qv[ow]:=LongWord(vv);
-  if ow+1<=mw then
-    begin
-    gu[ow+1]:=LongWord(vg shr 32);
-    qu[ow+1]:=LongWord(vu shr 32);
-    qv[ow+1]:=LongWord(vv shr 32);
-    end;
-  end;
-if not extra then
+du:=TopBitLE(tu,srcHi);
+dv:=TopBitLE(tv,srcHi);
+if extra then
   begin
-  if (qu[0] and 1)<>0 then
+  if du>=0 then
+    for p:=0 to du do if GetBit(tu,p)<>0 then
+      begin
+      s:=p shl 1;
+      if s<=hi then SetBit(qu,s,GetBit(qu,s) xor 1);
+      if s+1<=hi then
+        begin
+        SetBit(qu,s+1,GetBit(qu,s+1) xor 1);
+        SetBit(qv,s+1,GetBit(qv,s+1) xor 1);
+        end;
+      end;
+  if dv>=0 then
+    for p:=0 to dv do if GetBit(tv,p)<>0 then
+      begin
+      s:=p shl 1;
+      if s<=hi then SetBit(qu,s,GetBit(qu,s) xor 1);
+      end;
+  end
+else
+  begin
+  if du>=0 then
+    for p:=0 to du do if GetBit(tu,p)<>0 then
+      begin
+      s:=p shl 1;
+      if s<=hi+1 then SetBit(qu,s,GetBit(qu,s) xor 1);
+      if s+1<=hi+1 then SetBit(qu,s+1,GetBit(qu,s+1) xor 1);
+      if s<=hi then SetBit(qv,s,GetBit(qv,s) xor 1);
+      end;
+  if dv>=0 then
+    for p:=0 to dv do if GetBit(tv,p)<>0 then
+      begin
+      s:=p shl 1;
+      if s<=hi+1 then SetBit(qu,s,GetBit(qu,s) xor 1);
+      end;
+  if GetBit(qu,0)<>0 then
     begin
     BuildOddGUV:=false;
     exit;
     end;
-  outWords:=(hi shr 5)+1;
-  for w0:=0 to outWords-1 do
-    qu[w0]:=(qu[w0] shr 1) or (qu[w0+1] shl 31);
+  for p:=0 to hi do SetBit(qu,p,GetBit(qu,p+1));
+  SetBit(qu,hi+1,0);
+  MaskDeg(qu,hi);
   end;
 MaskDeg(gu,hi);
 MaskDeg(qu,hi);
 MaskDeg(qv,hi);
 BuildOddGUV:=true;
-end;
-
-procedure DoubleOddAB(const ma,mb:TVec; var na,nb:TVec; srcHi,targetHi:longint);
-var w0,ow,srcWords:longint;
-var sma,smb,va,vb:QWord;
-begin
-VecZero(na);
-VecZero(nb);
-srcWords:=(srcHi shr 5)+1;
-for w0:=0 to srcWords-1 do
-  begin
-  ow:=w0 shl 1;
-  sma:=SpreadBits32(ma[w0]);
-  smb:=SpreadBits32(mb[w0]);
-  va:=smb shl 1;
-  vb:=sma xor smb xor (smb shl 1);
-  na[ow]:=LongWord(va);
-  nb[ow]:=LongWord(vb);
-  if ow+1<=mw then
-    begin
-    na[ow+1]:=LongWord(va shr 32);
-    nb[ow+1]:=LongWord(vb shr 32);
-    end;
-  end;
-MaskDeg(na,targetHi);
-MaskDeg(nb,targetHi);
-end;
-
-function BuildOddChainGUV(var gu,qu,qv:TVec; finalHi:longint):boolean;
-var ca,cb,na,nb,tg,tu,tv:TVec;
-var da,db,da1,db1:TWordArray;
-var pca,pcb,pna,pnb,pg,pu,pv,png,pnu,pnv,pt:PVec;
-var curN,targetN,curHi,targetHi,levels,step:longint;
-begin
-curN:=longint(n);
-levels:=0;
-while (curN and 1)<>0 do
-  begin
-  curN:=curN shr 1;
-  inc(levels);
-  end;
-BuildFCDynW(curN,da,db,da1,db1);
-curHi:=curN div 2;
-CopyFCDynW(ca,da,curHi);
-CopyFCDynW(cb,db,curHi);
-GcdU(ca,cb,gu,qu,qv,curHi);
-pca:=@ca; pcb:=@cb; pna:=@na; pnb:=@nb;
-pg:=@gu; pu:=@qu; pv:=@qv;
-png:=@tg; pnu:=@tu; pnv:=@tv;
-for step:=1 to levels do
-  begin
-  targetN:=(curN shl 1)+1;
-  targetHi:=curN;
-  if not BuildOddGUV(pca^,pcb^,pg^,pu^,pv^,png^,pnu^,pnv^,
-                     targetHi,curHi,(curN mod 3)=2) then
-    begin
-    BuildOddChainGUV:=false;
-    exit;
-    end;
-  pt:=pg; pg:=png; png:=pt;
-  pt:=pu; pu:=pnu; pnu:=pt;
-  pt:=pv; pv:=pnv; pnv:=pt;
-  if step<levels then
-    begin
-    DoubleOddAB(pca^,pcb^,pna^,pnb^,curHi,targetHi);
-    pt:=pca; pca:=pna; pna:=pt;
-    pt:=pcb; pcb:=pnb; pnb:=pt;
-    end;
-  curN:=targetN;
-  curHi:=targetHi;
-  end;
-if pg<>@gu then
-  begin
-  VecCopyDeg(gu,pg^,finalHi);
-  VecCopyDeg(qu,pu^,finalHi);
-  VecCopyDeg(qv,pv^,finalHi);
-  MaskDeg(gu,finalHi);
-  MaskDeg(qu,finalHi);
-  MaskDeg(qv,finalHi);
-  end;
-BuildOddChainGUV:=true;
 end;
 
 procedure CalcMat2;
@@ -1949,22 +1986,12 @@ if (n and 1)=0 then
 else
   begin
   m2:=longint(n div 2);
-  if (m2 and 1)<>0 then
-    begin
-    if BuildOddChainGUV(gu,qu,qv,longint(n div 2)) then
-      rU:=TopBitLE(gu,longint(n div 2))
-    else
-      rU:=GcdU(f,c,gu,qu,qv,longint(n div 2));
-    end
+  hiS:=m2 div 2;
+  rr:=GcdU(hf,hc,hu,su,sv,hiS);
+  if BuildOddGUV(hf,hc,hu,su,sv,gu,qu,qv,longint(n div 2),hiS,(m2 mod 3)=2) then
+    rU:=TopBitLE(gu,longint(n div 2))
   else
-    begin
-    hiS:=m2 div 2;
-    rr:=GcdU(hf,hc,hu,su,sv,hiS);
-    if BuildOddGUV(hf,hc,hu,su,sv,gu,qu,qv,longint(n div 2),hiS,(m2 mod 3)=2) then
-      rU:=TopBitLE(gu,longint(n div 2))
-    else
-      rU:=GcdU(f,c,gu,qu,qv,longint(n div 2));
-    end;
+    rU:=GcdU(f,c,gu,qu,qv,longint(n div 2));
   end;
 r0:=rU*2;
 TimeMark('z');
