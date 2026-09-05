@@ -1,58 +1,31 @@
-//{$define disp}
+{$define disp}
 program diandeng;
 
 {$mode objfpc}{$H+}
 
 { H60: use allocation-free iterative Fibonacci doubling for F/C. }
 { A and B use the same recurrences; B evaluates Y prefix windows wordwise. }
-{ A and B use the same operations; only Boolean/LongWord storage differs. }
 
 {$ifdef disp}
-uses Windows, display;
-const m=1000;
-{$else}
-uses Windows, SysUtils;
-const m=100000;
+uses display;
 {$endif}
+
+const m=2000;
 
 type TVec=array[-2..m]of boolean;
      PVec=^TVec;
      TFCBool=array of boolean;
-     TBmpFileHeader=packed record bfType:Word; bfSize:LongWord; bfReserved1:Word; bfReserved2:Word; bfOffBits:LongWord; end;
-     TBmpInfoHeader=packed record biSize:LongWord; biWidth:LongInt; biHeight:LongInt; biPlanes:Word; biBitCount:Word; biCompression:LongWord; biSizeImage:LongWord; biXPelsPerMeter:LongInt; biYPelsPerMeter:LongInt; biClrUsed:LongWord; biClrImportant:LongWord; end;
-     TRGBQuad=packed record b,g,r,a:Byte; end;
-     TByteArray=array of Byte;
-     TBmp1Writer=record f:File; width,height,rowRaw,rowPad:LongInt; rowBuf:TByteArray; end;
 
 var n:longword;
 var i,j:longint;
 var x,y,f,f1,c,c1:TVec;
 var hf,hf1,hc,hc1:TVec;
 var uKernel8:array[0..255,0..28] of boolean;
-var perfFreq,lastCounter:Int64;
-var hasLastCounter:boolean;
 
 {$ifdef disp}
 var bb:pbitbuf;
 var bp:pbitmap;
 {$endif}
-
-function TimeMark(ch:char):Double;
-var c:Int64;
-var ms:Double;
-begin
-  QueryPerformanceCounter(c);
-  if not hasLastCounter then
-  begin
-    ms:=0;
-    hasLastCounter:=true;
-  end
-  else
-    ms:=(c-lastCounter)*1000.0/perfFreq;
-  lastCounter:=c;
-  TimeMark:=ms;
-  write(ms:8:3,#9,ch);
-end;
 
 {$ifdef disp}
 procedure SaveMat(s:ansistring);
@@ -564,13 +537,14 @@ procedure ApplyUComboOnes(const va,vb:TVec; var vdst:TVec; hi,degmax:longint); f
 procedure MakeMat();
 var yp,yq:TVec;
 begin
-TimeMark('m');
 BuildFCPairsIter(n,f,c,f1,c1,hf,hc,hf1,hc1);
 VecZeroHi(yp,longint(n div 2));
 VecZeroHi(yq,longint(n div 2));
 for i:=0 to longint(n div 2)-1 do yq[i]:=f[i+1] xor f1[i+1];
 for i:=0 to longint(n div 2) do yp[i]:=c[i] xor c1[i] xor yq[i];
 ApplyUComboOnes(yp,yq,y,n-1,longint(n div 2));
+write('A ');for i:=0 to n div 2 do if f[i] then write(1) else write(0);writeln;
+write('B ');for i:=0 to n div 2 do if c[i] then write(1) else write(0);writeln;
 end;
 
 procedure RecoverBezoutU(const va,vb,vg,vv:TVec; var vu:TVec; hi:longint); forward;
@@ -1403,7 +1377,7 @@ var sa,sb,hu,su,sv:TVec;
 var v,z:TVec;
 var g0,g1,g2:TVec;
 var pg0,pg1,pg2,pt:PVec;
-var i0,r0,rU,jmax,target,high:longint;
+var i0,r0,rU,kk,jmax,target,high:longint;
 var m2,hiS,rr,du,dv:longint;
 
 procedure DivMonicBlock(var rem:TVec; const divisor:TVec;
@@ -1437,8 +1411,6 @@ while dq>=0 do
   end;
 end;
 begin
-TimeMark('c');
-TimeMark('q');
 if (n and 1)=0 then
   begin
   m2:=longint(n div 2);
@@ -1475,17 +1447,21 @@ else
     rU:=GcdU(f,c,gu,qu,qv,longint(n div 2));
   end;
 r0:=rU*2;
-TimeMark('z');
+writeln('gcd',#9,r0,#9);
+write('U ');for i:=0 to n div 2 do if qu[i] then write(1) else write(0);writeln;
+write('V ');for i:=0 to n div 2 do if qv[i] then write(1) else write(0);writeln;
+write('G ');for i:=0 to n div 2 do if gu[i] then write(1) else write(0);writeln;
+for i:=-1 to n do v[i]:=y[i];
+write('y ');for i:=0 to n-1 do if v[i] then write(1) else write(0);writeln;
 ApplyFastUCombo(qu,qv,y,z,n-1,longint(n div 2),0);
-TimeMark('d');
 if r0=0 then
-  begin
-  for i:=0 to n-1 do x[i]:=z[i];
-  end
+  for i:=0 to n-1 do x[i]:=z[i]
 else
 begin
-TimeMark('x');
+write('z ');for i:=0 to n-1 do if z[i] then write(1) else write(0);writeln;
 ApplyPolyU0(gu,g0,n-1,rU);
+writeln('d');
+write(0,#9);for i:=0 to n-1 do if g0[i] then write(1) else write(0);writeln;
 pg1:=@g0; pg2:=@g1; pg0:=@g2;
 VecZeroHi(pg2^,longint(n)); VecZeroHi(pg0^,longint(n));
 for i:=0 to n-1 do x[i]:=false;
@@ -1504,7 +1480,9 @@ if jmax>=0 then
 
   if jmax>=r0 then
     begin
+    write('K ');for kk:=0 to r0 shl 1 do if pg1^[kk] then write(1) else write(0);writeln;
     DivMonicBlock(z,pg1^,v,longint(n)-1,r0 shl 1);
+    write('Q ');for kk:=0 to jmax-r0 do if v[kk] then write(1) else write(0);writeln;
     for i:=0 to jmax-r0 do x[i+r0]:=v[i];
     end;
 
@@ -1528,83 +1506,49 @@ if jmax>=0 then
     end;
   end;
 end;
+write('x ');for i:=0 to n-1 do if x[i] then write(1) else write(0);writeln;
 end;
 
-procedure BMP1Open(var bw:TBmp1Writer; const fn:ansistring; width,height:LongInt);
-var fh:TBmpFileHeader; ih:TBmpInfoHeader; pal0,pal1:TRGBQuad;
+function GeneMat():boolean;
+var x2,x1,x0:TVec;
 begin
-bw.width:=width; bw.height:=height; bw.rowRaw:=(width+7) div 8; bw.rowPad:=(bw.rowRaw+3) and not 3;
-SetLength(bw.rowBuf,bw.rowPad); Assign(bw.f,fn); Rewrite(bw.f,1);
-fh.bfType:=$4D42; fh.bfOffBits:=SizeOf(fh)+SizeOf(ih)+2*SizeOf(TRGBQuad); fh.bfReserved1:=0; fh.bfReserved2:=0; fh.bfSize:=fh.bfOffBits+LongWord(bw.rowPad)*LongWord(height);
-ih.biSize:=SizeOf(ih); ih.biWidth:=width; ih.biHeight:=-height; ih.biPlanes:=1; ih.biBitCount:=1; ih.biCompression:=0; ih.biSizeImage:=LongWord(bw.rowPad)*LongWord(height); ih.biXPelsPerMeter:=3780; ih.biYPelsPerMeter:=3780; ih.biClrUsed:=2; ih.biClrImportant:=2;
-pal0.b:=255; pal0.g:=255; pal0.r:=255; pal0.a:=0; pal1.b:=0; pal1.g:=0; pal1.r:=0; pal1.a:=0;
-BlockWrite(bw.f,fh,SizeOf(fh)); BlockWrite(bw.f,ih,SizeOf(ih)); BlockWrite(bw.f,pal0,SizeOf(pal0)); BlockWrite(bw.f,pal1,SizeOf(pal1));
-end;
-
-procedure BMP1WriteVecRow(var bw:TBmp1Writer; const row:TVec; rowLen:LongInt);
-var xi,lim:LongInt;
-begin
-FillChar(bw.rowBuf[0],bw.rowPad,0); lim:=rowLen; if lim>bw.width then lim:=bw.width;
-for xi:=0 to lim-1 do if row[xi] then bw.rowBuf[xi shr 3]:=bw.rowBuf[xi shr 3] or (Byte(1) shl (7-(xi and 7)));
-BlockWrite(bw.f,bw.rowBuf[0],bw.rowPad);
-end;
-
-procedure BMP1Close(var bw:TBmp1Writer);
-begin Close(bw.f); SetLength(bw.rowBuf,0); end;
-
-function GeneMatCheckOnly():boolean;
-var t:TVec;
-begin
-ApplyFastUCombo(f,c,x,t,n-1,longint(n div 2),1);
-GeneMatCheckOnly:=true;
-for i:=0 to n-1 do GeneMatCheckOnly:=GeneMatCheckOnly and (t[i]=y[i]);
-end;
-
-function WriteFullBMPAndCheck(const fn:ansistring):boolean;
-var x2,x1,x0:TVec; bw:TBmp1Writer;
-begin
-BMP1Open(bw,fn,n,n);
 for i:=-2 to n do begin x2[i]:=false; x1[i]:=false; end;
 for i:=0 to n-1 do x1[i]:=x[i];
-BMP1WriteVecRow(bw,x1,n);
+{$ifdef disp}
+while IsNextMsg() do ;
+for i:=0 to n-1 do
+  if x1[i] then SetBBPixel(bb,i,0,black) else SetBBPixel(bb,i,0,white);
+{$endif}
 for j:=1 to n-1 do
   begin
   for i:=-2 to n do x0[i]:=false;
   for i:=0 to n-1 do x0[i]:=not(x1[i-1] xor x1[i] xor x1[i+1] xor x2[i]);
-  BMP1WriteVecRow(bw,x0,n);
+  {$ifdef disp}
+  for i:=0 to n-1 do
+    if x0[i] then SetBBPixel(bb,i,j,black) else SetBBPixel(bb,i,j,white);
+  {$endif}
   for i:=-2 to n do x2[i]:=x1[i];
   for i:=-2 to n do x1[i]:=x0[i];
   end;
-BMP1Close(bw);
-WriteFullBMPAndCheck:=true;
-for i:=0 to n-1 do WriteFullBMPAndCheck:=WriteFullBMPAndCheck and (x1[i-1] xor x1[i] xor x1[i+1] xor x2[i]);
+GeneMat:=true;
+for i:=0 to n-1 do GeneMat:=GeneMat and (x1[i-1] xor x1[i] xor x1[i+1] xor x2[i]);
+writeln(GeneMat);
 end;
 
-var ok:boolean;
-var bw,bw1000:TBmp1Writer;
-var progress:Text;
-var outDir:ansistring;
 begin
-outDir:=IncludeTrailingPathDelimiter(ExtractFilePath(ExpandFileName(ParamStr(0)))+'png_a_H60_T10000');
-ForceDirectories(outDir);
-Assign(progress,'CON'); Rewrite(progress);
-Assign(Output,'NUL'); Rewrite(Output);
-QueryPerformanceFrequency(perfFreq);
-QueryPerformanceCounter(lastCounter);
-hasLastCounter:=false;
+{$ifdef disp}
+CreateWin(m,m);
+bb:=CreateBB(GetWin());
+bp:=CreateBMP(m,m);
+{$endif}
 InitUKernel8;
-BMP1Open(bw,outDir+'1-10000.bmp',10000,10000);
-BMP1Open(bw1000,outDir+'1-1000.bmp',1000,1000);
-for n:=1 to 10000 do
+for n:=1 to 20 do
   begin
-  writeln(progress,n); Flush(progress);
+  writeln('#',n);
   MakeMat();
   CalcMat2();
-  BMP1WriteVecRow(bw,x,n);
-  if n<=1000 then BMP1WriteVecRow(bw1000,x,n);
-  ok:=GeneMatCheckOnly(); writeln(ok);
-  if n=1000 then begin BMP1Close(bw1000); ok:=WriteFullBMPAndCheck(outDir+'1000.bmp'); writeln(n,#9,'full',#9,ok); end;
+  GeneMat();{$ifdef disp}SaveMat('_T2');{$endif}
+  {$ifdef disp}if not(iswin()) then halt;{$endif}
+  writeln();
   end;
-BMP1Close(bw);
-ok:=WriteFullBMPAndCheck(outDir+'10000.bmp'); writeln(n,#9,'full',#9,ok);
 end.
