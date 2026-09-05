@@ -27,6 +27,7 @@ var x,y,f,f1,c,c1:TVec;
 var hf,hf1,hc,hc1:TVec;
 var perfFreq,lastCounter:Int64;
 var hasLastCounter:boolean;
+var warming:boolean;
 var wn:longint;
 var lastMask:LongWord;
 var nMask:LongWord;
@@ -410,7 +411,7 @@ procedure MakeMat();
 var yp,yq:TVec;
 var w0,lastW:longint;
 begin
-TimeMark('m');
+if not warming then TimeMark('m');
 BuildFCPairsFastW(n,f,c,f1,c1,hf,hc,hf1,hc1);
 VecZero(yp); VecZero(yq);
 lastW:=longint(n div 2) shr 5;
@@ -1966,6 +1967,13 @@ QueryPerformanceCounter(lastCounter);
 hasLastCounter:=false;
 InitMul8;
 InitUKernel8;
+warming:=true;
+{$ifdef disp}n:=m;{$else}n:=10000;{$endif}
+PrepN;
+MakeMat();
+warming:=false;
+QueryPerformanceCounter(lastCounter);
+hasLastCounter:=false;
 {$ifdef disp}
 for n:=1 to m do
 {$else}

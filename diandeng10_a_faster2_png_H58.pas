@@ -27,6 +27,7 @@ var o:boolean;
 var uKernel8:array[0..255,0..28] of boolean;
 var perfFreq,lastCounter:Int64;
 var hasLastCounter:boolean;
+var warming:boolean;
 
 {$ifdef disp}
 var bb:pbitbuf;
@@ -460,7 +461,7 @@ procedure MakeMat();
 var y2,y_2:TVec;
 var py,py1,py_,py_1,py2,py_2,pt:PVec;
 begin
-TimeMark('m');
+if not warming then TimeMark('m');
 if (not o) or (longint(n)<k) then
   begin
   VecZeroHi(y1,longint(n)); VecZeroHi(y,longint(n)); VecZeroHi(y_1,longint(n)); VecZeroHi(y_,longint(n));
@@ -1423,6 +1424,14 @@ QueryPerformanceFrequency(perfFreq);
 QueryPerformanceCounter(lastCounter);
 hasLastCounter:=false;
 InitUKernel8;
+warming:=true;
+{$ifdef disp}n:=m;{$else}n:=10000;{$endif}
+MakeMat();
+warming:=false;
+k:=0;
+o:=false;
+QueryPerformanceCounter(lastCounter);
+hasLastCounter:=false;
 {$ifdef disp}
 for n:=1 to m do
 {$else}

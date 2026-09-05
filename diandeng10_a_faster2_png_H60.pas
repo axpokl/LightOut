@@ -3,7 +3,7 @@ program diandeng;
 
 {$mode objfpc}{$H+}
 
-{ H59: build Y directly with its Fibonacci-sum polynomial. }
+{ H60: lift GCD/Bezout through every consecutive odd Fibonacci level. }
 { A and B use the same operations; only Boolean/LongWord storage differs. }
 
 {$ifdef disp}
@@ -1293,6 +1293,75 @@ else
 BuildOddGUV:=true;
 end;
 
+procedure DoubleOddAB(const ma,mb:TVec; var na,nb:TVec; srcHi,targetHi:longint);
+var p,s:longint;
+begin
+VecZeroHi(na,targetHi+1);
+VecZeroHi(nb,targetHi+1);
+for p:=0 to srcHi do
+  begin
+  s:=p shl 1;
+  nb[s]:=ma[p] xor mb[p];
+  if mb[p] and (s+1<=targetHi) then
+    begin
+    na[s+1]:=true;
+    nb[s+1]:=true;
+    end;
+  end;
+end;
+
+function BuildOddChainGUV(var gu,qu,qv:TVec; finalHi:longint):boolean;
+var ca,cb,na,nb,tg,tu,tv:TVec;
+var da,db,da1,db1:TFCBool;
+var pca,pcb,pna,pnb,pg,pu,pv,png,pnu,pnv,pt:PVec;
+var curN,targetN,curHi,targetHi,levels,step:longint;
+begin
+curN:=longint(n);
+levels:=0;
+while (curN and 1)<>0 do
+  begin
+  curN:=curN shr 1;
+  inc(levels);
+  end;
+BuildFCDyn(curN,da,db,da1,db1);
+curHi:=curN div 2;
+CopyFCDyn(ca,da,curHi);
+CopyFCDyn(cb,db,curHi);
+GcdU(ca,cb,gu,qu,qv,curHi);
+pca:=@ca; pcb:=@cb; pna:=@na; pnb:=@nb;
+pg:=@gu; pu:=@qu; pv:=@qv;
+png:=@tg; pnu:=@tu; pnv:=@tv;
+for step:=1 to levels do
+  begin
+  targetN:=(curN shl 1)+1;
+  targetHi:=curN;
+  if not BuildOddGUV(pca^,pcb^,pg^,pu^,pv^,png^,pnu^,pnv^,
+                     targetHi,curHi,(curN mod 3)=2) then
+    begin
+    BuildOddChainGUV:=false;
+    exit;
+    end;
+  pt:=pg; pg:=png; png:=pt;
+  pt:=pu; pu:=pnu; pnu:=pt;
+  pt:=pv; pv:=pnv; pnv:=pt;
+  if step<levels then
+    begin
+    DoubleOddAB(pca^,pcb^,pna^,pnb^,curHi,targetHi);
+    pt:=pca; pca:=pna; pna:=pt;
+    pt:=pcb; pcb:=pnb; pnb:=pt;
+    end;
+  curN:=targetN;
+  curHi:=targetHi;
+  end;
+if pg<>@gu then
+  begin
+  VecCopyHi(gu,pg^,finalHi);
+  VecCopyHi(qu,pu^,finalHi);
+  VecCopyHi(qv,pv^,finalHi);
+  end;
+BuildOddChainGUV:=true;
+end;
+
 procedure CalcMat2;
 var gu,qu,qv:TVec;
 var sa,sb,hu,su,sv:TVec;
@@ -1363,12 +1432,22 @@ if (n and 1)=0 then
 else
   begin
   m2:=longint(n div 2);
-  hiS:=m2 div 2;
-  rr:=GcdU(hf,hc,hu,su,sv,hiS);
-  if BuildOddGUV(hf,hc,hu,su,sv,gu,qu,qv,longint(n div 2),hiS,(m2 mod 3)=2) then
-    rU:=PolyDeg(gu,longint(n div 2))
+  if (m2 and 1)<>0 then
+    begin
+    if BuildOddChainGUV(gu,qu,qv,longint(n div 2)) then
+      rU:=PolyDeg(gu,longint(n div 2))
+    else
+      rU:=GcdU(f,c,gu,qu,qv,longint(n div 2));
+    end
   else
-    rU:=GcdU(f,c,gu,qu,qv,longint(n div 2));
+    begin
+    hiS:=m2 div 2;
+    rr:=GcdU(hf,hc,hu,su,sv,hiS);
+    if BuildOddGUV(hf,hc,hu,su,sv,gu,qu,qv,longint(n div 2),hiS,(m2 mod 3)=2) then
+      rU:=PolyDeg(gu,longint(n div 2))
+    else
+      rU:=GcdU(f,c,gu,qu,qv,longint(n div 2));
+    end;
   end;
 r0:=rU*2;
 TimeMark('z');
