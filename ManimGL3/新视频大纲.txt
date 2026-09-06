@@ -1,0 +1,13 @@
+只需要第一行，追光法验证n^2，多项式验证小
+空间复杂度，滚动计算
+f(H)=0，S和H调换，f/c，去除矩阵B，去除p，D
+z部分用e代替K
+总体流程（f/c/y，q/g，z/gen，x）
+f/c的算法
+y的旧公式（列出1-9），卷积
+Karatsuba 卷积
+Laurent 核构造（z/gen优化）
+half-gcd 分治、快速除法、求 Bézout 系数（q优化）
+AB代换f/c（u=1+t^2)
+秩r与u
+x的优化
