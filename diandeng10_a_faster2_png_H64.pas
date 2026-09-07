@@ -19,7 +19,7 @@ type TVec=array[-2..m]of boolean;
      TFCBool=array of boolean;
 
 var n:longword;
-var i,j:longint;
+var i:longint;
 var x,y,f,f1,c,c1:TVec;
 var hf,hf1,hc,hc1:TVec;
 var uKernel8:array[0..255,0..28] of boolean;

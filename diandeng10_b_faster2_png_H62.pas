@@ -200,7 +200,7 @@ else
   end;
 end;
 
-function DegMask(deg:longint):LongWord; inline;
+function DegMask(deg:longint):LongWord;
 var rem:longint;
 begin
 rem:=deg and 31;
@@ -1409,7 +1409,7 @@ while dq>=0 do
 MaskDeg(vu,hi);
 end;
 
-function LowMask32(bits:longint):LongWord; inline;
+function LowMask32(bits:longint):LongWord;
 begin
 if bits<=0 then LowMask32:=0
 else if bits>=32 then LowMask32:=$FFFFFFFF
@@ -1535,7 +1535,7 @@ if keep>8 then keep:=8;
 CoeffByte:=((coeff[first shr 5] shr (first and 31)) and $FF) and ((LongWord(1) shl keep)-1);
 end;
 
-function UKernel16(a0:LongWord):QWord; inline;
+function UKernel16(a0:LongWord):QWord;
 var q0:QWord;
 begin
 q0:=uKernel8[(a0 shr 8) and $FF];
@@ -1552,7 +1552,7 @@ if keep>32 then keep:=32;
 CoeffWord32:=coeff[first shr 5] and LowMask32(keep);
 end;
 
-procedure UKernel32(a0:LongWord; var lo,hi:QWord); inline;
+procedure UKernel32(a0:LongWord; var lo,hi:QWord);
 var q0,q1:QWord;
 begin
 q0:=UKernel16(a0 and $FFFF);
@@ -1572,7 +1572,7 @@ q[2]:=p1 xor (p3 shr 32) xor (p2 shr 32) xor (p3 shl 32) xor p2;
 q[3]:=(p3 shr 32) xor p3;
 end;
 
-procedure UKernel128(a0,a1,a2,a3:LongWord; var q:TQ8); inline;
+procedure UKernel128(a0,a1,a2,a3:LongWord; var q:TQ8);
 var p0,p1:TQ4;
 var k0:longint;
 begin
@@ -1589,7 +1589,7 @@ for k0:=0 to 3 do
   end;
 end;
 
-procedure UKernel256(const coeff:TVec; first,degmax:longint; var q:TQ16); inline;
+procedure UKernel256(const coeff:TVec; first,degmax:longint; var q:TQ16);
 var p0,p1:TQ8;
 var k0:longint;
 begin
@@ -1612,7 +1612,7 @@ for k0:=0 to 7 do
   end;
 end;
 
-procedure UKernel512(const coeff:TVec; first,degmax:longint; var q:TQ32); inline;
+procedure UKernel512(const coeff:TVec; first,degmax:longint; var q:TQ32);
 var p0,p1:TQ16;
 var k0:longint;
 begin
@@ -1947,7 +1947,7 @@ MaskDeg(vdst,hi);
 end;
 
 { Degree-bounded scratch operations for the q reduction chain. }
-procedure QMaskU(var a:TVec; hi:longint); inline;
+procedure QMaskU(var a:TVec; hi:longint);
 var w:longint;
 begin
 w:=hi shr 5; a[w]:=a[w] and DegMask(hi);
