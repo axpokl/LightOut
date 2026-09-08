@@ -16,6 +16,7 @@ gcd多项式长除法，求 Bézout 系数
 Laurent 核构造（z/gen优化），gen为什么可以用多项式加速
 U核边界卷积，循环嵌入，四镜像边界反射，半长卷积
 deg，g规律，秩亏r，旧回代法
+n=0,4时deg=r=n唯一，r其它规律
 z部分用e0代替K乘以g（带状）
 x的优化，固定Laurent核（U核），三角Toeplitz系统，快速三角除法
 Toom-Cook核（更多拆分Karatsuba核）
