@@ -22,4 +22,6 @@ x的优化，固定Laurent核（U核），三角Toeplitz系统，快速三角除
 Toom-Cook核（更多拆分Karatsuba核）
 FFT
 商环（F(H)=0）
+概念总结
 主定理时间复杂度，比较前后ab版各个阶段用时
+各阶段优化一览表（根据优化）
